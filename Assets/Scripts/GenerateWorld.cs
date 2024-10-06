@@ -17,13 +17,13 @@ public class GenerateWorld : MonoBehaviour
     {
         if (tilePrefab && tilePrefab.name == "Tile"){
              generateWorld();
-             //addRandomNations(1);
+             addRandomNations(1);
         }
     }
 
     void generateWorld(){
-        for (int x = 0; x <= worldSize.x; x++){
-            for (int y = 0; y <= worldSize.y; y++){
+        for (int x = 0; x < worldSize.x; x++){
+            for (int y = 0; y < worldSize.y; y++){
                 // Gets grid position of new tile
                 Vector2Int tilePos = new Vector2Int(x,y);
                 //print(tilePos);
@@ -32,7 +32,10 @@ public class GenerateWorld : MonoBehaviour
                 Tile newTile = Instantiate(tilePrefab);
                 Transform tileTransform = newTile.GetComponent<Transform>();
 
-                tileTransform.position = new Vector2(x - (worldSize.x/2),y - (worldSize.y/2));
+                // (worldSize.x/2) is to align tiles with center of camera
+                // 0.5f is to align tile with grid
+                tileTransform.position = new Vector2(x - (worldSize.x/2) - 0.5f, y - (worldSize.y/2) - 0.5f);
+
                 // Gives tiles a random color to check for overlaps
                 //newTile.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
                 tileTransform.SetParent(this.transform);
@@ -44,16 +47,22 @@ public class GenerateWorld : MonoBehaviour
 
     }
     void addRandomNations(int amount = 1){
-        for (int i = 0; i <= amount; i++){
+        for (int i = 0; i < amount; i++){
             Nation newNation = Instantiate(nationPrefab);
-            Tile selectedTile = tileDict[new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y))];
+            Vector2Int pos = new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y));
+            print(pos);
+            var selectedTile = tileDict[pos];
             print(selectedTile);
-            // while (!selectedTile.nation){
-            //     selectedTile = tileDict[new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y))];
-            // }
+
+            while (selectedTile.nation){
+                 selectedTile = tileDict[new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y))];
+            }
+
+            // Makes a random nation
             newNation.RandomizeNation();
+            // Makes the nation a child of NationHolder
             newNation.GetComponent<Transform>().SetParent(GameObject.FindWithTag("NationHolder").GetComponent<Transform>());
-                
+            // Sets the tile to the new nation
             selectedTile.nation = newNation;
         }
     }

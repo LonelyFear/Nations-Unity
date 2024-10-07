@@ -9,6 +9,7 @@ public class GenerateWorld : MonoBehaviour
     public Tile tilePrefab;
     public Nation nationPrefab;
     public Dictionary<Vector2Int, Tile> tileDict = new Dictionary<Vector2Int, Tile>();
+    public int randomNationCount = 1;
 
     [Header("World Generation Settings")]
     public Vector2Int worldSize = new Vector2Int(100, 100);
@@ -17,10 +18,10 @@ public class GenerateWorld : MonoBehaviour
     {
         if (tilePrefab && tilePrefab.name == "Tile"){
              generateWorld();
-             addRandomNations(1);
+             addRandomNations(randomNationCount);
+             GetComponent<WorldgenEvents>().worldgenFinish();
         }
     }
-
     void generateWorld(){
         for (int x = 0; x < worldSize.x; x++){
             for (int y = 0; y < worldSize.y; y++){
@@ -34,7 +35,7 @@ public class GenerateWorld : MonoBehaviour
 
                 // (worldSize.x/2) is to align tiles with center of camera
                 // 0.5f is to align tile with grid
-                tileTransform.position = new Vector2(x - (worldSize.x/2) - 0.5f, y - (worldSize.y/2) - 0.5f);
+                tileTransform.position = new Vector2(x - (worldSize.x/2) + 0.5f, y - (worldSize.y/2) + 0.5f);
 
                 // Gives tiles a random color to check for overlaps
                 //newTile.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
@@ -42,19 +43,31 @@ public class GenerateWorld : MonoBehaviour
                 
                 // Puts tile in grid
                 tileDict.Add(tilePos, newTile);
+
+                // Gives Tile its Grid Position
+                newTile.tilePos = tilePos;
+
+                // Subscribes tile to onWorldgenFinishEvent
+                WorldgenEvents.onWorldgenFinished += newTile.TileInit;
             }
         }
 
     }
     void addRandomNations(int amount = 1){
+        if (amount > worldSize.x * worldSize.y){
+            amount = worldSize.x * worldSize.y;
+        }
         for (int i = 0; i < amount; i++){
+            // Instantiates Nation
             Nation newNation = Instantiate(nationPrefab);
+            // Picks Random Position
             Vector2Int pos = new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y));
-            print(pos);
+            // Selects the tile at position
             var selectedTile = tileDict[pos];
-            print(selectedTile);
-
+            // Checks if the tile is neutral and not ocean
+            // NOTE: DO NOT PUT A ! IN FROM OF selectedTile OR GAME WONT LOAD
             while (selectedTile.nation){
+                // Picks a different tile if a nation cant be put there
                  selectedTile = tileDict[new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y))];
             }
 

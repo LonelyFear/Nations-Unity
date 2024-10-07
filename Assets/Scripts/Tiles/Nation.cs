@@ -1,15 +1,18 @@
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Nation : MonoBehaviour
 {
     public string nationName = "New Nation";
     public Color nationColor = Color.red;
-    public Tile[] tiles;
+    public List<Tile> tiles = new List<Tile>();
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-         print("Im a nation");
+
     }
 
     // Update is called once per frame

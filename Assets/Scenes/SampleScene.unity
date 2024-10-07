@@ -251,7 +251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 6806292650523771991, guid: fdb63895304df984b99ff2e40cc7037a, type: 3}
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
-  worldSize: {x: 24, y: 11}
+  worldSize: {x: 25, y: 11}
 --- !u!4 &184318060
 Transform:
   m_ObjectHideFlags: 0

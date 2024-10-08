@@ -15,13 +15,11 @@ public class Tile : MonoBehaviour
     public Dictionary<Vector2Int, Tile> borderingTiles = new Dictionary<Vector2Int, Tile>();
 
     public bool tileInitialized = false;
-
+    public bool justTaken = false;
     public bool interiorTile = false;
 
     public void TileInit()
     {
-        // Subscribes tile to day update
-        TimeEvents.dayUpdate += onDayUpdate;
         // Finds the world
         world = FindAnyObjectByType<GenerateWorld>();
         if (world != null){
@@ -68,6 +66,15 @@ public class Tile : MonoBehaviour
         }
     }
     public void onDayUpdate(){
-        
+        if (tileInitialized){
+            foreach (KeyValuePair<Vector2Int, Tile> index in borderingTiles){
+                Tile tile = index.Value;
+                if (nation && !tile.nation && !justTaken){
+                    tile.nation = nation;
+                    tile.justTaken = true;
+                }
+            }
+            justTaken = false;
+        } 
     }
 }

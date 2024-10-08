@@ -50,6 +50,8 @@ public class GenerateWorld : MonoBehaviour
 
                 // Subscribes tile to onWorldgenFinishEvent
                 WorldgenEvents.onWorldgenFinished += newTile.TileInit;
+                // Subscribes tile to day update
+                TimeEvents.dayUpdate += newTile.onDayUpdate;
             }
         }
 

@@ -9,10 +9,10 @@ public class GenerateWorld : MonoBehaviour
     public Tile tilePrefab;
     public Nation nationPrefab;
     public Dictionary<Vector2Int, Tile> tileDict = new Dictionary<Vector2Int, Tile>();
-    public int randomNationCount = 1;
-
+    
     [Header("World Generation Settings")]
     public Vector2Int worldSize = new Vector2Int(100, 100);
+    public int randomNationCount = 1;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -23,6 +23,7 @@ public class GenerateWorld : MonoBehaviour
         }
     }
     void generateWorld(){
+        // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int x = 0; x < worldSize.x; x++){
             for (int y = 0; y < worldSize.y; y++){
                 // Gets grid position of new tile

@@ -230,6 +230,7 @@ GameObject:
   m_Component:
   - component: {fileID: 184318060}
   - component: {fileID: 184318059}
+  - component: {fileID: 184318061}
   m_Layer: 0
   m_Name: TileHolder
   m_TagString: Untagged
@@ -251,7 +252,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 6806292650523771991, guid: fdb63895304df984b99ff2e40cc7037a, type: 3}
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
-  worldSize: {x: 25, y: 11}
+  randomNationCount: 5
+  worldSize: {x: 24, y: 10}
 --- !u!4 &184318060
 Transform:
   m_ObjectHideFlags: 0
@@ -267,6 +269,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &184318061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184318058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77947a796847c3a41be5bba6256fd6ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

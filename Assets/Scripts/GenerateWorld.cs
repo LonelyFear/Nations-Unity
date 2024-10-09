@@ -48,10 +48,12 @@ public class GenerateWorld : MonoBehaviour
                 // Gives Tile its Grid Position
                 newTile.tilePos = tilePos;
 
-                // Subscribes tile to onWorldgenFinishEvent
+                // Subscribes tile to onWorldgenFinish Event
                 WorldgenEvents.onWorldgenFinished += newTile.TileInit;
                 // Subscribes tile to day update
                 TimeEvents.dayUpdate += newTile.onDayUpdate;
+                // Connects the time manager to onWorldgenFinish Event
+                WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
             }
         }
 

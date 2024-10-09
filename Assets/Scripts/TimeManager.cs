@@ -22,12 +22,10 @@ public class TimeManager : MonoBehaviour
 
     void Start(){
         currentTime = dayLength;
-        // Subscribes timer to onWorldgenFinishEvent
-        WorldgenEvents.onWorldgenFinished += startTimers;
         // Gets event component
         events = GetComponent<TimeEvents>();
     }
-    void startTimers(){
+    public void startTimers(){
         // Starts timers when worldgen is finished
         timerStart = true;
     }
@@ -40,7 +38,6 @@ public class TimeManager : MonoBehaviour
                 incrementDay();
             }
         }
-        
     }
 
     void incrementDay(){

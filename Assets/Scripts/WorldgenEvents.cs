@@ -7,6 +7,7 @@ public class WorldgenEvents : MonoBehaviour
     public void worldgenFinish()
     {
         if (onWorldgenFinished != null){
+            print("Worldgen finished");
             onWorldgenFinished();
         }
     }

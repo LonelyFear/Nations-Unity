@@ -107,6 +107,7 @@ MonoBehaviour:
   tilePos: {x: 0, y: 0}
   world: {fileID: 0}
   tileInitialized: 0
+  justTaken: 0
   interiorTile: 0
 --- !u!114 &3594567471674886023
 MonoBehaviour:

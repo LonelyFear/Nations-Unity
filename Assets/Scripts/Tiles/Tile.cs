@@ -20,7 +20,7 @@ public class Tile : MonoBehaviour
 
     public void TileInit()
     {
-        print("Tile Init Started");
+        //print("Tile Init Started");
         // Finds the world
         world = FindAnyObjectByType<GenerateWorld>();
         if (world != null){
@@ -37,19 +37,14 @@ public class Tile : MonoBehaviour
     void getBorderingTiles(){
         for (int x = -1; x <= 1; x++){
             for (int y = -1; y <= 1; y++){
-                print(new Vector2Int(x,y));
                 // Increments for each adjacent tile and checks if the tile isnt Vector2(0,0) which would be self
                  if (new Vector2Int(x,y) != Vector2Int.zero){
                     // Saves the offset pos
                     Vector2Int offsetPos = new Vector2Int(x,y);
                     // Saves the pos of the tile in the tileDict dictionary
                     Vector2Int borderPos = offsetPos + tilePos;
-
-                    bool withinX = borderPos.x >= 0 && borderPos.x < world.worldSize.x;
-                    bool withinY = borderPos.y >= 0 && borderPos.y < world.worldSize.y;
-
                     // Makes sure the tile isnt outside of the dictionary bounds
-                    if (withinX && withinY){
+                    if (isWithinWorld(borderPos)){
                         // Gets the tile at the border position
                         Tile tile = tileDict[borderPos];
 
@@ -60,6 +55,7 @@ public class Tile : MonoBehaviour
                              Offset is key so it is easier to check for the tile below you since most tiles are just
                              interacting with adjacent tiles
                              */
+                            print(offsetPos);
                             borderingTiles.Add(offsetPos, tile);
                         }
                     }        
@@ -67,17 +63,18 @@ public class Tile : MonoBehaviour
             }
         }
     }
+    public bool isWithinWorld(Vector2Int pos){
+        bool withinX = pos.x >= 0 && pos.x < world.worldSize.x;
+        bool withinY = pos.y >= 0 && pos.y < world.worldSize.y;
+        return withinX && withinY;
+    }
     public void onDayUpdate(){
         if (tileInitialized){
-            for (int x = -1; x <= 1; x++){
-                for (int y = 1; y >= -1; y--){
-                    if (new Vector2Int(x,y) != Vector2Int.zero){
-                        Tile tile = borderingTiles[new Vector2Int(x,y)];
-                        if (nation && !tile.nation && !justTaken){
-                            tile.nation = nation;
-                            tile.justTaken = true;
-                        }
-                    }
+            foreach (KeyValuePair<Vector2Int, Tile> valuePair in borderingTiles){
+                Tile tile = valuePair.Value;
+                if (nation && !tile.nation && !justTaken){
+                    tile.nation = nation;
+                    tile.justTaken = true;
                 }
             }
             justTaken = false;

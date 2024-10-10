@@ -12,7 +12,7 @@ public class ColorTile : MonoBehaviour
         if (tile.nation){
             GetComponent<SpriteRenderer>().color = tile.nation.nationColor;
         } else {
-            GetComponent<SpriteRenderer>().color = Color.white;
+            GetComponent<SpriteRenderer>().color = tile.terrain.terrainColor;
         }
 
     }

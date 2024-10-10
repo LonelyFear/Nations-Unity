@@ -5,23 +5,25 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public Transform GetTransform;
+    [Header("Tile Stats")]
     public Nation nation;
+    public TileTerrain terrain;
 
-    public Nation newNation;
+    [Header("Misc Variables")]
     public Vector2Int tilePos;
     public GenerateWorld world;
     public Dictionary<Vector2Int, Tile> tileDict;
     public Dictionary<Vector2Int, Tile> borderingTiles = new Dictionary<Vector2Int, Tile>();
-
+    
     public bool tileInitialized = false;
-    public bool justTaken = false;
-    public bool interiorTile = false;
 
+    [Header("Components")]
+    public TilePop tilePop;
     public void TileInit()
     {
         //print("Tile Init Started");
         // Finds the world
+        tilePop = GetComponent<TilePop>();
         world = FindAnyObjectByType<GenerateWorld>();
         if (world != null){
             // Gets the entire tile dictionary
@@ -29,6 +31,9 @@ public class Tile : MonoBehaviour
 
             // Gets the tiles that are adjacent to this one
             getBorderingTiles();
+
+            // Initializes tile population
+            tilePop.initTilePop();
 
             // Lets the tile know that everything is set up
             tileInitialized = true;
@@ -55,7 +60,7 @@ public class Tile : MonoBehaviour
                              Offset is key so it is easier to check for the tile below you since most tiles are just
                              interacting with adjacent tiles
                              */
-                            print(offsetPos);
+                            //print(offsetPos);
                             borderingTiles.Add(offsetPos, tile);
                         }
                     }        
@@ -68,16 +73,26 @@ public class Tile : MonoBehaviour
         bool withinY = pos.y >= 0 && pos.y < world.worldSize.y;
         return withinX && withinY;
     }
+
     public void onDayUpdate(){
         if (tileInitialized){
             foreach (KeyValuePair<Vector2Int, Tile> valuePair in borderingTiles){
                 Tile tile = valuePair.Value;
-                if (nation && !tile.nation && !justTaken){
-                    tile.nation = nation;
-                    tile.justTaken = true;
+                if (nation && !tile.nation && Random.Range(0,100) < 10 && tile.terrain.claimable){
+                    tile.changeNation(nation);
                 }
             }
-            justTaken = false;
         } 
+    }
+
+    public void changeNation(Nation newNation){
+        if (terrain.claimable){
+            if (nation){
+                nation.removeTile(this);
+            }
+            nation = newNation;
+            newNation.addTile(this);
+        }
+            
     }
 }

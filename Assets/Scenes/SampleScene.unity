@@ -253,8 +253,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 6806292650523771991, guid: fdb63895304df984b99ff2e40cc7037a, type: 3}
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
-  worldSize: {x: 24, y: 10}
-  randomNationCount: 1
+  worldSize: {x: 100, y: 50}
+  randomNationCount: 2
+  noiseSeed: 0
+  oceanThreshold: 0.4
+  plains: {fileID: 11400000, guid: fae7fa4824756bb4ebb3a38bbd280bf0, type: 2}
+  ocean: {fileID: 11400000, guid: 24fd05807107d674ca9b8394640835ce, type: 2}
+  scales: 140000000500000001000000
+  weights:
+  - 0.6
+  - 0.25
+  - 0.15
 --- !u!4 &184318060
 Transform:
   m_ObjectHideFlags: 0
@@ -388,7 +397,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 26
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -766,7 +775,7 @@ MonoBehaviour:
   day: 1
   month: 1
   year: 1
-  dayLength: 1
+  dayLength: 0.1
 --- !u!4 &1236494429
 Transform:
   m_ObjectHideFlags: 0

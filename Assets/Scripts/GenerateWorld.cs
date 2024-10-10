@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using TreeEditor;
+using UnityEditor.Search;
 using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,19 +15,52 @@ public class GenerateWorld : MonoBehaviour
     [Header("World Generation Settings")]
     public Vector2Int worldSize = new Vector2Int(100, 100);
     public int randomNationCount = 1;
+    public float noiseSeed = 0;
+    [Range(0.1f, 0.8f)]
+    public float oceanThreshold = 0.4f;
+
+    [Header("Terrain")]
+    public TileTerrain plains;
+    public TileTerrain ocean;
+
+    [Header("Noise")]
+    [Tooltip("Higher scale = Less Noisy")]
+    public int[] scales = new int[3];
+    [Tooltip("Weights the different noise maps")]
+    public float[] weights = new float[3];
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         if (tilePrefab && tilePrefab.name == "Tile"){
              generateWorld();
-             addRandomNations(randomNationCount);
              GetComponent<WorldgenEvents>().worldgenFinish();
+             addRandomNations(randomNationCount);
+             
         }
+    }
+
+    float getNoise(int x, int y, int scale){
+        // Higher scale means less smooth
+        return Mathf.PerlinNoise((x + 0.1f + noiseSeed)/scale,(y + 0.1f + noiseSeed)/scale);
     }
     void generateWorld(){
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
-        for (int x = 0; x < worldSize.x; x++){
-            for (int y = 0; y < worldSize.y; y++){
+        for (int y = 0; y < worldSize.y; y++){
+            for (int x = 0; x < worldSize.x; x++){
+
+                TileTerrain newTileTerrain;
+                float detail = getNoise(x,y,scales[2]);
+                float definition = getNoise(x,y,scales[1]);
+                float shape = getNoise(x,y,scales[0]);
+
+                // Merges the different noise maps and weights them to get more interesting terrain
+                float totalNoise = definition * weights[1] + shape * weights[0] + detail * weights[2];
+                // Checks if the noise value is less than the ocean threshold
+                if (totalNoise <= oceanThreshold){
+                    newTileTerrain = ocean;
+                } else {
+                    newTileTerrain = plains;
+                }
                 // Gets grid position of new tile
                 Vector2Int tilePos = new Vector2Int(x,y);
                 //print(tilePos);
@@ -44,7 +79,8 @@ public class GenerateWorld : MonoBehaviour
                 
                 // Puts tile in grid
                 tileDict.Add(tilePos, newTile);
-
+                // Gives tile terrain
+                newTile.terrain = newTileTerrain;
                 // Gives Tile its Grid Position
                 newTile.tilePos = tilePos;
 
@@ -71,17 +107,24 @@ public class GenerateWorld : MonoBehaviour
             var selectedTile = tileDict[pos];
             // Checks if the tile is neutral and not ocean
             // NOTE: DO NOT PUT A ! IN FROM OF selectedTile OR GAME WONT LOAD
-            while (selectedTile.nation){
+            int attempts = 0;
+            while (selectedTile.nation || !selectedTile.terrain.claimable){
+                attempts++;
+                if (attempts >= 100){
+                    break;
+                }
                 // Picks a different tile if a nation cant be put there
                  selectedTile = tileDict[new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y))];
             }
-
-            // Makes a random nation
-            newNation.RandomizeNation();
-            // Makes the nation a child of NationHolder
-            newNation.GetComponent<Transform>().SetParent(GameObject.FindWithTag("NationHolder").GetComponent<Transform>());
-            // Sets the tile to the new nation
-            selectedTile.nation = newNation;
+            if (!selectedTile.nation && selectedTile.terrain.claimable){
+                // Makes a random nation
+                newNation.RandomizeNation();
+                // Makes the nation a child of NationHolder
+                newNation.GetComponent<Transform>().SetParent(GameObject.FindWithTag("NationHolder").GetComponent<Transform>());
+                // Sets the tile to the new nation
+                selectedTile.changeNation(newNation);
+            }
+            
         }
     }
 

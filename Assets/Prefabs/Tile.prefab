@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4357340560955876057}
   - component: {fileID: 6806292650523771991}
   - component: {fileID: 3594567471674886023}
+  - component: {fileID: 6974178269698912398}
   m_Layer: 0
   m_Name: Tile
   m_TagString: Tile
@@ -101,14 +102,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 128f2001bc0706745a466cd32dea487c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GetTransform: {fileID: 0}
   nation: {fileID: 0}
-  newNation: {fileID: 0}
+  terrain: {fileID: 0}
   tilePos: {x: 0, y: 0}
   world: {fileID: 0}
   tileInitialized: 0
-  justTaken: 0
-  interiorTile: 0
+  tilePop: {fileID: 0}
 --- !u!114 &3594567471674886023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,3 +120,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7998ac6111e862c45b909f1b41c8de7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6974178269698912398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 763560040716948274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f88c05da0112a0d45bf67cdfa2233f78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  population: 0
+  integration: 0
+  troops: 0

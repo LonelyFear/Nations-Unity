@@ -14,7 +14,7 @@ public class Tile : MonoBehaviour
     public GenerateWorld world;
     public Dictionary<Vector2Int, Tile> tileDict;
     public Dictionary<Vector2Int, Tile> borderingTiles = new Dictionary<Vector2Int, Tile>();
-    
+    public bool border = true;
     public bool tileInitialized = false;
 
     [Header("Components")]
@@ -78,13 +78,24 @@ public class Tile : MonoBehaviour
         if (tileInitialized){
             foreach (KeyValuePair<Vector2Int, Tile> valuePair in borderingTiles){
                 Tile tile = valuePair.Value;
-                if (nation && !tile.nation && Random.Range(0,100) < 10 && tile.terrain.claimable){
+                if (nation && border && !tile.nation && Random.Range(0,100) < 10 && tile.terrain.claimable){
                     tile.changeNation(nation);
                 }
             }
         } 
     }
 
+    public bool isBorder(){
+        if (nation){
+            foreach (KeyValuePair<Vector2Int, Tile> valuePair in borderingTiles){
+                Tile tile = valuePair.Value;
+                if (tile.nation != nation){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     public void changeNation(Nation newNation){
         if (terrain.claimable){
             if (nation){
@@ -92,7 +103,12 @@ public class Tile : MonoBehaviour
             }
             nation = newNation;
             newNation.addTile(this);
+
+            // Updates nearby tiles
+            foreach (KeyValuePair<Vector2Int, Tile> vp in borderingTiles){
+                Tile t = vp.Value;
+                t.border = t.isBorder();
+            }
         }
-            
     }
 }

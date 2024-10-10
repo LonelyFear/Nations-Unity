@@ -15,6 +15,7 @@ public class Tile : MonoBehaviour
     public Dictionary<Vector2Int, Tile> tileDict;
     public Dictionary<Vector2Int, Tile> borderingTiles = new Dictionary<Vector2Int, Tile>();
     public bool border = true;
+    public bool costal = false;
     public bool tileInitialized = false;
 
     [Header("Components")]
@@ -63,6 +64,11 @@ public class Tile : MonoBehaviour
                             //print(offsetPos);
                             borderingTiles.Add(offsetPos, tile);
                         }
+                        // Checks if the tile is ocean
+                        if (tile.terrain.naval){
+                            // Sets the tile to costal
+                            costal = true;
+                        }
                     }        
                 }    
             }
@@ -87,26 +93,37 @@ public class Tile : MonoBehaviour
 
     public bool isBorder(){
         if (nation){
+            // Goes through all bordering tiles
             foreach (KeyValuePair<Vector2Int, Tile> valuePair in borderingTiles){
+                // Gets the current tile
                 Tile tile = valuePair.Value;
-                if (tile.nation != nation){
+                // Checks if the tile is adjacent to a tile of a different nation
+                if (tile.nation != nation || tile.nation == null){
                     return true;
                 }
             }
         }
+        // If the tile is surrounded by other tiles of the same nation, them it returns false
         return false;
     }
     public void changeNation(Nation newNation){
+        // Makes sure the tile can be claimed in the first place
         if (terrain.claimable){
+            // Checks if the tile already has a nation
             if (nation){
+                // If it does, removes the tile from the nation
                 nation.removeTile(this);
             }
+            // Sets the tile to the new nation
             nation = newNation;
+            // Updates the nation with the new tile
             newNation.addTile(this);
-
+            // Updates self
+            border = isBorder();
             // Updates nearby tiles
             foreach (KeyValuePair<Vector2Int, Tile> vp in borderingTiles){
                 Tile t = vp.Value;
+                // Updates nearby tiles to let them know they are borders
                 t.border = t.isBorder();
             }
         }

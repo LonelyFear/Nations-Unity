@@ -6,4 +6,6 @@ public class TileTerrain : ScriptableObject
     public bool claimable;
     public bool naval;
     public Color terrainColor;
+    [Range(0f, 1f)]
+    public float neutralExpansionMult = 1f;
 }

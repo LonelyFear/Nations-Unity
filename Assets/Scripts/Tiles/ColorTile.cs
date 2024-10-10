@@ -11,6 +11,9 @@ public class ColorTile : MonoBehaviour
     {
         if (tile.nation){
             GetComponent<SpriteRenderer>().color = tile.nation.nationColor;
+            if (tile.border){
+                GetComponent<SpriteRenderer>().color = tile.nation.nationColor * 0.8f + Color.black * 0.2f;
+            }
         } else {
             GetComponent<SpriteRenderer>().color = tile.terrain.terrainColor;
         }

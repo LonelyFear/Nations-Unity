@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3bbc9b7219d88df489e6e6fee2736fa2, type: 3}
-  m_Name: Plains
+  m_Name: Mountain
   m_EditorClassIdentifier: 
   claimable: 1
   naval: 0
-  terrainColor: {r: 1, g: 1, b: 1, a: 1}
-  neutralExpansionMult: 1
+  terrainColor: {r: 0.4792453, g: 0.4792453, b: 0.4792453, a: 1}
+  neutralExpansionMult: 0.5

@@ -13,11 +13,11 @@ public class TimeManager : MonoBehaviour
     public float dayLength = 1f;
 
     [Header("Info")]
-
+    public bool timerStart = false; // Makes sure the timers start when worldGen is finished
 
     // Private variables
     private float currentTime = 1f; // Tracks the current time in seconds between days
-    private bool timerStart = false; // Makes sure the timers start when worldGen is finished
+    
     private TimeEvents events; // Events such as day updates
 
     void Start(){

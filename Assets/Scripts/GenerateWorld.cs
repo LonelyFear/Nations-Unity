@@ -22,6 +22,8 @@ public class GenerateWorld : MonoBehaviour
     [Header("Terrain")]
     public TileTerrain plains;
     public TileTerrain ocean;
+    public TileTerrain hills;
+    public TileTerrain mountains;
 
     [Header("Noise")]
     [Tooltip("Higher scale = Less Noisy")]

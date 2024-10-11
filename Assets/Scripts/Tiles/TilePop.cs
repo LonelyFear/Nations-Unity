@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class TilePop : MonoBehaviour
 {
+    // Base pop growth per month
+    public const float basePopGrowth = 0.0008f;
     public int population;
     public float integration;
     public int troops;

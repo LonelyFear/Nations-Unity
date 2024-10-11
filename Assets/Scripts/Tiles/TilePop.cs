@@ -15,7 +15,7 @@ public class TilePop : MonoBehaviour
         tile = GetComponent<Tile>();
         // Initializes tile population
         if (!tile.terrain.naval){
-            population = Random.Range(50000,50000);
+            population = Random.Range(50,3000);
         } 
     }
 

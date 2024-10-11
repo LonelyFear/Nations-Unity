@@ -615,6 +615,8 @@ GameObject:
   - component: {fileID: 925083801}
   - component: {fileID: 925083800}
   - component: {fileID: 925083799}
+  - component: {fileID: 925083804}
+  - component: {fileID: 925083803}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -740,6 +742,45 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &925083803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 925083798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e638ce1709761654bbe92359112a5c87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraSpeed: 100
+  moveDamping: 5
+  cameraSize: 40
+  minZoom: 6
+  maxZoom: 50
+  zoomDamping: 5
+  zoomSpeed: 1
+--- !u!114 &925083804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 925083798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 128f2001bc0706745a466cd32dea487c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nation: {fileID: 0}
+  terrain: {fileID: 0}
+  tilePos: {x: 0, y: 0}
+  world: {fileID: 0}
+  border: 1
+  costal: 0
+  tileInitialized: 0
+  tilePop: {fileID: 0}
 --- !u!1 &935202348
 GameObject:
   m_ObjectHideFlags: 0

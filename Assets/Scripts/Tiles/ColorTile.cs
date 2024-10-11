@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Tile))]
 public class ColorTile : MonoBehaviour
 {
     Tile tile;

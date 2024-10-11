@@ -1,6 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
+[RequireComponent(typeof(Tile))]
 public class TilePop : MonoBehaviour
 {
     // Base pop growth per month
@@ -50,8 +51,9 @@ public class TilePop : MonoBehaviour
             // Sets population to 0
             population = 0;
         }
-
-        // Adjusts nation population
-        tile.nation.population += nationAmount;
+        if (tile.nation){
+            // Adjusts nation population
+            tile.nation.population += nationAmount;
+        }
     }
 }

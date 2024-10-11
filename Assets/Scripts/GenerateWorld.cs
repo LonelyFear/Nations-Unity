@@ -90,6 +90,8 @@ public class GenerateWorld : MonoBehaviour
                 WorldgenEvents.onWorldgenFinished += newTile.TileInit;
                 // Subscribes tile to day update
                 TimeEvents.dayUpdate += newTile.onDayUpdate;
+                // Subscribes tilePop to month update
+                TimeEvents.monthUpdate += newTile.GetComponent<TilePop>().onMonthUpdate;
                 // Connects the time manager to onWorldgenFinish Event
                 WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
             }

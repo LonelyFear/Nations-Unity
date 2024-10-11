@@ -46,9 +46,11 @@ public class TimeManager : MonoBehaviour
         if (day > 30){
             day = 1;
             month++;
+            events.updateMonth();
             if (month > 12){
                 month = 1;
                 year++;
+                events.updateYear();
             }
         }
     }

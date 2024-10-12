@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TreeEditor;
+using Unity.VisualScripting;
 using UnityEditor.Search;
 using UnityEditor.UI;
 using UnityEngine;
@@ -16,8 +17,7 @@ public class GenerateWorld : MonoBehaviour
     public Vector2Int worldSize = new Vector2Int(100, 100);
     public int randomNationCount = 1;
     public float noiseSeed = 0;
-    [Range(0.1f, 0.8f)]
-    public float oceanThreshold = 0.4f;
+    public HeightThresholdPreset thresholdPreset;
 
     [Header("Terrain")]
     public TileTerrain plains;
@@ -25,7 +25,14 @@ public class GenerateWorld : MonoBehaviour
     public TileTerrain hills;
     public TileTerrain mountains;
 
-    [Header("Noise")]
+    [Header("Noise Texture Settings")]
+    [Tooltip("Overrides all other noise settings")]
+    public Texture2D noiseTexture;
+    [Tooltip("If true, makes the world size y scale with the proportion to texture y")]
+    public bool fixToTexture = true;
+    [Header("Noise Texture Settings")]
+    [Tooltip("The noise scale for RANDOM NOISE")]
+    public int totalNoiseScale;
     [Tooltip("Higher scale = Less Noisy")]
     public int[] scales = new int[3];
     [Tooltip("Weights the different noise maps")]
@@ -33,36 +40,65 @@ public class GenerateWorld : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (tilePrefab && tilePrefab.name == "Tile"){
+        if (tilePrefab && tilePrefab.name == "Tile" && thresholdPreset){
+            if (fixToTexture && noiseTexture){
+                fitYToTexture();
+            }
              generateWorld();
              GetComponent<WorldgenEvents>().worldgenFinish();
              addRandomNations(randomNationCount);
              
         }
     }
-
+    void fitYToTexture(){
+        float texScale = noiseTexture.Size().x / worldSize.x;
+        print(texScale);
+        worldSize.y = Mathf.RoundToInt(noiseTexture.Size().y / texScale);
+    }
     float getNoise(int x, int y, int scale){
         // Higher scale means less smooth
         return Mathf.PerlinNoise((x + 0.1f + noiseSeed)/scale,(y + 0.1f + noiseSeed)/scale);
+    }
+    float getHeightNoise(int x, int y){
+        float totalNoise;
+        // If there isnt a predifined noise texture
+        if (!noiseTexture){
+            float detail = getNoise(x * totalNoiseScale,y * totalNoiseScale,scales[2]);
+            float definition = getNoise(x * totalNoiseScale,y * totalNoiseScale,scales[1]);
+            float shape = getNoise(x * totalNoiseScale, y * totalNoiseScale,scales[0]);
+
+            // Merges the different noise maps and weights them to get more interesting terrain
+            totalNoise = definition * weights[1] + shape * weights[0] + detail * weights[2];
+        } else {
+            // Stretches or squashes the values to represent the whole noise texture
+            Vector2 texScale = noiseTexture.Size() / worldSize;
+            // Gets the pixel pos (Rounds tex scale multiplied by the current x and y)
+            Vector2Int pixel = Vector2Int.RoundToInt(new Vector2(x * texScale.x, y * texScale.y));
+            // Gets the value of the red channel at the pixel position
+            totalNoise = noiseTexture.GetPixel(pixel.x, pixel.y).r;
+        }
+        return totalNoise;
     }
     void generateWorld(){
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int y = 0; y < worldSize.y; y++){
             for (int x = 0; x < worldSize.x; x++){
-
-                TileTerrain newTileTerrain;
-                float detail = getNoise(x,y,scales[2]);
-                float definition = getNoise(x,y,scales[1]);
-                float shape = getNoise(x,y,scales[0]);
-
-                // Merges the different noise maps and weights them to get more interesting terrain
-                float totalNoise = definition * weights[1] + shape * weights[0] + detail * weights[2];
+                
+                
+                
+                
+                float value = getHeightNoise(x,y);
+                // Sets terrain to default
+                TileTerrain newTileTerrain = plains;
                 // Checks if the noise value is less than the ocean threshold
-                if (totalNoise <= oceanThreshold){
+                if (value <= thresholdPreset.oceanThreshold){
                     newTileTerrain = ocean;
-                } else {
-                    newTileTerrain = plains;
+                } else if (value > thresholdPreset.mountainTreshold){
+                    newTileTerrain = mountains;
+                } else if (value > thresholdPreset.hillTreshold) {
+                    newTileTerrain = hills;
                 }
+
                 // Gets grid position of new tile
                 Vector2Int tilePos = new Vector2Int(x,y);
                 //print(tilePos);

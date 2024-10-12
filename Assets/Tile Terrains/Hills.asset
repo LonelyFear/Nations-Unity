@@ -15,4 +15,4 @@ MonoBehaviour:
   claimable: 1
   naval: 0
   terrainColor: {r: 0.8037735, g: 0.8037735, b: 0.8037735, a: 1}
-  neutralExpansionMult: 0.8
+  neutralExpansionMult: 0.2

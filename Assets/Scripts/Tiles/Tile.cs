@@ -84,7 +84,8 @@ public class Tile : MonoBehaviour
         if (tileInitialized){
             foreach (KeyValuePair<Vector2Int, Tile> valuePair in borderingTiles){
                 Tile tile = valuePair.Value;
-                if (nation && border && !tile.nation && Random.Range(0,100) < 10 && tile.terrain.claimable){
+                float expansionChance = 10 * tile.terrain.neutralExpansionMult;
+                if (nation && border && !tile.nation && Random.Range(0,100) < expansionChance && tile.terrain.claimable){
                     tile.changeNation(nation);
                 }
             }

@@ -330,14 +330,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 6806292650523771991, guid: fdb63895304df984b99ff2e40cc7037a, type: 3}
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
-  worldSize: {x: 125, y: 52}
+  worldSize: {x: 100, y: 5}
   randomNationCount: 2
   noiseSeed: 0
-  oceanThreshold: 0.4
+  thresholdPreset: {fileID: 11400000, guid: da4c95e1a5e5358479fcef3c8de3ae8d, type: 2}
   plains: {fileID: 11400000, guid: fae7fa4824756bb4ebb3a38bbd280bf0, type: 2}
   ocean: {fileID: 11400000, guid: 24fd05807107d674ca9b8394640835ce, type: 2}
   hills: {fileID: 11400000, guid: e9e8e676ff8196d4d8e36e7ec3cf16b1, type: 2}
   mountains: {fileID: 11400000, guid: d64cb3e6b0d8dbc44b44200e3d9361f2, type: 2}
+  noiseTexture: {fileID: 2800000, guid: c8f13a64fd34d1946bc231bbd09bc1d8, type: 3}
+  fixToTexture: 1
+  totalNoiseScale: 0
   scales: 140000000500000001000000
   weights:
   - 0.6

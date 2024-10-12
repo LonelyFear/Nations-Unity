@@ -21,9 +21,11 @@ public class CameraController : MonoBehaviour
     public float zoomDamping = 5f;
     public float zoomSpeed = 2f;
 
-
+    // Velocity
     Vector2 velocity = new Vector2();
     float zoomVel;
+
+    // Camera
     Camera cam;
     void Start(){
         cam = GetComponent<Camera>();
@@ -53,13 +55,16 @@ public class CameraController : MonoBehaviour
 
     void zoomCamera(){
         InputAction zoom = InputSystem.actions.FindAction("Zoom");
-
+        // Adds zoom speed to vel
         zoomVel += zoomSpeed * Mathf.Round(zoom.ReadValue<float>());
-        //zoomVel = Mathf.Clamp(zoomVel, -zoomSpeed, zoomSpeed);
+        // Clamps speed
+        zoomVel = Mathf.Clamp(zoomVel, -zoomSpeed, zoomSpeed);
+        // Deceleration
         zoomVel = Mathf.Lerp(zoomVel, zoomVel * Mathf.Round(zoom.ReadValue<float>()), zoomDamping * Time.deltaTime);
-        //zoomVel *= 0.9f;
-
+        // changes camera size by vel
         cameraSize += zoomVel;
+
+        // Clamps camera size
         cameraSize = Mathf.Clamp(cameraSize, minZoom, maxZoom);
 
         cam.orthographicSize = cameraSize;

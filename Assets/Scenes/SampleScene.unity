@@ -754,12 +754,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e638ce1709761654bbe92359112a5c87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraSpeed: 100
-  moveDamping: 5
+  cameraSpeed: 70
+  moveDamping: 10
   cameraSize: 40
   minZoom: 6
   maxZoom: 50
-  zoomDamping: 5
+  zoomDamping: 10
   zoomSpeed: 1
 --- !u!114 &925083804
 MonoBehaviour:

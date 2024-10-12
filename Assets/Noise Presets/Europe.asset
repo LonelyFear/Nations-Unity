@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e1f32e48d6ac704fb1a8d8c0c9481df, type: 3}
   m_Name: Europe
   m_EditorClassIdentifier: 
-  noiseTexture: {fileID: 2800000, guid: c8f13a64fd34d1946bc231bbd09bc1d8, type: 3}
+  noiseTexture: {fileID: 2800000, guid: 1327cad4e0b500d428056605f4da2ea9, type: 3}
   oceanThreshold: 0
   mountainTreshold: 0.3
   hillTreshold: 0.15

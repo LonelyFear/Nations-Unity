@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c8f13a64fd34d1946bc231bbd09bc1d8
+guid: d6fe8b07be94c1f418d5e9f0a01f88f4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1194287481114815218
-    second: Europe_0
+      213: 8573962228187662794
+    second: Random_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Europe_0
+      name: Random_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 640
-        height: 477
+        width: 5200
+        height: 4300
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e0594701dd90d6fe0800000000000000
-      internalID: -1194287481114815218
+      spriteID: ac90eb04835dcf670800000000000000
+      internalID: 8573962228187662794
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Europe_0: -1194287481114815218
+      Random_0: 8573962228187662794
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

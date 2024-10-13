@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEditor.Search;
 using UnityEditor.UI;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 
 public class GenerateWorld : MonoBehaviour
@@ -12,6 +13,7 @@ public class GenerateWorld : MonoBehaviour
     public Tile tilePrefab;
     public Nation nationPrefab;
     public Dictionary<Vector2Int, Tile> tileDict = new Dictionary<Vector2Int, Tile>();
+    public Tilemap tilemap;
     
     [Header("World Generation Settings")]
     public Vector2Int worldSize = new Vector2Int(100, 100);
@@ -45,7 +47,7 @@ public class GenerateWorld : MonoBehaviour
             }
              generateWorld();
              GetComponent<WorldgenEvents>().worldgenFinish();
-             addRandomNations(randomNationCount);
+             //addRandomNations(randomNationCount);
              
         }
     }
@@ -82,22 +84,20 @@ public class GenerateWorld : MonoBehaviour
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int y = 0; y < worldSize.y; y++){
             for (int x = 0; x < worldSize.x; x++){
-                
-                
-                
-                
+                Vector3Int cellPos = new Vector3Int(x,y);
                 float value = getHeightNoise(x,y);
                 // Sets terrain to default
                 TileTerrain newTileTerrain = plains;
                 // Checks if the noise value is less than the ocean threshold
                 if (value <= preset.oceanThreshold){
                     newTileTerrain = ocean;
+                    tilemap.InsertCells(cellPos, cellPos);
                 } else if (value > preset.mountainTreshold){
                     newTileTerrain = mountains;
                 } else if (value > preset.hillTreshold) {
                     newTileTerrain = hills;
                 }
-
+                /*
                 // Gets grid position of new tile
                 Vector2Int tilePos = new Vector2Int(x,y);
                 //print(tilePos);
@@ -127,6 +127,7 @@ public class GenerateWorld : MonoBehaviour
                 TimeEvents.monthUpdate += newTile.GetComponent<TilePop>().onMonthUpdate;
                 // Connects the time manager to onWorldgenFinish Event
                 WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
+                */
             }
         }
 

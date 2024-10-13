@@ -40,7 +40,7 @@ public class GenerateWorld : MonoBehaviour
     void Start()
     {
         if (tilePrefab && tilePrefab.name == "Tile"){
-            if (fixToTexture && preset){
+            if (fixToTexture && preset.noiseTexture){
                 fitYToTexture();
             }
              generateWorld();

@@ -154,7 +154,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
 --- !u!114 &78679303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -331,7 +331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 6806292650523771991, guid: fdb63895304df984b99ff2e40cc7037a, type: 3}
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
-  worldSize: {x: 10, y: 1}
+  worldSize: {x: 200, y: 1}
   randomNationCount: 10
   plains: {fileID: 11400000, guid: fae7fa4824756bb4ebb3a38bbd280bf0, type: 2}
   ocean: {fileID: 11400000, guid: 24fd05807107d674ca9b8394640835ce, type: 2}
@@ -825,8 +825,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000030517578, y: 0.000045776367}
-  m_SizeDelta: {x: 174.5643, y: 36.9364}
+  m_AnchoredPosition: {x: -0.000022888, y: 0.00001359}
+  m_SizeDelta: {x: 152.9695, y: 32.3671}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &923362913
 MonoBehaviour:
@@ -875,7 +875,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25.25
+  m_fontSize: 22.1
   m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -951,7 +951,6 @@ GameObject:
   - component: {fileID: 925083801}
   - component: {fileID: 925083800}
   - component: {fileID: 925083799}
-  - component: {fileID: 925083804}
   - component: {fileID: 925083803}
   m_Layer: 0
   m_Name: Camera
@@ -1043,7 +1042,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0
+  near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
   orthographic: 1
@@ -1072,7 +1071,7 @@ Transform:
   m_GameObject: {fileID: 925083798}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1097,26 +1096,6 @@ MonoBehaviour:
   maxZoom: 50
   zoomDamping: 10
   zoomSpeed: 1
---- !u!114 &925083804
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 925083798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 128f2001bc0706745a466cd32dea487c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nation: {fileID: 0}
-  terrain: {fileID: 0}
-  tilePos: {x: 0, y: 0}
-  world: {fileID: 0}
-  border: 1
-  costal: 0
-  tileInitialized: 0
-  tilePop: {fileID: 0}
 --- !u!1 &935202348
 GameObject:
   m_ObjectHideFlags: 0
@@ -1231,7 +1210,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -350.33514, y: 169.02103}
+  m_AnchoredPosition: {x: -332.74, y: 169.2}
   m_SizeDelta: {x: 179.7298, y: 38.598}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1124326826

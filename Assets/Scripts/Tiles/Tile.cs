@@ -38,7 +38,7 @@ public class Tile : MonoBehaviour
 
             // Lets the tile know that everything is set up
             tileInitialized = true;
-            //GetComponent<SendTileData>().init();
+            GetComponent<TileGUI>().Init();
         }
     }
     void getBorderingTiles(){

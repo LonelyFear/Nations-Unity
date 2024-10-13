@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 6806292650523771991}
   - component: {fileID: 3594567471674886023}
   - component: {fileID: 6974178269698912398}
-  - component: {fileID: 3900782053278160050}
   - component: {fileID: 3693937522812876141}
+  - component: {fileID: 8694511029630331208}
   m_Layer: 0
   m_Name: Tile
   m_TagString: Tile
@@ -139,7 +139,19 @@ MonoBehaviour:
   population: 0
   integration: 0
   troops: 0
---- !u!61 &3900782053278160050
+--- !u!114 &3693937522812876141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 763560040716948274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0221be9135407d14595e2cdcf123fc8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!61 &8694511029630331208
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -185,15 +197,3 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &3693937522812876141
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 763560040716948274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0221be9135407d14595e2cdcf123fc8e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

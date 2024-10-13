@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.VisualScripting;
+using UnityEditor.U2D.Aseprite;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -12,8 +14,8 @@ public class Tile : MonoBehaviour
     [Header("Misc Variables")]
     public Vector2Int tilePos;
     public GenerateWorld world;
-    public Dictionary<Vector2Int, Tile> tileDict;
-    public Dictionary<Vector2Int, Tile> borderingTiles = new Dictionary<Vector2Int, Tile>();
+    public Tile[,] tiles;
+    public List<Tile> borderingTiles = new List<Tile>();
     public bool border = true;
     public bool costal = false;
     public bool tileInitialized = false;
@@ -28,7 +30,7 @@ public class Tile : MonoBehaviour
         world = FindAnyObjectByType<GenerateWorld>();
         if (world != null){
             // Gets the entire tile dictionary
-            tileDict = world.tileDict;
+            tiles = world.tiles;
 
             // Gets the tiles that are adjacent to this one
             getBorderingTiles();
@@ -53,7 +55,7 @@ public class Tile : MonoBehaviour
                     // Makes sure the tile isnt outside of the dictionary bounds
                     if (isWithinWorld(borderPos)){
                         // Gets the tile at the border position
-                        Tile tile = tileDict[borderPos];
+                        Tile tile = tiles[borderPos.x, borderPos.y];
 
                         // One final check to make sure the tile isn't self
                         if (tile != this){
@@ -63,7 +65,7 @@ public class Tile : MonoBehaviour
                              interacting with adjacent tiles
                              */
                             //print(offsetPos);
-                            borderingTiles.Add(offsetPos, tile);
+                            borderingTiles.Add(tile);
                         }
                         // Checks if the tile is ocean
                         if (tile.terrain.naval){
@@ -83,8 +85,7 @@ public class Tile : MonoBehaviour
 
     public void onDayUpdate(){
         if (tileInitialized){
-            foreach (KeyValuePair<Vector2Int, Tile> valuePair in borderingTiles){
-                Tile tile = valuePair.Value;
+            foreach (Tile tile in borderingTiles){
                 float expansionChance = 10 * tile.terrain.neutralExpansionMult;
                 if (nation && border && !tile.nation && Random.Range(0,100) < expansionChance && tile.terrain.claimable){
                     tile.changeNation(nation);
@@ -96,9 +97,7 @@ public class Tile : MonoBehaviour
     public bool isBorder(){
         if (nation){
             // Goes through all bordering tiles
-            foreach (KeyValuePair<Vector2Int, Tile> valuePair in borderingTiles){
-                // Gets the current tile
-                Tile tile = valuePair.Value;
+            foreach (Tile tile in borderingTiles){
                 // Checks if the tile is adjacent to a tile of a different nation
                 if (tile.nation != nation || tile.nation == null){
                     return true;
@@ -123,10 +122,9 @@ public class Tile : MonoBehaviour
             // Updates self
             border = isBorder();
             // Updates nearby tiles
-            foreach (KeyValuePair<Vector2Int, Tile> vp in borderingTiles){
-                Tile t = vp.Value;
+            foreach (Tile tile in borderingTiles){
                 // Updates nearby tiles to let them know they are borders
-                t.border = t.isBorder();
+                tile.border = tile.isBorder();
             }
         }
     }

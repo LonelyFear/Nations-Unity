@@ -101,18 +101,16 @@ public class GenerateWorld : MonoBehaviour
                 // Gets grid position of new tile
                 Vector2Int tilePos = new Vector2Int(x,y);
                 //print(tilePos);
-                
                 // Instiates a new tile
                 Tile newTile = Instantiate(tilePrefab);
-                Transform tileTransform = newTile.GetComponent<Transform>();
+                Transform tileTransform = newTile.transform;
 
                 // (worldSize.x/2) is to align tiles with center of camera
                 // 0.5f is to align tile with grid
                 tileTransform.position = new Vector2(x - (worldSize.x/2) + 0.5f, y - (worldSize.y/2) + 0.5f);
-
                 // Gives tiles a random color to check for overlaps
                 //newTile.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
-                tileTransform.SetParent(this.transform);
+                tileTransform.SetParent(transform);
                 
                 // Puts tile in grid
                 tileDict.Add(tilePos, newTile);

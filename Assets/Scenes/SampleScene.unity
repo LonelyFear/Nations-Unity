@@ -331,7 +331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 6806292650523771991, guid: fdb63895304df984b99ff2e40cc7037a, type: 3}
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
-  worldSize: {x: 10, y: 5}
+  worldSize: {x: 10, y: 1}
   randomNationCount: 10
   plains: {fileID: 11400000, guid: fae7fa4824756bb4ebb3a38bbd280bf0, type: 2}
   ocean: {fileID: 11400000, guid: 24fd05807107d674ca9b8394640835ce, type: 2}
@@ -485,7 +485,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 86.3, y: 88.126}
+  m_AnchoredPosition: {x: 64.71, y: 88.126}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &567546098
@@ -688,7 +688,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9.3, y: 88.139}
+  m_AnchoredPosition: {x: 10.6, y: 88.113}
   m_SizeDelta: {x: 182.2, y: 20.0255}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &732641804

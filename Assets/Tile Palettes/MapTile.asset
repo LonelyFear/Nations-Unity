@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: Tile_0
+  m_Script: {fileID: 11500000, guid: 1a5ae999d3e9eef4fa98ccc1bd926b56, type: 3}
+  m_Name: MapTile
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: -9163426285224168042, guid: bb227747c67d26b4f9cf6cc702b3cc50, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -31,6 +31,6 @@ MonoBehaviour:
     e31: 0
     e32: 0
     e33: 1
-  m_InstancedGameObject: {fileID: 763560040716948274, guid: fdb63895304df984b99ff2e40cc7037a, type: 3}
+  m_InstancedGameObject: {fileID: 0}
   m_Flags: 1
   m_ColliderType: 1

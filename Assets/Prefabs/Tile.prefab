@@ -108,6 +108,7 @@ MonoBehaviour:
   terrain: {fileID: 0}
   tilePos: {x: 0, y: 0}
   world: {fileID: 0}
+  borderingTiles: []
   border: 1
   costal: 0
   tileInitialized: 0

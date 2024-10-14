@@ -22,6 +22,10 @@ public class Tile : MonoBehaviour
 
     [Header("Components")]
     public TilePop tilePop;
+
+    void Start(){
+        TileInit();
+    }
     public void TileInit()
     {
         //print("Tile Init Started");
@@ -40,7 +44,7 @@ public class Tile : MonoBehaviour
 
             // Lets the tile know that everything is set up
             tileInitialized = true;
-            GetComponent<TileGUI>().Init();
+            //GetComponent<TileGUI>().Init();
         }
     }
     void getBorderingTiles(){

@@ -49,15 +49,16 @@ public class GenerateWorld : MonoBehaviour
             }
             tiles = new Tile[worldSize.x, worldSize.y];
             generateWorld();
+            /*
             for (int y = 0; y < worldSize.y; y++){
                 for (int x = 0; x < worldSize.x; x++){
                     Tile tile = tiles[x,y];
                     tile.TileInit();
                 }
             }
-                
-             GetComponent<WorldgenEvents>().worldgenFinish();
-             //addRandomNations(randomNationCount);
+            */
+            GetComponent<WorldgenEvents>().worldgenFinish();
+            //addRandomNations(randomNationCount);
         }
     }
     void fitYToTexture(){
@@ -107,7 +108,7 @@ public class GenerateWorld : MonoBehaviour
                 } else if (value > preset.hillTreshold) {
                     newTileTerrain = hills;
                 }
-                
+                /*
                 // Gets grid position of new tile
                 Vector2Int tilePos = new Vector2Int(x,y);
                 //print(tilePos);
@@ -134,6 +135,7 @@ public class GenerateWorld : MonoBehaviour
                 //TimeEvents.dayUpdate += newTile.onDayUpdate;
                 // Subscribes tilePop to month update
                 //TimeEvents.monthUpdate += newTile.GetComponent<TilePop>().onMonthUpdate;
+                */
             }
         }
         WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;

@@ -310,8 +310,9 @@ GameObject:
   - component: {fileID: 184318060}
   - component: {fileID: 184318059}
   - component: {fileID: 184318061}
+  - component: {fileID: 184318062}
   m_Layer: 0
-  m_Name: World Generator
+  m_Name: Tile Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -329,17 +330,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6fe3b14710013c41b663fdc4ac398b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilePrefab: {fileID: 6806292650523771991, guid: fdb63895304df984b99ff2e40cc7037a, type: 3}
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
   tilemap: {fileID: 2120070809}
-  tileBase: {fileID: 11400000, guid: a22e5af3ffd8efe48a5ec4b456ee3889, type: 2}
-  worldSize: {x: 200, y: 1}
+  tileBase: {fileID: 11400000, guid: 9ff30deb5bfc664478d266f55e9243e6, type: 2}
+  worldSize: {x: 50, y: 1}
   randomNationCount: 10
   plains: {fileID: 11400000, guid: fae7fa4824756bb4ebb3a38bbd280bf0, type: 2}
   ocean: {fileID: 11400000, guid: 24fd05807107d674ca9b8394640835ce, type: 2}
   hills: {fileID: 11400000, guid: e9e8e676ff8196d4d8e36e7ec3cf16b1, type: 2}
   mountains: {fileID: 11400000, guid: d64cb3e6b0d8dbc44b44200e3d9361f2, type: 2}
-  preset: {fileID: 11400000, guid: da4c95e1a5e5358479fcef3c8de3ae8d, type: 2}
+  preset: {fileID: 11400000, guid: 81f69e1ef840eb44191e61e0433e9e78, type: 2}
   fixToTexture: 1
   noiseSeed: 0
   totalNoiseScale: 0
@@ -375,6 +375,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77947a796847c3a41be5bba6256fd6ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &184318062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184318058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf84c3074a7f964eb039b624c23da38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilemap: {fileID: 2120070809}
 --- !u!1 &412732663
 GameObject:
   m_ObjectHideFlags: 0
@@ -1142,7 +1155,7 @@ MonoBehaviour:
   minZoom: 6
   maxZoom: 50
   zoomDamping: 10
-  zoomSpeed: 1
+  zoomSpeed: 10
 --- !u!1 &935202348
 GameObject:
   m_ObjectHideFlags: 0
@@ -1619,11 +1632,11 @@ Tilemap:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 184318060}
   - {fileID: 925083802}
   - {fileID: 619394802}
   - {fileID: 1981188660}
   - {fileID: 78679305}
   - {fileID: 935202351}
   - {fileID: 1236494429}
+  - {fileID: 184318060}
   - {fileID: 864857214}

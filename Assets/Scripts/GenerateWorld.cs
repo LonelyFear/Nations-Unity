@@ -1,4 +1,5 @@
 using Unity.VisualScripting;
+using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -26,12 +27,12 @@ public class GenerateWorld : MonoBehaviour
     public bool fixToTexture = true;
     [Header("Random Noise Settings")]
     public float noiseSeed = 0;
-    [Tooltip("The noise scale for RANDOM NOISE")]
+    [Tooltip("The noise scale for RANDOM NOISE | Higher scale = Smoother")]
     public int totalNoiseScale;
-    [Tooltip("Higher scale = Less Noisy")]
-    public int[] scales = new int[3];
+    [Tooltip("Higher scale = Smoother")]
+    public float[] scales = new float[4];
     [Tooltip("Weights the different noise maps")]
-    public float[] weights = new float[3];
+    public float[] weights = new float[4];
 
     void Start()
     {
@@ -39,31 +40,37 @@ public class GenerateWorld : MonoBehaviour
             fitYToTexture();
         }
         generateWorld();
+
+        // Connects relevant scripts to worldgen finished
         WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
-        TimeEvents.dayUpdate += GetComponent<TileManager>().dayUpdate;
+        TimeEvents.dayUpdate += GetComponent<TileManager>().DayUpdate;
+        GetComponent<TileManager>().Init();
+
+        // Sends worldgen finished signal
         GetComponent<WorldgenEvents>().worldgenFinish();
     }
-
     void fitYToTexture(){
         float texScale = preset.noiseTexture.Size().x / worldSize.x;
         worldSize.y = Mathf.RoundToInt(preset.noiseTexture.Size().y / texScale);
     }
 
-    float getNoise(int x, int y, int scale){
+    float getNoise(int x, int y, float scale, float noiseSeed){
         // Higher scale means less smooth
-        return Mathf.PerlinNoise((x + 0.1f + noiseSeed)/scale,(y + 0.1f + noiseSeed)/scale);
+        var totalScale = scale * totalNoiseScale;
+        return Mathf.PerlinNoise((x + 0.1f + noiseSeed)/totalScale,(y + 0.1f + noiseSeed)/totalScale);
     }
 
     float getHeightNoise(int x, int y){
         float totalNoise;
         // If there isnt a predifined noise texture
         if (!preset.noiseTexture){
-            float detail = getNoise(x * totalNoiseScale,y * totalNoiseScale,scales[2]);
-            float definition = getNoise(x * totalNoiseScale,y * totalNoiseScale,scales[1]);
-            float shape = getNoise(x * totalNoiseScale, y * totalNoiseScale,scales[0]);
+            float grains = getNoise(x,y,scales[3], noiseSeed);
+            float detail = getNoise(x,y,scales[2], noiseSeed);
+            float definition = getNoise(x,y,scales[1], noiseSeed + 300);
+            float shape = getNoise(x, y,scales[0], noiseSeed - 2500);
 
             // Merges the different noise maps and weights them to get more interesting terrain
-            totalNoise = definition * weights[1] + shape * weights[0] + detail * weights[2];
+            totalNoise = (shape * weights[0]) + (definition * weights[1]) + (detail * weights[2]) + (grains * weights[3]);
         } else {
             // Stretches or squashes the values to represent the whole noise texture
             Vector2 texScale = preset.noiseTexture.Size() / worldSize;
@@ -79,7 +86,7 @@ public class GenerateWorld : MonoBehaviour
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int y = 0; y < worldSize.y; y++){
             for (int x = 0; x < worldSize.x; x++){
-                Vector3Int cellPos = new Vector3Int(x - (worldSize.x/2),y - (worldSize.y/2));
+                Vector3Int cellPos = new Vector3Int(x,y);
                 float value = getHeightNoise(x,y);
 
                 tilemap.SetTile(cellPos, tileBase);
@@ -95,11 +102,14 @@ public class GenerateWorld : MonoBehaviour
                     newTileTerrain = hills;
                 }
                 // Instantiates a tile
-                var newTile = new Tile();
-                // Sets the tiles terrain
-                newTile.terrain = newTileTerrain;
+                var newTile = new Tile
+                {
+                    // Sets the tiles terrain
+                    terrain = newTileTerrain
+                };
                 // Adds the tile to the tile manager
                 GetComponent<TileManager>().tiles.Add(cellPos, newTile);
+                
             }
         }
     }

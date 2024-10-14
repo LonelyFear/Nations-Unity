@@ -333,21 +333,26 @@ MonoBehaviour:
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
   tilemap: {fileID: 2120070809}
   tileBase: {fileID: 11400000, guid: 9ff30deb5bfc664478d266f55e9243e6, type: 2}
-  worldSize: {x: 50, y: 1}
+  worldSize: {x: 500, y: 250}
   randomNationCount: 10
   plains: {fileID: 11400000, guid: fae7fa4824756bb4ebb3a38bbd280bf0, type: 2}
   ocean: {fileID: 11400000, guid: 24fd05807107d674ca9b8394640835ce, type: 2}
   hills: {fileID: 11400000, guid: e9e8e676ff8196d4d8e36e7ec3cf16b1, type: 2}
   mountains: {fileID: 11400000, guid: d64cb3e6b0d8dbc44b44200e3d9361f2, type: 2}
-  preset: {fileID: 11400000, guid: 81f69e1ef840eb44191e61e0433e9e78, type: 2}
+  preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
-  noiseSeed: 0
-  totalNoiseScale: 0
-  scales: 140000000500000001000000
+  noiseSeed: 69420
+  totalNoiseScale: 100
+  scales:
+  - 1
+  - 0.75
+  - 0.25
+  - 0.05
   weights:
   - 0.6
-  - 0.25
+  - 0.2
   - 0.15
+  - 0.05
 --- !u!4 &184318060
 Transform:
   m_ObjectHideFlags: 0
@@ -388,6 +393,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
+  nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
 --- !u!1 &412732663
 GameObject:
   m_ObjectHideFlags: 0
@@ -1153,9 +1159,9 @@ MonoBehaviour:
   moveDamping: 10
   cameraSize: 40
   minZoom: 6
-  maxZoom: 50
+  maxZoom: 100
   zoomDamping: 10
-  zoomSpeed: 10
+  zoomSpeed: 1
 --- !u!1 &935202348
 GameObject:
   m_ObjectHideFlags: 0

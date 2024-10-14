@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -6,7 +5,6 @@ using UnityEngine.Tilemaps;
 public class GenerateWorld : MonoBehaviour
 {
     [Header("Variables And Lists")]
-    private Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
     public Nation nationPrefab;
     public Tilemap tilemap;
     public TileBase tileBase;
@@ -35,24 +33,27 @@ public class GenerateWorld : MonoBehaviour
     [Tooltip("Weights the different noise maps")]
     public float[] weights = new float[3];
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         if (fixToTexture && preset.noiseTexture){
             fitYToTexture();
         }
         generateWorld();
+        WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
+        TimeEvents.dayUpdate += GetComponent<TileManager>().dayUpdate;
         GetComponent<WorldgenEvents>().worldgenFinish();
     }
+
     void fitYToTexture(){
         float texScale = preset.noiseTexture.Size().x / worldSize.x;
-        print(texScale);
         worldSize.y = Mathf.RoundToInt(preset.noiseTexture.Size().y / texScale);
     }
+
     float getNoise(int x, int y, int scale){
         // Higher scale means less smooth
         return Mathf.PerlinNoise((x + 0.1f + noiseSeed)/scale,(y + 0.1f + noiseSeed)/scale);
     }
+
     float getHeightNoise(int x, int y){
         float totalNoise;
         // If there isnt a predifined noise texture
@@ -73,6 +74,7 @@ public class GenerateWorld : MonoBehaviour
         }
         return totalNoise;
     }
+
     void generateWorld(){
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int y = 0; y < worldSize.y; y++){
@@ -81,8 +83,6 @@ public class GenerateWorld : MonoBehaviour
                 float value = getHeightNoise(x,y);
 
                 tilemap.SetTile(cellPos, tileBase);
-                print(tilemap.GetTile(cellPos));
-                //print(tilemap.GetTile(cellPos).GetTileData(cellPos, tilemap));
 
                 // Sets terrain to default
                 TileTerrain newTileTerrain = plains;
@@ -94,15 +94,13 @@ public class GenerateWorld : MonoBehaviour
                 } else if (value > preset.hillTreshold) {
                     newTileTerrain = hills;
                 }
-
+                // Instantiates a tile
                 var newTile = new Tile();
+                // Sets the tiles terrain
                 newTile.terrain = newTileTerrain;
-
-
+                // Adds the tile to the tile manager
                 GetComponent<TileManager>().tiles.Add(cellPos, newTile);
             }
         }
-        WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
-        TimeEvents.dayUpdate += GetComponent<TileManager>().dayUpdate;
     }
 }

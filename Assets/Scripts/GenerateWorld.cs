@@ -1,17 +1,14 @@
-using System.Collections.Generic;
-using TreeEditor;
 using Unity.VisualScripting;
-using UnityEditor.Search;
 using UnityEditor.UI;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.Tilemaps;
 
 public class GenerateWorld : MonoBehaviour
 {
     [Header("Variables And Lists")]
-    public Tile tilePrefab;
     public Nation nationPrefab;
-    public Dictionary<Vector2Int, Tile> tileDict = new Dictionary<Vector2Int, Tile>();
+    public Tilemap tilemap;
+    public TileBase tileBase;
     
     [Header("World Generation Settings")]
     public Vector2Int worldSize = new Vector2Int(100, 100);
@@ -30,44 +27,50 @@ public class GenerateWorld : MonoBehaviour
     public bool fixToTexture = true;
     [Header("Random Noise Settings")]
     public float noiseSeed = 0;
-    [Tooltip("The noise scale for RANDOM NOISE")]
+    [Tooltip("The noise scale for RANDOM NOISE | Higher scale = Smoother")]
     public int totalNoiseScale;
-    [Tooltip("Higher scale = Less Noisy")]
-    public int[] scales = new int[3];
+    [Tooltip("Higher scale = Smoother")]
+    public float[] scales = new float[4];
     [Tooltip("Weights the different noise maps")]
-    public float[] weights = new float[3];
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public float[] weights = new float[4];
+
     void Start()
     {
-        if (tilePrefab && tilePrefab.name == "Tile"){
-            if (fixToTexture && preset.noiseTexture){
-                fitYToTexture();
-            }
-             generateWorld();
-             GetComponent<WorldgenEvents>().worldgenFinish();
-             addRandomNations(randomNationCount);
-             
+        if (fixToTexture && preset.noiseTexture){
+            fitYToTexture();
         }
+        generateWorld();
+
+        // Connects relevant scripts to worldgen finished
+        WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
+        TimeEvents.dayUpdate += GetComponent<TileManager>().DayUpdate;
+        GetComponent<TileManager>().Init();
+
+        // Sends worldgen finished signal
+        GetComponent<WorldgenEvents>().worldgenFinish();
     }
     void fitYToTexture(){
         float texScale = preset.noiseTexture.Size().x / worldSize.x;
-        print(texScale);
         worldSize.y = Mathf.RoundToInt(preset.noiseTexture.Size().y / texScale);
     }
-    float getNoise(int x, int y, int scale){
+
+    float getNoise(int x, int y, float scale, float noiseSeed){
         // Higher scale means less smooth
-        return Mathf.PerlinNoise((x + 0.1f + noiseSeed)/scale,(y + 0.1f + noiseSeed)/scale);
+        var totalScale = scale * totalNoiseScale;
+        return Mathf.PerlinNoise((x + 0.1f + noiseSeed)/totalScale,(y + 0.1f + noiseSeed)/totalScale);
     }
+
     float getHeightNoise(int x, int y){
         float totalNoise;
         // If there isnt a predifined noise texture
         if (!preset.noiseTexture){
-            float detail = getNoise(x * totalNoiseScale,y * totalNoiseScale,scales[2]);
-            float definition = getNoise(x * totalNoiseScale,y * totalNoiseScale,scales[1]);
-            float shape = getNoise(x * totalNoiseScale, y * totalNoiseScale,scales[0]);
+            float grains = getNoise(x,y,scales[3], noiseSeed);
+            float detail = getNoise(x,y,scales[2], noiseSeed);
+            float definition = getNoise(x,y,scales[1], noiseSeed + 300);
+            float shape = getNoise(x, y,scales[0], noiseSeed - 2500);
 
             // Merges the different noise maps and weights them to get more interesting terrain
-            totalNoise = definition * weights[1] + shape * weights[0] + detail * weights[2];
+            totalNoise = (shape * weights[0]) + (definition * weights[1]) + (detail * weights[2]) + (grains * weights[3]);
         } else {
             // Stretches or squashes the values to represent the whole noise texture
             Vector2 texScale = preset.noiseTexture.Size() / worldSize;
@@ -78,18 +81,19 @@ public class GenerateWorld : MonoBehaviour
         }
         return totalNoise;
     }
+
     void generateWorld(){
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int y = 0; y < worldSize.y; y++){
             for (int x = 0; x < worldSize.x; x++){
-                
-                
-                
-                
+                Vector3Int cellPos = new Vector3Int(x,y);
                 float value = getHeightNoise(x,y);
+
+                tilemap.SetTile(cellPos, tileBase);
+
                 // Sets terrain to default
                 TileTerrain newTileTerrain = plains;
-                // Checks if the noise value is less than the ocean threshold
+                // Checks if the noise value is less than the ocean threshold            
                 if (value <= preset.oceanThreshold){
                     newTileTerrain = ocean;
                 } else if (value > preset.mountainTreshold){
@@ -97,77 +101,16 @@ public class GenerateWorld : MonoBehaviour
                 } else if (value > preset.hillTreshold) {
                     newTileTerrain = hills;
                 }
-
-                // Gets grid position of new tile
-                Vector2Int tilePos = new Vector2Int(x,y);
-                //print(tilePos);
-                // Instiates a new tile
-                Tile newTile = Instantiate(tilePrefab);
-                Transform tileTransform = newTile.transform;
-
-                // (worldSize.x/2) is to align tiles with center of camera
-                // 0.5f is to align tile with grid
-                tileTransform.position = new Vector2(x - (worldSize.x/2) + 0.5f, y - (worldSize.y/2) + 0.5f);
-                // Gives tiles a random color to check for overlaps
-                //newTile.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
-                tileTransform.SetParent(transform);
+                // Instantiates a tile
+                var newTile = new Tile
+                {
+                    // Sets the tiles terrain
+                    terrain = newTileTerrain
+                };
+                // Adds the tile to the tile manager
+                GetComponent<TileManager>().tiles.Add(cellPos, newTile);
                 
-                // Puts tile in grid
-                tileDict.Add(tilePos, newTile);
-                // Gives tile terrain
-                newTile.terrain = newTileTerrain;
-                // Gives Tile its Grid Position
-                newTile.tilePos = tilePos;
-
-                // Subscribes tile to onWorldgenFinish Event
-                WorldgenEvents.onWorldgenFinished += newTile.TileInit;
-                // Subscribes tile to day update
-                TimeEvents.dayUpdate += newTile.onDayUpdate;
-                // Subscribes tilePop to month update
-                TimeEvents.monthUpdate += newTile.GetComponent<TilePop>().onMonthUpdate;
-                // Connects the time manager to onWorldgenFinish Event
-                WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
             }
         }
-
-    }
-    void addRandomNations(int amount = 1){
-        if (amount > worldSize.x * worldSize.y){
-            amount = worldSize.x * worldSize.y;
-        }
-        for (int i = 0; i < amount; i++){
-            // Instantiates Nation
-            Nation newNation = Instantiate(nationPrefab);
-            // Picks Random Position
-            Vector2Int pos = new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y));
-            // Selects the tile at position
-            var selectedTile = tileDict[pos];
-            // Checks if the tile is neutral and not ocean
-            // NOTE: DO NOT PUT A ! IN FROM OF selectedTile OR GAME WONT LOAD
-            int attempts = 0;
-            while (selectedTile.nation || !selectedTile.terrain.claimable){
-                attempts++;
-                if (attempts >= 100){
-                    break;
-                }
-                // Picks a different tile if a nation cant be put there
-                 selectedTile = tileDict[new Vector2Int(Random.Range(0, worldSize.x), Random.Range(0, worldSize.y))];
-            }
-            if (!selectedTile.nation && selectedTile.terrain.claimable){
-                // Makes a random nation
-                newNation.RandomizeNation();
-                // Makes the nation a child of NationHolder
-                newNation.GetComponent<Transform>().SetParent(GameObject.FindWithTag("NationHolder").GetComponent<Transform>());
-                // Sets the tile to the new nation
-                selectedTile.changeNation(newNation);
-            }
-            
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

@@ -10,23 +10,18 @@ public class Nation : MonoBehaviour
     public string nationName = "New Nation";
     public Color nationColor = Color.red;
     public List<Tile> tiles = new List<Tile>();
+    public List<Tile> occupiedTiles = new List<Tile>();
     public int population;
-
     public string[] nationNames;
     public string[] nationGovernments;
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
+    TileManager tileManager;
+    void Start(){
+        nationInit();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
+    public void nationInit(){
+        tileManager = FindAnyObjectByType<TileManager>();
     }
-
     public void RandomizeNation(){
         nationColor = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
         if (nationNames.Length > 0 && nationGovernments.Length > 0){
@@ -35,12 +30,22 @@ public class Nation : MonoBehaviour
             nationName = name + " " + govt;
         }
     }
-    public void addTile(Tile tile){
+
+    public void AddTile(Vector3Int pos){
+        Tile tile = tileManager.tiles[pos];
+        if (tile.owner){
+            tile.owner.RemoveTile(tile);
+        }
         tiles.Add(tile);
-        population += tile.tilePop.population;
+        population += tile.population;
+        tile.owner = this;
+
+        tileManager.updateColor(pos);
     }
-    public void removeTile(Tile tile){
+
+    public void RemoveTile(Tile tile){
         tiles.Remove(tile);
-        population -= tile.tilePop.population;
+        population -= tile.population;
     }
+
 }

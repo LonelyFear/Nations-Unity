@@ -7,6 +7,7 @@ public class TileManager : MonoBehaviour
 {
     public Tilemap tilemap;
 
+    public int startingNationCount = 2;
     public Nation nationPrefab;
     public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
     public List<Nation> nations = new List<Nation>();
@@ -19,7 +20,7 @@ public class TileManager : MonoBehaviour
             updateColor(entry.Key);
             entry.Value.tilePos = entry.Key;
         }
-        addRandomNations(2);
+        addRandomNations(startingNationCount);
     }
     public void DayUpdate(){
         neutralExpansion();
@@ -28,10 +29,10 @@ public class TileManager : MonoBehaviour
     public void neutralExpansion(){
         foreach (var entry in tiles){
             Tile tile = entry.Value;
-            float expandChance = 0.1f;
+            
 
-            if (tile.border && tile.owner != null){
-                
+            if (tile.frontier && tile.owner != null){
+                float expandChance = 0.1f;
                 for (int xd = -1; xd <= 1; xd++){
                     for (int yd = -1; yd <= 1; yd++){
                         Vector3Int pos = new Vector3Int(xd,yd) + entry.Key;
@@ -105,7 +106,10 @@ public class TileManager : MonoBehaviour
     public void Border(Vector3Int position){
         Tile tile = getTile(position);
         if (tile != null){
-            tile.border = false;  
+            // If a tile is a border at all
+            tile.border = false;
+            // If a tile borders a neutral tile
+            tile.frontier = false;
             for (int xd = -1; xd <= 1; xd++){
                 for (int yd = -1; yd <= 1; yd++){
                     if (yd == 0 && xd == 0){
@@ -114,8 +118,14 @@ public class TileManager : MonoBehaviour
                     Vector3Int pos = new Vector3Int(xd,yd) + position;
                     if (getTile(pos) != null && getTile(pos).owner != tile.owner){
                         tile.border = true;
+                        if (getTile(pos).owner == null){
+                           if (getTile(pos).terrain.claimable){
+                                tile.frontier = true;
+                            } else if (getTile(pos).terrain.naval){
+                                tile.coastal = true;
+                            } 
+                        }
                         updateColor(position);
-                        return;
                     }
                 }
             }

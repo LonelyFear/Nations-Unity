@@ -46,7 +46,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nationName: New Nation
   nationColor: {r: 1, g: 0, b: 0, a: 1}
-  tiles: []
   population: 0
   nationNames:
   - Fearia
@@ -60,6 +59,7 @@ MonoBehaviour:
   - Frankish
   - Sennish
   - Ronan
+  - Vortex
   nationGovernments:
   - Republic
   - State
@@ -68,3 +68,4 @@ MonoBehaviour:
   - Confederation
   - University
   - Theocracy
+  - Imperium

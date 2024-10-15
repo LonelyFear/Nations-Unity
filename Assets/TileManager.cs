@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
+using Unity.Collections;
 
 public class TileManager : MonoBehaviour
 {
@@ -18,12 +19,37 @@ public class TileManager : MonoBehaviour
             updateColor(entry.Key);
             entry.Value.tilePos = entry.Key;
         }
-        addRandomNations(20000);
+        addRandomNations(2);
     }
     public void DayUpdate(){
-
+        neutralExpansion();
     }
 
+    public void neutralExpansion(){
+        foreach (var entry in tiles){
+            Tile tile = entry.Value;
+            float expandChance = 0.1f;
+
+            if (tile.owner != null){
+                
+                for (int xd = -1; xd <= 1; xd++){
+                    for (int yd = -1; yd <= 1; yd++){
+                        Vector3Int pos = new Vector3Int(xd,yd) + entry.Key;
+                        if (tiles.ContainsKey(pos)){
+                            bool canExpand = Random.Range(0f, 1f) < expandChance * tiles[pos].terrain.neutralExpansionMult;
+                            bool claimable = tiles[pos].terrain.claimable && tiles[pos].owner == null;
+
+                            if (claimable && canExpand){
+                                tile.owner.AddTile(pos);
+                                // TODO: Make tiles detect if they are a border to improve performance
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
     public void addRandomNations(int amount){
         for (int i = 0; i < amount; i++){
             int attempts = 300;

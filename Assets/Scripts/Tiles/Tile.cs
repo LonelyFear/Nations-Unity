@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.VisualScripting;
 using UnityEditor.U2D.Aseprite;
@@ -12,6 +13,7 @@ public class Tile
     public Nation occupier;
     public int population;
     public Vector3Int tilePos;
+    public bool border;
 
     public void changeOwner(Nation newNation){
         // Makes sure the tile can be claimed in the first place

@@ -15,19 +15,19 @@ public class Tile
     public Vector3Int tilePos;
     public bool border;
 
-    public void changeOwner(Nation newNation){
-        // Makes sure the tile can be claimed in the first place
-        if (terrain.claimable){
-            // Checks if the tile already has a nation
-            if (owner){
-                // If it does, removes the tile from the nation
-                owner.RemoveTile(this);
-            }
-            // Sets the tile to the new nation
-            owner = newNation;
-            // Updates the nation with the new tile
-            newNation.AddTile(tilePos);
-        }
-    }
+    // public void changeOwner(Nation newNation){
+    //     // Makes sure the tile can be claimed in the first place
+    //     if (terrain.claimable){
+    //         // Checks if the tile already has a nation
+    //         if (owner){
+    //             // If it does, removes the tile from the nation
+    //             owner.RemoveTile(tilePos);
+    //         }
+    //         // Sets the tile to the new nation
+    //         owner = newNation;
+    //         // Updates the nation with the new tile
+    //         newNation.AddTile(tilePos);
+    //     }
+    // }
 
 }

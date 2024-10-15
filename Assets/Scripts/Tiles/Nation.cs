@@ -32,20 +32,27 @@ public class Nation : MonoBehaviour
     }
 
     public void AddTile(Vector3Int pos){
-        Tile tile = tileManager.tiles[pos];
+        Tile tile = tileManager.getTile(pos);
         if (tile.owner){
-            tile.owner.RemoveTile(tile);
+            tile.owner.RemoveTile(pos);
         }
         tiles.Add(tile);
         population += tile.population;
         tile.owner = this;
 
         tileManager.updateColor(pos);
+        tileManager.updateBorders(pos);
     }
 
-    public void RemoveTile(Tile tile){
-        tiles.Remove(tile);
-        population -= tile.population;
-    }
+    public void RemoveTile(Vector3Int pos){
+        Tile tile = tileManager.getTile(pos);
+        if (tiles.Contains(tile)){
+            tiles.Remove(tile);
+            population -= tile.population;
+            tile.owner = null;
 
+            tileManager.updateColor(pos);
+            tileManager.updateBorders(pos);
+        }
+    }
 }

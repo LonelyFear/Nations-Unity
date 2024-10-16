@@ -154,7 +154,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4
 --- !u!114 &78679303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -393,6 +393,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
+  nationPanel: {fileID: 412732667}
+  startingNationCount: 55
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
   nations: []
 --- !u!1 &412732663
@@ -406,6 +408,7 @@ GameObject:
   - component: {fileID: 412732664}
   - component: {fileID: 412732666}
   - component: {fileID: 412732665}
+  - component: {fileID: 412732667}
   m_Layer: 5
   m_Name: Nation Panel
   m_TagString: Untagged
@@ -431,8 +434,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 337.80997, y: 106.98}
-  m_SizeDelta: {x: -675.61, y: 213.96}
+  m_AnchoredPosition: {x: -310.28, y: 145.09178}
+  m_SizeDelta: {x: -620.553, y: 290.1743}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &412732665
 MonoBehaviour:
@@ -472,6 +475,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 412732663}
   m_CullTransparentMesh: 1
+--- !u!114 &412732667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412732663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8395782a88d14a489b62b768911c2e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nationName: {fileID: 732641804}
 --- !u!1 &567546096
 GameObject:
   m_ObjectHideFlags: 0
@@ -507,7 +523,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 64.71, y: 88.126}
+  m_AnchoredPosition: {x: 91.7, y: 124.1}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &567546098
@@ -710,7 +726,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 10.6, y: 88.113}
+  m_AnchoredPosition: {x: -14, y: 124.11}
   m_SizeDelta: {x: 182.2, y: 20.0255}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &732641804
@@ -1157,7 +1173,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraSpeed: 70
-  moveDamping: 10
+  moveDamping: 5
   cameraSize: 40
   minZoom: 6
   maxZoom: 100

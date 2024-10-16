@@ -11,6 +11,8 @@ public class Nation : MonoBehaviour
     public Color nationColor = Color.red;
     public List<Tile> tiles = new List<Tile>();
     public List<Tile> occupiedTiles = new List<Tile>();
+
+    public Dictionary<Nation, Relations> relations = new Dictionary<Nation, Relations>();
     public int population;
     public string[] nationNames;
     public string[] nationGovernments;
@@ -20,7 +22,22 @@ public class Nation : MonoBehaviour
     }
 
     public void nationInit(){
+        gameObject.name = nationName;
         tileManager = FindAnyObjectByType<TileManager>();
+    }
+
+    public void relationUpdate(){
+        foreach (Nation nation in tileManager.nations){
+            if (nation.gameObject.activeInHierarchy){
+                if (relations.ContainsKey(nation)){
+                    relations.Remove(nation);
+                }
+            }
+            else if (!relations.ContainsKey(nation)){
+                relations.Add(nation, new Relations());
+            }
+
+        }
     }
     public void RandomizeNation(){
         nationColor = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
@@ -36,12 +53,48 @@ public class Nation : MonoBehaviour
         if (tile.owner){
             tile.owner.RemoveTile(pos);
         }
+        if (tile.occupier){
+            tile.occupier.RemoveOccupation(pos);
+        }
         tiles.Add(tile);
         population += tile.population;
         tile.owner = this;
+        
 
         tileManager.updateColor(pos);
         tileManager.updateBorders(pos);
+    }
+
+    public void OccupyTile(Vector3Int pos){
+        Tile tile = tileManager.getTile(pos);
+        if (tile.occupier){
+            tile.occupier.RemoveOccupation(pos);
+        }
+        occupiedTiles.Add(tile);
+        tile.occupier = this;
+
+        tileManager.updateColor(pos);
+        tileManager.updateBorders(pos);
+    }
+
+    public void RemoveOccupation(Vector3Int pos){
+        Tile tile = tileManager.getTile(pos);
+        if (occupiedTiles.Contains(tile)){
+            tile.occupier = null;
+
+            tileManager.updateColor(pos);
+            tileManager.updateBorders(pos);
+        }
+    }
+
+    public void TakeTile(Vector3Int pos){
+        Tile tile = tileManager.getTile(pos);
+        if (tile.owner == this && tile.occupier != null){
+            tile.occupier.RemoveOccupation(pos);
+        }
+        else if (tile.owner != null && tile.occupier == null){
+            OccupyTile(pos);
+        }
     }
 
     public void RemoveTile(Vector3Int pos){

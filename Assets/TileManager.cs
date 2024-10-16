@@ -2,11 +2,14 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using Unity.Collections;
+using System;
+using Random = UnityEngine.Random;
 
 public class TileManager : MonoBehaviour
 {
     public Tilemap tilemap;
 
+    public NationPanel nationPanel;
     public int startingNationCount = 2;
     public Nation nationPrefab;
     public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
@@ -19,6 +22,7 @@ public class TileManager : MonoBehaviour
         foreach (var entry in tiles){
             updateColor(entry.Key);
             entry.Value.tilePos = entry.Key;
+            entry.Value.population = Random.Range(50,2000);
         }
         addRandomNations(startingNationCount);
     }
@@ -30,21 +34,22 @@ public class TileManager : MonoBehaviour
         foreach (var entry in tiles){
             Tile tile = entry.Value;
             
-
+            float expandChance = 0.01f;
             if (tile.frontier && tile.owner != null){
-                float expandChance = 0.1f;
+                
                 for (int xd = -1; xd <= 1; xd++){
                     for (int yd = -1; yd <= 1; yd++){
-                        Vector3Int pos = new Vector3Int(xd,yd) + entry.Key;
-                        if (tiles.ContainsKey(pos)){
-                            bool canExpand = Random.Range(0f, 1f) < expandChance * getTile(pos).terrain.neutralExpansionMult;
-                            bool claimable = getTile(pos).terrain.claimable && getTile(pos).owner == null;
-
-                            if (claimable && canExpand){
-                                tile.owner.AddTile(pos);
-                                // TODO: Make tiles detect if they are a border to improve performance
+                        if (Random.Range(0f, 1f) < expandChance){
+                            Vector3Int pos = new Vector3Int(xd,yd) + entry.Key;
+                            if (tiles.ContainsKey(pos)){
+                                    bool canExpand = Random.Range(0f, 1f) < getTile(pos).terrain.neutralExpansionMult;
+                                    bool claimable = getTile(pos).terrain.claimable && getTile(pos).owner == null;
+                                if (claimable && canExpand){
+                                    tile.owner.AddTile(pos);
+                                }
                             }
                         }
+                        
                         
                     }
                 }
@@ -87,18 +92,34 @@ public class TileManager : MonoBehaviour
         }
     }
 
+    public void updateAllColors(){
+        foreach (var entry in tiles){
+            updateColor(entry.Key);
+        }
+    }
+
     public void updateColor(Vector3Int position){
         tilemap.SetTileFlags(position, TileFlags.None);
-
+        Color finalColor;
         if (tiles[position].owner){
-            tilemap.SetColor(position, tiles[position].owner.nationColor);
+            finalColor = tiles[position].owner.nationColor;
             if (tiles[position].border){
-                tilemap.SetColor(position, tiles[position].owner.nationColor * 0.7f + Color.black * 0.3f);
+                finalColor = tiles[position].owner.nationColor * 0.7f + Color.black * 0.3f;
             }
         } else {
-            tilemap.SetColor(position, tiles[position].terrain.terrainColor);
+            finalColor = tiles[position].terrain.terrainColor;
         }
-        
+        // Higlights selected nation
+        if (nationPanel != null && nationPanel.tileSelected != null && nationPanel.tileSelected.owner){
+            // Sets the selected nation to the, selected nation
+            Nation selectedNation = nationPanel.tileSelected.owner;
+            // If the tile isnt the selected nation
+            if (tiles[position].owner != selectedNation){
+                // Darkens it
+                finalColor = finalColor * 0.5f + Color.black * 0.5f;
+            }
+        }
+        tilemap.SetColor(position, finalColor);
         tilemap.SetTileFlags(position, TileFlags.LockColor);
     }
 
@@ -157,5 +178,36 @@ public class TileManager : MonoBehaviour
             return tiles[position];
         }
         return null;
+    }
+
+    void Update(){
+        foreach (Nation nation in nations){
+            if (nation.tiles.Count < 1){
+                nation.gameObject.SetActive(false);
+            }
+        }
+        if (nationPanel){
+            detectTileClick();
+        }
+            
+    }
+
+    void detectTileClick(){
+
+        Vector3Int mouseGridPos = tilemap.WorldToCell(FindAnyObjectByType<Camera>().ScreenToWorldPoint(Input.mousePosition));
+        if (tiles.ContainsKey(mouseGridPos)){
+            Tile tile = tiles[mouseGridPos];
+            if (Input.GetMouseButtonDown(0)){
+                if (tile != null && tile.owner){
+                    nationPanel.tileSelected = tile;
+                    nationPanel.gameObject.SetActive(true);
+                    updateAllColors();
+                } else {
+                    nationPanel.tileSelected = null;
+                    nationPanel.gameObject.SetActive(false);
+                    updateAllColors();
+                }
+            }
+        }
     }
 }

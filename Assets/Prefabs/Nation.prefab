@@ -48,7 +48,7 @@ MonoBehaviour:
   nationColor: {r: 1, g: 0, b: 0, a: 1}
   population: 0
   nationNames:
-  - Fearia
+  - Fearian
   - Libertarian
   - Archivist
   - Amoguslavian
@@ -60,12 +60,12 @@ MonoBehaviour:
   - Sennish
   - Ronan
   - Vortex
+  - Arctian
   nationGovernments:
   - Republic
   - State
   - Empire
   - Kingdom
   - Confederation
-  - University
   - Theocracy
   - Imperium

@@ -8,4 +8,7 @@ public class TileTerrain : ScriptableObject
     public Color terrainColor;
     [Range(0f, 1f)]
     public float neutralExpansionMult = 1f;
+    
+    [Range(0f, 1f)]
+    public float popMultiplier = 1f;
 }

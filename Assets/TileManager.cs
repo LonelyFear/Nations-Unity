@@ -168,13 +168,16 @@ public class TileManager : MonoBehaviour
     public void Border(Vector3Int position){
         // Gets a tile
         Tile tile = getTile(position);
+        
         if (tile != null){
             // If a tile is a border at all
             tile.border = false;
             // If a tile borders a neutral tile
             tile.frontier = false;
-            // Goes through the tiles adjacents
+            
             tile.nationalBorder = false;
+            tile.borderingNations.Clear();
+            // Goes through the tiles adjacents
             for (int xd = -1; xd <= 1; xd++){
                 for (int yd = -1; yd <= 1; yd++){
                     if (yd == 0 && xd == 0){
@@ -190,15 +193,14 @@ public class TileManager : MonoBehaviour
                         // But wait, theres more!
                         tile.border = true;
 
-                        if (tile.owner && getTile(pos).owner != tile.owner){
+                        if (tile.owner != null && getTile(pos).owner != tile.owner && getTile(pos).owner != null){
                             tile.nationalBorder = true;
 
-                            var nation = tile.owner;
+                            //var nation = tile.owner;
                             var borderNation = getTile(pos).owner;
 
-                            if (!nation.borderingNations.Contains(borderNation)){
-                                nation.borderingNations.Add(borderNation);
-                                // TODO: Make nations remove nations that they dont border from this list
+                            if (!tile.borderingNations.Contains(borderNation)){
+                                tile.borderingNations.Add(borderNation);
                             }
                         }
 
@@ -240,6 +242,11 @@ public class TileManager : MonoBehaviour
                             // Makes that tile check its borders
                             // NOTE: Also runs on self :D
                             Border(pos);
+                            if (tile.owner){
+                                if (getTile(pos).owner){
+                                    getTile(pos).owner.getBorders();
+                                }
+                            }
                         }
                     }
                 }

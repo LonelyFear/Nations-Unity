@@ -20,6 +20,18 @@ public class Nation : MonoBehaviour
     void Start(){
         nationInit();
     }
+    public void getBorders(){
+        borderingNations.Clear();
+        foreach (Tile tile in tiles){
+            if (tile.nationalBorder){
+                foreach (Nation nation in tile.borderingNations){
+                    if (!borderingNations.Contains(nation)){
+                        borderingNations.Add(nation);
+                    }
+                }
+            }
+        }
+    }
 
     public void nationInit(){
         gameObject.name = nationName;
@@ -33,7 +45,6 @@ public class Nation : MonoBehaviour
             nationName = name + " " + govt;
         }
     }
-
     public void AddTile(Vector3Int pos){
         Tile tile = tileManager.getTile(pos);
         if (tile.owner){
@@ -50,7 +61,6 @@ public class Nation : MonoBehaviour
                 gameObject.SetActive(false);
         }
     }
-
     public void RemoveTile(Vector3Int pos){
         Tile tile = tileManager.getTile(pos);
         if (tiles.Contains(tile)){

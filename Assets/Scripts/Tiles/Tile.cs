@@ -18,6 +18,8 @@ public class Tile
     public bool nationalBorder;
     public bool coastal;
 
+    public List<Nation> borderingNations = new List<Nation>();
+
     // public void changeOwner(Nation newNation){
     //     // Makes sure the tile can be claimed in the first place
     //     if (terrain.claimable){

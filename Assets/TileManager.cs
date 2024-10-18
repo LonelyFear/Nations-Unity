@@ -198,6 +198,7 @@ public class TileManager : MonoBehaviour
 
                             if (!nation.borderingNations.Contains(borderNation)){
                                 nation.borderingNations.Add(borderNation);
+                                // TODO: Make nations remove nations that they dont border from this list
                             }
                         }
 

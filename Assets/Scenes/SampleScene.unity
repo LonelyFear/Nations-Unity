@@ -339,7 +339,7 @@ MonoBehaviour:
   ocean: {fileID: 11400000, guid: 24fd05807107d674ca9b8394640835ce, type: 2}
   hills: {fileID: 11400000, guid: e9e8e676ff8196d4d8e36e7ec3cf16b1, type: 2}
   mountains: {fileID: 11400000, guid: d64cb3e6b0d8dbc44b44200e3d9361f2, type: 2}
-  preset: {fileID: 11400000, guid: da4c95e1a5e5358479fcef3c8de3ae8d, type: 2}
+  preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
   noiseSeed: 69420
   totalNoiseScale: 100

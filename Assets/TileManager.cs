@@ -174,6 +174,7 @@ public class TileManager : MonoBehaviour
             // If a tile borders a neutral tile
             tile.frontier = false;
             // Goes through the tiles adjacents
+            tile.nationalBorder = false;
             for (int xd = -1; xd <= 1; xd++){
                 for (int yd = -1; yd <= 1; yd++){
                     if (yd == 0 && xd == 0){
@@ -188,6 +189,18 @@ public class TileManager : MonoBehaviour
                         // If it does and it doesnt have the same owner as us, makes this tile a border :D
                         // But wait, theres more!
                         tile.border = true;
+
+                        if (tile.owner && getTile(pos).owner != tile.owner){
+                            tile.nationalBorder = true;
+
+                            var nation = tile.owner;
+                            var borderNation = getTile(pos).owner;
+
+                            if (!nation.borderingNations.Contains(borderNation)){
+                                nation.borderingNations.Add(borderNation);
+                            }
+                        }
+
                         if (getTile(pos).owner == null){
                             // If the tested border is neutral
                             if (getTile(pos).terrain.claimable){

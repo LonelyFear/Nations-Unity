@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   claimable: 1
   naval: 0
-  terrainColor: {r: 0.4792453, g: 0.4792453, b: 0.4792453, a: 1}
+  terrainColor: {r: 0.4339623, g: 0.3943871, b: 0.36272696, a: 1}
   neutralExpansionMult: 0.1
   popMultiplier: 0.25

@@ -15,6 +15,7 @@ public class Tile
     public Vector3Int tilePos;
     public bool border;
     public bool frontier;
+    public bool nationalBorder;
     public bool coastal;
 
     // public void changeOwner(Nation newNation){

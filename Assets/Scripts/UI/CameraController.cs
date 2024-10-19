@@ -36,6 +36,7 @@ public class CameraController : MonoBehaviour
         moveCamera();
         transform.position += new Vector3(velocity.x, velocity.y) * Time.deltaTime;
         bool overUI = EventSystem.current.IsPointerOverGameObject();
+
         if (!overUI){
             zoomCamera();
         }  
@@ -43,7 +44,7 @@ public class CameraController : MonoBehaviour
 
     void moveCamera(){
         InputAction move = InputSystem.actions.FindAction("Move");
-        velocity += move.ReadValue<Vector2>() * cameraSpeed;
+        velocity += move.ReadValue<Vector2>() * (cameraSpeed * (cameraSize / maxZoom));
 
         // Deceleration
         velocity = Vector2.Lerp(velocity, Vector2.zero, moveDamping * Time.deltaTime);

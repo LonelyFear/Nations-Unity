@@ -17,6 +17,8 @@ public class Nation : MonoBehaviour
     public string[] nationNames;
     public string[] nationGovernments;
     TileManager tileManager;
+
+    int weekCounter = 7;
     void Start(){
         nationInit();
     }
@@ -82,14 +84,18 @@ public class Nation : MonoBehaviour
     }
 
     public void onDay(){
-
+        weekCounter --;
+        if (weekCounter <= 0){
+            weekCounter = 7;
+            updateRelations();
+        }
     }
 
     public void updateRelations(){
         foreach (var entry in relations){
             Nation nation = entry.Key;
             Relations relations = entry.Value;
-            
+
             if (borderingNations.Contains(nation)){
                 if (Random.Range(0f, 1f) < 0.1){
                     relations.opinion -= 1;

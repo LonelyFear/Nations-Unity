@@ -33,7 +33,7 @@ public class TileManager : MonoBehaviour
         // Adds random nations to populate our world :>
         addRandomNations(startingNationCount);
     }
-    public void DayUpdate(){
+    public void OnTick(){
         // Each day nations can expand into neutral lands
         neutralExpansion();
     }
@@ -44,7 +44,7 @@ public class TileManager : MonoBehaviour
             Tile tile = entry.Value;
             
             // Sets the expansion chance
-            float expandChance = 0.01f;
+            float expandChance = 0.0025f;
 
             // If the tile is a frontier and if it has an owner
             if (tile.frontier && tile.owner != null){
@@ -120,7 +120,7 @@ public class TileManager : MonoBehaviour
                 // And adds the very first tile :D
                 newNation.AddTile(pos);
 
-                TimeEvents.dayUpdate += newNation.onDay;
+                TimeEvents.monthUpdate += newNation.OnTick;
             }
                 
         }
@@ -268,12 +268,10 @@ public class TileManager : MonoBehaviour
     }
 
     void Update(){
-
         if (nationPanel && Input.GetMouseButtonDown(0)){
             // Stops everything from running if there isnt input or if the panel doesnt even exist
             detectTileClick();
-        }
-            
+        }   
     }
 
     void detectTileClick(){
@@ -294,20 +292,14 @@ public class TileManager : MonoBehaviour
                     // Checks if we arent just clicking on the same tile
                     if (nationPanel.tileSelected == null || nationPanel.tileSelected.owner != tile.owner){
                         // Sets the selected tile and makes the panel active
-                        nationPanel.tileSelected = tile;
-                        nationPanel.gameObject.SetActive(true);
-                        // updates colors for map darkening (LAGGY!)
-                        updateAllColors();
+                        nationPanel.Enable(tile);
                     }
                     
                 } else {
                     // Makes sure we arent just continually clicking on neutral tiles
                     if (nationPanel.tileSelected != null){
                         // Hides the ui and makes it not display anything >:)
-                        nationPanel.tileSelected = null;
-                        nationPanel.gameObject.SetActive(false);
-                        // updates colors for map darkening (LAGGY!)
-                        updateAllColors();
+                        nationPanel.Disable();
                     }
                         
                 }

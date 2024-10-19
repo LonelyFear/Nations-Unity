@@ -19,9 +19,9 @@ public class TimeDisplay : MonoBehaviour
             int day = tm.day;
             int month = tm.month;
             int year = tm.year;
-            String d = "" + day.ToString("00");
             String m = "" + month.ToString("00");
-            text.text = d + "/" + m + "/" + year;
+            String y = "" + year.ToString("0000");
+            text.text = m + "/" + y;
         } else {
             text.text = "";
         }

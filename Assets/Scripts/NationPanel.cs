@@ -17,6 +17,9 @@ public class NationPanel : MonoBehaviour
     [SerializeField]
     TextMeshProUGUI sizeText;
 
+    [SerializeField]
+    TileManager tm;
+
     public Tile tileSelected;
 
     void Start(){
@@ -42,5 +45,17 @@ public class NationPanel : MonoBehaviour
             return str;
         }
         return "None";
+    }
+
+    public void Enable(Tile tile){
+        tileSelected = tile;
+        gameObject.SetActive(true);
+        tm.updateAllColors();
+    }
+
+    public void Disable(){
+        tileSelected = null;
+        gameObject.SetActive(false);
+        tm.updateAllColors();
     }
 }

@@ -11,22 +11,30 @@ using UnityEngine.EventSystems;
 public class CameraController : MonoBehaviour
 {
     [Header("Camera Movement")]
-    public float cameraSpeed = 100f;
-    public float moveDamping = 5f;
+    [SerializeField]
+    float cameraSpeed = 100f;
+    [SerializeField]
+    float moveDamping = 5f;
 
 
     [Header("Camera Zooming")]
-    public float cameraSize = 40f;
-    public float minZoom = 6f;
-    public float maxZoom = 50f;
-    public float zoomDamping = 5f;
-    public float zoomSpeed = 2f;
+    [SerializeField]
+    float cameraSize = 40f;
+    [SerializeField]
+    float minZoom = 6f;
+    [SerializeField]
+    float maxZoom = 50f;
+    [SerializeField]
+    float zoomDamping = 5f;
+    [SerializeField]
+    float zoomSpeed = 2f;
 
     // Velocity
     Vector2 velocity = new Vector2();
 
     Vector2Int worldSize;
     float zoomVel;
+
 
     // Camera
     Camera cam;
@@ -41,14 +49,18 @@ public class CameraController : MonoBehaviour
     }
     void Update()
     {
-        moveCamera();
-        transform.position += new Vector3(velocity.x, velocity.y) * Time.deltaTime;
-        clampPosition();
-        bool overUI = EventSystem.current.IsPointerOverGameObject();
+        // Checks if the pause menu isnt open
+        if (!FindAnyObjectByType<PauseMenu>().open){
+            moveCamera();
+            transform.position += new Vector3(velocity.x, velocity.y) * Time.deltaTime;
+            clampPosition();
+            bool overUI = EventSystem.current.IsPointerOverGameObject();
 
-        if (!overUI){
-            zoomCamera();
-        }  
+            if (!overUI){
+                zoomCamera();
+            }  
+        }
+        
     }
 
     void clampPosition(){

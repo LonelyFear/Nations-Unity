@@ -14,11 +14,12 @@ public class TimeManager : MonoBehaviour
 
     [Header("Info")]
     public bool timerStart = false; // Makes sure the timers start when worldGen is finished
-
     // Private variables
     private float currentTime = 1f; // Tracks the current time in seconds between days
     
     private TimeEvents events; // Events such as day updates
+
+    public bool paused { get; private set; } = false;
 
     void Start(){
         currentTime = dayLength;
@@ -31,27 +32,38 @@ public class TimeManager : MonoBehaviour
     }
     void Update()
     {
-        if (timerStart){
+        if (timerStart && !paused){
             currentTime -= Time.deltaTime;
             if (currentTime <= 0){
                 currentTime = dayLength;
-                incrementDay();
+                IncrementTime();
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Space)){
+            if (paused){
+                Resume();
+            } else {
+                Pause();
             }
         }
     }
 
-    void incrementDay(){
-        day++;
-        events.updateDay();
-        if (day > 30){
-            day = 1;
-            month++;
-            events.updateMonth();
-            if (month > 12){
-                month = 1;
-                year++;
-                events.updateYear();
-            }
+    void IncrementTime(){
+         month++;
+        events.updateMonth();
+        if (month > 12){
+            month = 1;
+            year++;
+            events.updateYear();
         }
     }
+
+    public void Pause(){
+        paused = true;
+    }
+
+    public void Resume(){
+        paused = false;
+    }
 }
+

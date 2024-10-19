@@ -8,14 +8,16 @@ using Random=UnityEngine.Random;
 
 public class Nation : MonoBehaviour
 {
-    public string nationName = "New Nation";
-    public Color nationColor = Color.red;
-    public List<Tile> tiles = new List<Tile>();
-    public List<Nation> borderingNations = new List<Nation>();
-    public Dictionary<Nation, Relations> relations = new Dictionary<Nation, Relations>();
-    public int population;
-    public string[] nationNames;
-    public string[] nationGovernments;
+    public string nationName { get; private set; }= "New Nation";
+    public Color nationColor { get; private set; } = Color.red;
+    public List<Tile> tiles { get; private set; } = new List<Tile>();
+    public List<Nation> borderingNations { get; private set; } = new List<Nation>();
+    public Dictionary<Nation, Relations> relations { get; private set; } = new Dictionary<Nation, Relations>();
+    public int population { get; private set; }
+    [SerializeField]
+    private string[] nationNames;
+    [SerializeField]
+    private string[] nationGovernments;
     TileManager tileManager;
 
     int weekCounter = 7;
@@ -83,7 +85,7 @@ public class Nation : MonoBehaviour
         }
     }
 
-    public void onDay(){
+    public void OnTick(){
         weekCounter --;
         if (weekCounter <= 0){
             weekCounter = 7;

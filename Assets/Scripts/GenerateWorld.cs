@@ -43,7 +43,7 @@ public class GenerateWorld : MonoBehaviour
 
         // Connects relevant scripts to worldgen finished
         WorldgenEvents.onWorldgenFinished += FindAnyObjectByType<TimeManager>().startTimers;
-        TimeEvents.dayUpdate += GetComponent<TileManager>().DayUpdate;
+        TimeEvents.monthUpdate += GetComponent<TileManager>().OnTick;
         GetComponent<TileManager>().Init();
 
         // Sends worldgen finished signal

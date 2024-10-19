@@ -5,6 +5,7 @@ using Unity.Collections;
 using System;
 using Random = UnityEngine.Random;
 using UnityEngine.EventSystems;
+using UnityEngine.PlayerLoop;
 
 public class TileManager : MonoBehaviour
 {
@@ -118,6 +119,8 @@ public class TileManager : MonoBehaviour
                 newNation.nationInit();
                 // And adds the very first tile :D
                 newNation.AddTile(pos);
+
+                TimeEvents.dayUpdate += newNation.onDay;
             }
                 
         }
@@ -272,6 +275,7 @@ public class TileManager : MonoBehaviour
         }
             
     }
+
     void detectTileClick(){
         // Gets the mouse pos on the world
         Vector3 globalMousePos = FindAnyObjectByType<Camera>().ScreenToWorldPoint(Input.mousePosition);

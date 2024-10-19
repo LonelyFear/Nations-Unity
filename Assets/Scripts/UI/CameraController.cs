@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Camera))]
 public class CameraController : MonoBehaviour
@@ -34,7 +35,10 @@ public class CameraController : MonoBehaviour
     {
         moveCamera();
         transform.position += new Vector3(velocity.x, velocity.y) * Time.deltaTime;
-        zoomCamera();
+        bool overUI = EventSystem.current.IsPointerOverGameObject();
+        if (!overUI){
+            zoomCamera();
+        }  
     }
 
     void moveCamera(){

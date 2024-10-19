@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Relations
 {
-    Nation nation;
-    int opinion = 0;
-    bool atWar = false;
+    public int opinion = 0;
+    public bool atWar = false;
+    public float percievedThreat;
 }

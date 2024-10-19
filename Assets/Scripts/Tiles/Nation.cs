@@ -27,6 +27,10 @@ public class Nation : MonoBehaviour
                 foreach (Nation nation in tile.borderingNations){
                     if (!borderingNations.Contains(nation)){
                         borderingNations.Add(nation);
+                        // If the nation doesnt already have relations, makes new relations
+                        if (!relations.ContainsKey(nation)){
+                            relations.Add(nation, new Relations());
+                        }
                     }
                 }
             }
@@ -76,4 +80,27 @@ public class Nation : MonoBehaviour
             }
         }
     }
+
+    public void onDay(){
+
+    }
+
+    public void updateRelations(){
+        foreach (var entry in relations){
+            Nation nation = entry.Key;
+            Relations relations = entry.Value;
+            
+            if (borderingNations.Contains(nation)){
+                if (Random.Range(0f, 1f) < 0.1){
+                    relations.opinion -= 1;
+                }
+
+            } else {
+                relations.opinion = 0;
+            }
+            
+        }
+    }
+
+
 }

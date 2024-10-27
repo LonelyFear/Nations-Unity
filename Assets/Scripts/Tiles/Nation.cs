@@ -13,7 +13,7 @@ public class Nation : MonoBehaviour
     public List<Tile> tiles { get; private set; } = new List<Tile>();
     public List<Nation> borderingNations { get; private set; } = new List<Nation>();
     public Dictionary<Nation, Relations> relations { get; private set; } = new Dictionary<Nation, Relations>();
-    public int population { get; private set; }
+    public int population;
     [SerializeField]
     private string[] nationNames;
     [SerializeField]

@@ -28,14 +28,24 @@ public class TileManager : MonoBehaviour
             entry.Value.tilePos = entry.Key;
 
             // Initializes their populations
-            entry.Value.population = Mathf.RoundToInt(Random.Range(50,2000) * entry.Value.terrain.popMultiplier);
+            entry.Value.population = Mathf.RoundToInt(Random.Range(1,1) * entry.Value.terrain.popMultiplier);
         }
         // Adds random nations to populate our world :>
         addRandomNations(startingNationCount);
     }
     public void OnTick(){
-        // Each day nations can expand into neutral lands
+        // Each month nations can expand into neutral lands
         neutralExpansion();
+        populationGrowth();
+    }
+
+    public void populationGrowth(){
+        foreach (var entry in tiles){
+            Tile tile = entry.Value;
+            if (tile.population > 0){
+                tile.growPopulation();
+            }
+        }
     }
 
     public void neutralExpansion(){

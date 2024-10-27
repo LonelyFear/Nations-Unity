@@ -18,21 +18,20 @@ public class Tile
     public bool nationalBorder;
     public bool coastal;
 
+    public float baseGrowthRate = 0.0008f;
     public List<Nation> borderingNations = new List<Nation>();
 
-    // public void changeOwner(Nation newNation){
-    //     // Makes sure the tile can be claimed in the first place
-    //     if (terrain.claimable){
-    //         // Checks if the tile already has a nation
-    //         if (owner){
-    //             // If it does, removes the tile from the nation
-    //             owner.RemoveTile(tilePos);
-    //         }
-    //         // Sets the tile to the new nation
-    //         owner = newNation;
-    //         // Updates the nation with the new tile
-    //         newNation.AddTile(tilePos);
-    //     }
-    // }
-
+    public void growPopulation(){
+        if (population > 0 && population < 10000 * terrain.popMultiplier){
+            int totalGrowth = Mathf.RoundToInt(population * baseGrowthRate);
+            if (Random.Range(0f,1f) < (population * baseGrowthRate) - Mathf.FloorToInt(population * baseGrowthRate)){
+                totalGrowth += 1;
+            }
+            population += totalGrowth;
+            if (owner){
+                owner.population += totalGrowth;
+            }
+        }
+        
+    }
 }

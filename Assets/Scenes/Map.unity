@@ -603,7 +603,7 @@ MonoBehaviour:
   randomNationCount: 10
   preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
-  noiseSeed: 69420
+  noiseSeed: 694327
   totalNoiseScale: 100
   scales:
   - 1
@@ -615,9 +615,12 @@ MonoBehaviour:
   - 0.2
   - 0.15
   - 0.05
-  oceanColor: {r: 0.2245282, g: 0.71244174, b: 1, a: 1}
-  wetColor: {r: 0.297394, g: 0.4490565, b: 0.31847912, a: 1}
-  dryColor: {r: 0.78867924, g: 0.7659365, b: 0.59374154, a: 1}
+  biomesToGenerate:
+  - {fileID: 11400000, guid: 261e035f8fe926248907a9ad417914f7, type: 2}
+  - {fileID: 11400000, guid: 3d8a45a791f2ceb49aea048058d3623d, type: 2}
+  - {fileID: 11400000, guid: bbdf6e67ff742a047b836308f803da62, type: 2}
+  - {fileID: 11400000, guid: ba2c92abf29111e4dbf980ab567a9bc1, type: 2}
+  oceanBiome: {fileID: 11400000, guid: 3a24a775a7a3a0c43961fa25aa062bd3, type: 2}
 --- !u!4 &184318060
 Transform:
   m_ObjectHideFlags: 0

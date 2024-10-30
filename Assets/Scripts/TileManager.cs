@@ -28,7 +28,7 @@ public class TileManager : MonoBehaviour
             entry.Value.tilePos = entry.Key;
 
             // Initializes their populations
-            entry.Value.population = Mathf.RoundToInt(Random.Range(1,1) * entry.Value.terrain.popMultiplier);
+            entry.Value.population = Mathf.RoundToInt(Random.Range(100,1000));
         }
         // Adds random nations to populate our world :>
         addRandomNations(startingNationCount);
@@ -68,9 +68,9 @@ public class TileManager : MonoBehaviour
                             // Checks if the tile even exists
                             if (tiles.ContainsKey(pos)){
                                 // Checks if we can expand (Random)
-                                bool canExpand = Random.Range(0f, 1f) < getTile(pos).terrain.neutralExpansionMult;
+                                bool canExpand = Random.Range(0f, 1f) < 1f/*getTile(pos).terrain.neutralExpansionMult*/;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
-                                bool claimable = getTile(pos).terrain.claimable && getTile(pos).owner == null;
+                                bool claimable = getTile(pos).terrain.biome.claimable && getTile(pos).owner == null;
                                 // If both of these are true
                                 if (claimable && canExpand){
                                     // COLONIALISM!!!!!!!!!!!!!!
@@ -94,7 +94,7 @@ public class TileManager : MonoBehaviour
             // gets the tile
             Tile nationTile = getTile(pos);
 
-            while (nationTile == null || nationTile.owner != null || !nationTile.terrain.claimable){
+            while (nationTile == null || nationTile.owner != null || !nationTile.terrain.biome.claimable){
                 // If the tile doesnt exist or if it is owned or if it just cant be claimed
                 // Picks a new position
                 pos = new Vector3Int(Random.Range(0, world.worldSize.x), Random.Range(0, world.worldSize.y));
@@ -160,7 +160,7 @@ public class TileManager : MonoBehaviour
             }
         } else {
             // If the tile isnt owned, just sets the color to the color of the terrain
-            finalColor = tile.terrain.terrainColor;
+            finalColor = tile.terrain.biome.biomeColor;
         }
         // Higlights selected nation
         if (nationPanel != null && nationPanel.tileSelected != null && nationPanel.tileSelected.owner){
@@ -219,11 +219,11 @@ public class TileManager : MonoBehaviour
 
                         if (getTile(pos).owner == null){
                             // If the tested border is neutral
-                            if (getTile(pos).terrain.claimable){
+                            if (getTile(pos).terrain.biome.claimable){
                                 // Makes it a frontier
                                 // Frontier tiles are the only ones that can colonize neutral tiles
                                 tile.frontier = true;
-                            } else if (getTile(pos).terrain.naval){
+                            } else if (getTile(pos).terrain.biome.water){
                                 // If the tested border is a naval tile
                                 // Makes us a coastal tile! (For ships in the future)
                                 tile.coastal = true;

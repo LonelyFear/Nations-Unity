@@ -8,7 +8,7 @@ using UnityEngine.WSA;
 using UnityEditor;
 # endif
 
-[CreateAssetMenu(fileName = "MapTile", menuName = "ScriptableObjects/Tile/MapTile", order = 2)]
+[CreateAssetMenu(fileName = "MapTile", menuName = "ScriptableObjects/MapTile", order = 2)]
 public class MapTile : UnityEngine.Tilemaps.Tile
 {
     public override void RefreshTile(Vector3Int position, ITilemap tilemap)

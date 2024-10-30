@@ -9,11 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bbc9b7219d88df489e6e6fee2736fa2, type: 3}
-  m_Name: Plains
+  m_Script: {fileID: 11500000, guid: fd483347c7c90924e83eaeaee1ffe137, type: 3}
+  m_Name: Grassland
   m_EditorClassIdentifier: 
-  claimable: 1
-  naval: 0
-  terrainColor: {r: 0.446828, g: 0.645283, b: 0.4791848, a: 1}
-  neutralExpansionMult: 1
-  popMultiplier: 1
+  temperature: 0.5
+  moisture: 0.4
+  water: 0
+  claimable: 0
+  fertility: 0.9
+  biomeColor: {r: 0.3620133, g: 0.6679245, b: 0.35664645, a: 1}

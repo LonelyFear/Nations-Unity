@@ -1,3 +1,4 @@
+using System.Net;
 using Unity.VisualScripting;
 using UnityEditor.UI;
 using UnityEngine;
@@ -14,12 +15,6 @@ public class GenerateWorld : MonoBehaviour
     public Vector2Int worldSize = new Vector2Int(100, 100);
     public int randomNationCount = 1;
 
-    [Header("Terrain")]
-    public TileTerrain plains;
-    public TileTerrain ocean;
-    public TileTerrain hills;
-    public TileTerrain mountains;
-
     [Header("Noise Texture Settings")]
     [Tooltip("Overrides all other noise settings")]
     public NoiseMapPreset preset;
@@ -33,6 +28,10 @@ public class GenerateWorld : MonoBehaviour
     public float[] scales = new float[4];
     [Tooltip("Weights the different noise maps")]
     public float[] weights = new float[4];
+
+    [Header("Terrain Settings")]
+    public Biome[] biomesToGenerate;
+    public Biome oceanBiome;
 
     void Start()
     {
@@ -57,17 +56,19 @@ public class GenerateWorld : MonoBehaviour
     float getNoise(int x, int y, float scale, float noiseSeed){
         // Higher scale means less smooth
         var totalScale = scale * totalNoiseScale;
-        return Mathf.PerlinNoise((x + 0.1f + noiseSeed)/totalScale,(y + 0.1f + noiseSeed)/totalScale);
+        var val = Mathf.PerlinNoise((x + 0.1f + noiseSeed)/totalScale,(y + 0.1f + noiseSeed)/totalScale);
+        return val;
     }
 
     float getHeightNoise(int x, int y){
         float totalNoise;
         // If there isnt a predifined noise texture
         if (!preset.noiseTexture){
-            float grains = getNoise(x,y,scales[3], noiseSeed);
+            
+            float grains = getNoise(x,y, scales[3], noiseSeed + 7852);
             float detail = getNoise(x,y,scales[2], noiseSeed);
-            float definition = getNoise(x,y,scales[1], noiseSeed + 300);
-            float shape = getNoise(x, y,scales[0], noiseSeed - 2500);
+            float definition = getNoise(x,y,scales[1], noiseSeed + 9830);
+            float shape = getNoise(x, y,scales[0], noiseSeed - 3573);
 
             // Merges the different noise maps and weights them to get more interesting terrain
             totalNoise = (shape * weights[0]) + (definition * weights[1]) + (detail * weights[2]) + (grains * weights[3]);
@@ -82,31 +83,68 @@ public class GenerateWorld : MonoBehaviour
         return totalNoise;
     }
 
+    float getMoistureNoise(int x, int y){
+        float clouds = getNoise(x,y,0.05f, noiseSeed + 642);
+        float systems = getNoise(x,y,0.25f, noiseSeed + 753);
+        float seas = getNoise(x,y,0.75f, noiseSeed + 257);
+        float shape = getNoise(x, y,1f, noiseSeed);
+
+        float totalNoise = (shape * 0.6f) + (seas * 0.2f) + (systems * 0.15f) + (clouds * 0.05f);
+        return totalNoise;
+    }
+
+    float getTemp(int x, int y){
+        float equatorPos = worldSize.y / 2;
+        float tempValue = 1 - Mathf.Abs(equatorPos - y) / equatorPos;
+        tempValue = Mathf.Clamp(tempValue - 0.2f, 0f, 1f);
+        return (tempValue * 0.9f) + (getNoise(x, y, 0.5f, noiseSeed - 9862) * 0.1f);
+    }
+
     void generateWorld(){
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int y = 0; y < worldSize.y; y++){
             for (int x = 0; x < worldSize.x; x++){
                 Vector3Int cellPos = new Vector3Int(x,y);
-                float value = getHeightNoise(x,y);
 
                 tilemap.SetTile(cellPos, tileBase);
 
                 // Sets terrain to default
-                TileTerrain newTileTerrain = plains;
-                // Checks if the noise value is less than the ocean threshold            
-                if (value <= preset.oceanThreshold){
-                    newTileTerrain = ocean;
-                } else if (value > preset.mountainTreshold){
-                    newTileTerrain = mountains;
-                } else if (value > preset.hillTreshold) {
-                    newTileTerrain = hills;
+                TileTerrain tileTerrain = new TileTerrain();
+                tileTerrain.height = getHeightNoise(x,y);
+                tileTerrain.temperature = getTemp(x,y);
+                tileTerrain.moisture = getMoistureNoise(x,y);
+
+                float minDist = 24f;
+                Vector2 climatePos = new Vector2(tileTerrain.temperature, tileTerrain.moisture);
+
+                if (tileTerrain.height > preset.oceanThreshold){
+                    Biome chosenBiome = new Biome();
+
+                    foreach (Biome biome in biomesToGenerate){
+                        if (!biome){
+                            continue;
+                        }
+                        var newDist = Vector2.Distance(climatePos, new Vector2(biome.temperature, biome.moisture));
+                        if (newDist < minDist){
+                            minDist = newDist;
+                            chosenBiome = biome;
+                        }
+                    }
+
+                    tileTerrain.biome = chosenBiome;
+                } else {
+                    tileTerrain.biome = oceanBiome;
                 }
+                
+
+
                 // Instantiates a tile
                 var newTile = new Tile
                 {
                     // Sets the tiles terrain
-                    terrain = newTileTerrain
+                    terrain = tileTerrain
                 };
+
                 // Adds the tile to the tile manager
                 GetComponent<TileManager>().tiles.Add(cellPos, newTile);
                 

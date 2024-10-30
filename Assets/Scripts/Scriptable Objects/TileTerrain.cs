@@ -1,14 +1,10 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TileTerrain", menuName = "ScriptableObjects/Tile/TileTerrain", order = 1)]
-public class TileTerrain : ScriptableObject
+//[CreateAssetMenu(fileName = "TileTerrain", menuName = "ScriptableObjects/Tile/TileTerrain", order = 1)]
+public class TileTerrain
 {    
-    public bool claimable;
-    public bool naval;
-    public Color terrainColor;
-    [Range(0f, 1f)]
-    public float neutralExpansionMult = 1f;
-    
-    [Range(0f, 1f)]
-    public float popMultiplier = 1f;
+    public float height;
+    public float temperature;
+    public float moisture;
+    public Biome biome;
 }

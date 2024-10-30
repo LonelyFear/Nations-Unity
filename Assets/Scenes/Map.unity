@@ -601,10 +601,6 @@ MonoBehaviour:
   tileBase: {fileID: 11400000, guid: 9ff30deb5bfc664478d266f55e9243e6, type: 2}
   worldSize: {x: 500, y: 250}
   randomNationCount: 10
-  plains: {fileID: 11400000, guid: fae7fa4824756bb4ebb3a38bbd280bf0, type: 2}
-  ocean: {fileID: 11400000, guid: 24fd05807107d674ca9b8394640835ce, type: 2}
-  hills: {fileID: 11400000, guid: e9e8e676ff8196d4d8e36e7ec3cf16b1, type: 2}
-  mountains: {fileID: 11400000, guid: d64cb3e6b0d8dbc44b44200e3d9361f2, type: 2}
   preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
   noiseSeed: 69420
@@ -619,6 +615,9 @@ MonoBehaviour:
   - 0.2
   - 0.15
   - 0.05
+  oceanColor: {r: 0.2245282, g: 0.71244174, b: 1, a: 1}
+  wetColor: {r: 0.297394, g: 0.4490565, b: 0.31847912, a: 1}
+  dryColor: {r: 0.78867924, g: 0.7659365, b: 0.59374154, a: 1}
 --- !u!4 &184318060
 Transform:
   m_ObjectHideFlags: 0
@@ -660,7 +659,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
-  startingNationCount: 200
+  startingNationCount: 0
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
   nations: []
 --- !u!1 &253897841

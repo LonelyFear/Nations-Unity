@@ -9,11 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bbc9b7219d88df489e6e6fee2736fa2, type: 3}
+  m_Script: {fileID: 11500000, guid: fd483347c7c90924e83eaeaee1ffe137, type: 3}
   m_Name: Ocean
   m_EditorClassIdentifier: 
+  temperature: 0
+  moisture: 0
+  water: 1
   claimable: 0
-  naval: 1
-  terrainColor: {r: 0.55875397, g: 0.75561625, b: 0.97735846, a: 1}
-  neutralExpansionMult: 0
-  popMultiplier: 0
+  fertility: 0
+  biomeColor: {r: 0.391335, g: 0.41832024, b: 0.7433963, a: 1}

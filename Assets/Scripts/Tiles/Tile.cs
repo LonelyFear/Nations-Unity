@@ -22,7 +22,7 @@ public class Tile
     public List<Nation> borderingNations = new List<Nation>();
 
     public void growPopulation(){
-        if (population > 0 && population < 10000 * terrain.popMultiplier){
+        if (population > 0 && population < 10000){
             int totalGrowth = Mathf.RoundToInt(population * baseGrowthRate);
             if (Random.Range(0f,1f) < (population * baseGrowthRate) - Mathf.FloorToInt(population * baseGrowthRate)){
                 totalGrowth += 1;

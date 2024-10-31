@@ -109,7 +109,7 @@ public class GenerateWorld : MonoBehaviour
         float equatorPos = worldSize.y / 2;
         float tempValue = 1 - Mathf.Abs(equatorPos - y) / equatorPos;
         tempValue = Mathf.Clamp(tempValue + tempOffset, 0f, 1f);
-        return (tempValue * 0.9f) + (getTempRandomNoise(x,y) * 0.1f);
+        return (tempValue * 0.8f) + (getTempRandomNoise(x,y) * 0.2f);
     }
 
     void generateWorld(){

@@ -675,7 +675,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
-  startingNationCount: 0
+  startingNationCount: 100
   nationPrefab: {fileID: 8312167884816750045, guid: f8c401780dacb6e46af80c362c68e7d0, type: 3}
   nations: []
 --- !u!1 &253897841

@@ -15,6 +15,6 @@ MonoBehaviour:
   temperature: 0.3
   moisture: 0.9
   water: 0
-  claimable: 0
+  claimable: 1
   fertility: 0.3
   biomeColor: {r: 0.16785322, g: 0.7735849, b: 0.38239062, a: 1}

@@ -32,6 +32,11 @@ public class GenerateWorld : MonoBehaviour
     [Header("Terrain Settings")]
     public Biome[] biomesToGenerate;
     public Biome oceanBiome;
+    public Biome rock;
+    [Range(-0.5f, 0.5f)]
+    public float moistureOffset;
+    [Range(-0.5f, 0.5f)]
+    public float tempOffset;
 
     void Start()
     {
@@ -84,20 +89,27 @@ public class GenerateWorld : MonoBehaviour
     }
 
     float getMoistureNoise(int x, int y){
-        float clouds = getNoise(x,y,0.05f, noiseSeed + 642);
-        float systems = getNoise(x,y,0.25f, noiseSeed + 753);
-        float seas = getNoise(x,y,0.75f, noiseSeed + 257);
-        float shape = getNoise(x, y,1f, noiseSeed);
+        float clouds = getNoise(x,y, 0.05f, noiseSeed + 642);
+        float systems = getNoise(x,y, 0.25f, noiseSeed + 753);
+        float seas = getNoise(x,y, 0.75f, noiseSeed + 257);
+        float shape = getNoise(x, y, 1f, noiseSeed);
 
-        float totalNoise = (shape * 0.6f) + (seas * 0.2f) + (systems * 0.15f) + (clouds * 0.05f);
+        float totalNoise = ((shape * 0.6f) + (seas * 0.2f) + (systems * 0.15f) + (clouds * 0.05f)) + moistureOffset;
         return totalNoise;
     }
 
+    float getTempRandomNoise(int x, int y){
+        float steam = getNoise(x, y, 0.1f, noiseSeed - 332);
+        float drifts = getNoise(x, y, 0.5f, noiseSeed - 986);
+        float winds = getNoise(x, y, 1f, noiseSeed - 9862);
+
+        return (winds * 0.6f) + (drifts * 0.3f) + (steam * 0.1f);
+    }
     float getTemp(int x, int y){
         float equatorPos = worldSize.y / 2;
         float tempValue = 1 - Mathf.Abs(equatorPos - y) / equatorPos;
-        tempValue = Mathf.Clamp(tempValue - 0.2f, 0f, 1f);
-        return (tempValue * 0.9f) + (getNoise(x, y, 0.5f, noiseSeed - 9862) * 0.1f);
+        tempValue = Mathf.Clamp(tempValue + tempOffset, 0f, 1f);
+        return (tempValue * 0.9f) + (getTempRandomNoise(x,y) * 0.1f);
     }
 
     void generateWorld(){
@@ -114,11 +126,11 @@ public class GenerateWorld : MonoBehaviour
                 tileTerrain.temperature = getTemp(x,y);
                 tileTerrain.moisture = getMoistureNoise(x,y);
 
-                float minDist = 24f;
+                float minDist = 0.4f;
                 Vector2 climatePos = new Vector2(tileTerrain.temperature, tileTerrain.moisture);
 
                 if (tileTerrain.height > preset.oceanThreshold){
-                    Biome chosenBiome = new Biome();
+                    Biome chosenBiome = rock;
 
                     foreach (Biome biome in biomesToGenerate){
                         if (!biome){

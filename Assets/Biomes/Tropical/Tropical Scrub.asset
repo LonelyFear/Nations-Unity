@@ -17,4 +17,5 @@ MonoBehaviour:
   water: 0
   claimable: 1
   fertility: 0.8
+  navigability: 0.7
   biomeColor: {r: 0.5735024, g: 0.6830188, b: 0.3595514, a: 1}

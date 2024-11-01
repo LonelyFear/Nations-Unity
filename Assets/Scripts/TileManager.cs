@@ -28,7 +28,7 @@ public class TileManager : MonoBehaviour
             entry.Value.tilePos = entry.Key;
 
             // Initializes their populations
-            entry.Value.population = Mathf.RoundToInt(Random.Range(100,1000));
+            entry.Value.population = Mathf.RoundToInt(Random.Range(100,1000) * entry.Value.terrain.biome.fertility);
         }
         // Adds random nations to populate our world :>
         addRandomNations(startingNationCount);
@@ -68,7 +68,7 @@ public class TileManager : MonoBehaviour
                             // Checks if the tile even exists
                             if (tiles.ContainsKey(pos)){
                                 // Checks if we can expand (Random)
-                                bool canExpand = Random.Range(0f, 1f) < getTile(pos).terrain.biome.fertility;
+                                bool canExpand = Random.Range(0f, 1f) < getTile(pos).terrain.biome.navigability;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
                                 bool claimable = getTile(pos).terrain.biome.claimable && getTile(pos).owner == null;
                                 // If both of these are true

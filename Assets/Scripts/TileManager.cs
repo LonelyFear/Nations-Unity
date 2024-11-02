@@ -1,11 +1,8 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
-using Unity.Collections;
-using System;
 using Random = UnityEngine.Random;
 using UnityEngine.EventSystems;
-using UnityEngine.PlayerLoop;
 
 public class TileManager : MonoBehaviour
 {
@@ -28,7 +25,7 @@ public class TileManager : MonoBehaviour
             entry.Value.tilePos = entry.Key;
 
             // Initializes their populations
-            entry.Value.population = Mathf.RoundToInt(Random.Range(100,1000) * entry.Value.terrain.biome.fertility);
+            initPopulation(entry.Value);
         }
         // Adds random nations to populate our world :>
         addRandomNations(startingNationCount);
@@ -39,10 +36,18 @@ public class TileManager : MonoBehaviour
         populationGrowth();
     }
 
+    void initPopulation(Tile tile){
+        Pop newPop = new Pop();
+        newPop.home = tile;
+        newPop.changePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
+
+        tile.pops.Add(newPop);
+    }
+
     public void populationGrowth(){
         foreach (var entry in tiles){
             Tile tile = entry.Value;
-            if (tile.population > 0){
+            if (tile.totalPopulation > 0 && tile.pops.Count > 0){
                 tile.growPopulation();
             }
         }

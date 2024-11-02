@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.Events;
 using Random=UnityEngine.Random;
 
 public class Nation : MonoBehaviour
@@ -59,7 +55,7 @@ public class Nation : MonoBehaviour
             tile.owner.RemoveTile(pos);
         }
         tiles.Add(tile);
-        population += tile.population;
+        population += tile.totalPopulation;
         tile.owner = this;
         
 
@@ -73,7 +69,7 @@ public class Nation : MonoBehaviour
         Tile tile = tileManager.getTile(pos);
         if (tiles.Contains(tile)){
             tiles.Remove(tile);
-            population -= tile.population;
+            population -= tile.totalPopulation;
             tile.owner = null;
 
             tileManager.updateColor(pos);

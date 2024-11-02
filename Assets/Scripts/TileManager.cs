@@ -99,7 +99,7 @@ public class TileManager : MonoBehaviour
             // gets the tile
             Tile nationTile = getTile(pos);
 
-            while (nationTile == null || nationTile.owner != null || !nationTile.terrain.biome.claimable || nationTile.terrain.biome.fertility < 0.5f){
+            while (nationTile == null || nationTile.owner != null || !nationTile.terrain.biome.claimable || nationTile.terrain.biome.fertility < 0.5f || nationTile.totalPopulation < 500){
                 // If the tile doesnt exist or if it is owned or if it just cant be claimed
                 // Picks a new position
                 pos = new Vector3Int(Random.Range(0, world.worldSize.x), Random.Range(0, world.worldSize.y));

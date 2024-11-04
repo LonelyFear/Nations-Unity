@@ -27,10 +27,8 @@ public class MainMenu : MonoBehaviour
         loadingMenu.SetActive(true);
 
         while (!playGame.isDone){
-
             if (loadingText != null){
-                float progressValue = Mathf.Clamp01(playGame.progress / 0.9f);
-                loadingText.text = "Loading " + progressValue + "%";
+                loadingText.text = "Loading - " + Mathf.Round(playGame.progress * 100) + "%";
             }
 
             yield return null;

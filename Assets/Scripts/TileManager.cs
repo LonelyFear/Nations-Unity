@@ -10,7 +10,6 @@ public class TileManager : MonoBehaviour
 
     public NationPanel nationPanel;
     public int startingNationCount = 2;
-    public Nation nationPrefab;
     public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
     public List<Nation> nations = new List<Nation>();
     GenerateWorld world;
@@ -20,7 +19,7 @@ public class TileManager : MonoBehaviour
         // Goes thru the tiles
         foreach (var entry in tiles){
             // Sets their initial color
-            updateColor(entry.Key);
+            //updateColor(entry.Key);
             // Sets their tile positions (UNUSED FOR NOW)
             entry.Value.tilePos = entry.Key;
 
@@ -29,19 +28,38 @@ public class TileManager : MonoBehaviour
         }
         // Adds random nations to populate our world :>
         addRandomNations(startingNationCount);
+        updateAllColors();
     }
     public void OnTick(){
         // Each month nations can expand into neutral lands
         neutralExpansion();
-        populationGrowth();
+        tickTiles();
+        tickNations();
+    }
+
+    void tickNations(){
+        foreach (Nation nation in nations){
+            nation.OnTick();
+        }
     }
 
     void initPopulation(Tile tile){
-        Pop newPop = new Pop();
-        newPop.home = tile;
-        newPop.changePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
 
+        Pop newPop = new Pop(){
+            home = tile,
+            culture = Culture.createRandomCulture()
+        };
         tile.pops.Add(newPop);
+        newPop.changePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
+    }
+
+    void tickTiles(){
+        foreach (var entry in tiles){
+            Tile tile = entry.Value;
+            if (tile.totalPopulation > 0 && tile.pops.Count > 0){
+                tile.growPopulation();
+            }
+        }
     }
 
     public void populationGrowth(){
@@ -99,7 +117,7 @@ public class TileManager : MonoBehaviour
             // gets the tile
             Tile nationTile = getTile(pos);
 
-            while (nationTile == null || nationTile.owner != null || !nationTile.terrain.biome.claimable || nationTile.terrain.biome.fertility < 0.5f || nationTile.totalPopulation < 500){
+            while (nationTile == null || !nationTile.terrain.biome.claimable || nationTile.terrain.biome.fertility < 0.5f || nationTile.totalPopulation < 500){
                 // If the tile doesnt exist or if it is owned or if it just cant be claimed
                 // Picks a new position
                 pos = new Vector3Int(Random.Range(0, world.worldSize.x), Random.Range(0, world.worldSize.y));
@@ -119,23 +137,19 @@ public class TileManager : MonoBehaviour
             }
             // If the nation wasnt stopped from spawning
             if (nationTile != null){
-                // Instantiates the nation
-                Nation newNation = Instantiate(nationPrefab);
+                Nation newNation = Nation.CreateRandomNation();
                 // Adds it to the nations list
                 if (!nations.Contains(newNation)){
                     nations.Add(newNation);
                 }
                 // Sets the parent of the nation to the nationholder object
-                newNation.transform.SetParent(GameObject.FindGameObjectWithTag("NationHolder").transform);
-
-                // Randomizes the nation
-                newNation.RandomizeNation();
+                //newNation.transform.SetParent(GameObject.FindGameObjectWithTag("NationHolder").transform);
+                newNation.tileManager = this;
                 // Initializes the nation
                 newNation.nationInit();
                 // And adds the very first tile :D
                 newNation.AddTile(pos);
-
-                TimeEvents.monthUpdate += newNation.OnTick;
+                //TimeEvents.monthUpdate += newNation.OnTick;
             }
                 
         }
@@ -152,10 +166,11 @@ public class TileManager : MonoBehaviour
     public void updateColor(Vector3Int position){
         tilemap.SetTileFlags(position, TileFlags.None);
         // Gets the final color
-        Color finalColor;
+        Color finalColor = new Color();
         // Gets the tile we want to paint
         Tile tile = getTile(position);
-        if (tile.owner){
+
+        if (tile.owner != null){
             // If the tile has an owner, colors it its nation
             finalColor = tile.owner.nationColor;
             // If the tile is a border
@@ -168,7 +183,7 @@ public class TileManager : MonoBehaviour
             finalColor = tile.terrain.biome.biomeColor;
         }
         // Higlights selected nation
-        if (nationPanel != null && nationPanel.tileSelected != null && nationPanel.tileSelected.owner){
+        if (nationPanel != null && nationPanel.tileSelected != null && nationPanel.tileSelected.owner != null){
             // Sets the selected nation to the, selected nation
             Nation selectedNation = nationPanel.tileSelected.owner;
             // If the tile isnt the selected nation
@@ -260,8 +275,8 @@ public class TileManager : MonoBehaviour
                             // Makes that tile check its borders
                             // NOTE: Also runs on self :D
                             Border(pos);
-                            if (tile.owner){
-                                if (getTile(pos).owner){
+                            if (tile.owner != null){
+                                if (getTile(pos).owner != null){
                                     getTile(pos).owner.getBorders();
                                 }
                             }
@@ -303,7 +318,7 @@ public class TileManager : MonoBehaviour
                 // If the mouse isnt over a ui element, gets the tile
                 Tile tile = tiles[mouseGridPos];
                 // If the tile has an owner
-                if (tile != null && tile.owner){
+                if (tile != null && tile.owner != null){
                     // Checks if we arent just clicking on the same tile
                     if (nationPanel.tileSelected == null || nationPanel.tileSelected.owner != tile.owner){
                         // Sets the selected tile and makes the panel active

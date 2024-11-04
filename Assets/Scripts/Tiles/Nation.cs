@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 using Random=UnityEngine.Random;
 
-public class Nation : MonoBehaviour
+public class Nation
 {
     public string nationName { get; private set; }= "New Nation";
     public Color nationColor { get; private set; } = Color.red;
@@ -10,16 +11,10 @@ public class Nation : MonoBehaviour
     public List<Nation> borderingNations { get; private set; } = new List<Nation>();
     public Dictionary<Nation, Relations> relations { get; private set; } = new Dictionary<Nation, Relations>();
     public int population;
-    [SerializeField]
-    private string[] nationNames;
-    [SerializeField]
-    private string[] nationGovernments;
-    TileManager tileManager;
+    public TileManager tileManager;
 
     int weekCounter = 7;
-    void Start(){
-        nationInit();
-    }
+
     public void getBorders(){
         borderingNations.Clear();
         foreach (Tile tile in tiles){
@@ -38,32 +33,37 @@ public class Nation : MonoBehaviour
     }
 
     public void nationInit(){
-        gameObject.name = nationName;
-        tileManager = FindAnyObjectByType<TileManager>();
+        //tileManager = FindAnyObjectByType<TileManager>();
     }
-    public void RandomizeNation(){
-        nationColor = new Color(Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f));
+
+    public static Nation CreateRandomNation(){
+        Nation newNation = new Nation(){
+            nationColor = new Color(Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f)),
+            nationName = "New Nation Empire"
+        };
+        string[] nationNames = System.IO.File.ReadAllLines("Assets/Text Files/NationNames.txt");
+        string[] nationGovernments = System.IO.File.ReadAllLines("Assets/Text Files/TribalGovernments.txt");
+
         if (nationNames.Length > 0 && nationGovernments.Length > 0){
             string name = nationNames[Random.Range(0, nationNames.Length - 1)];
             string govt = nationGovernments[Random.Range(0, nationGovernments.Length - 1)];
-            nationName = name + " " + govt;
+            newNation.nationName = name + " " + govt;
         }
+        return newNation;
     }
+
     public void AddTile(Vector3Int pos){
         Tile tile = tileManager.getTile(pos);
-        if (tile.owner){
+        if (tile.owner != null){
             tile.owner.RemoveTile(pos);
         }
         tiles.Add(tile);
         population += tile.totalPopulation;
         tile.owner = this;
+        //Debug.Log(tile.owner.nationName);
         
-
         tileManager.updateColor(pos);
         tileManager.updateBorders(pos);
-        if (tiles.Count > 1){
-                gameObject.SetActive(false);
-        }
     }
     public void RemoveTile(Vector3Int pos){
         Tile tile = tileManager.getTile(pos);
@@ -74,15 +74,11 @@ public class Nation : MonoBehaviour
 
             tileManager.updateColor(pos);
             tileManager.updateBorders(pos);
-
-            if (tiles.Count < 1){
-                gameObject.SetActive(false);
-            }
         }
     }
 
     public void OnTick(){
-        weekCounter --;
+        weekCounter--;
         if (weekCounter <= 0){
             weekCounter = 7;
             updateRelations();
@@ -105,6 +101,5 @@ public class Nation : MonoBehaviour
             
         }
     }
-
 
 }

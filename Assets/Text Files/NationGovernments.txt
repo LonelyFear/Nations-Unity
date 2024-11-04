@@ -1,0 +1,10 @@
+Republic
+Kingdom
+Empire
+Imperium
+Federation
+Tribe
+Confederation
+League
+Chiefdom
+

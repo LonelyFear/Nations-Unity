@@ -151,11 +151,8 @@ public class GenerateWorld : MonoBehaviour
 
 
                 // Instantiates a tile
-                var newTile = new Tile
-                {
-                    // Sets the tiles terrain
-                    terrain = tileTerrain
-                };
+                var newTile = new Tile();
+                newTile.terrain = tileTerrain;
 
                 // Adds the tile to the tile manager
                 GetComponent<TileManager>().tiles.Add(cellPos, newTile);

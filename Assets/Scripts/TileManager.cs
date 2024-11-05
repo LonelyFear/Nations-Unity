@@ -20,7 +20,7 @@ public class TileManager : MonoBehaviour
         foreach (var entry in tiles){
             // Sets their initial color
             //updateColor(entry.Key);
-            // Sets their tile positions (UNUSED FOR NOW)
+            // Sets their tile positions
             entry.Value.tilePos = entry.Key;
 
             // Initializes their populations
@@ -77,7 +77,7 @@ public class TileManager : MonoBehaviour
             Tile tile = entry.Value;
             
             // Sets the expansion chance
-            float expandChance = 0.0025f;
+            float expandChance = 0.0005f;
 
             // If the tile is a frontier and if it has an owner
             if (tile.frontier && tile.owner != null){
@@ -177,6 +177,9 @@ public class TileManager : MonoBehaviour
             if (tile.border){
                 // Colors it slightly darker to show where nation boundaries are
                 finalColor = tile.owner.nationColor * 0.7f + Color.black * 0.3f;
+            }
+            if (tile.owner.capital == tile){
+                finalColor = Color.red;
             }
         } else {
             // If the tile isnt owned, just sets the color to the color of the terrain

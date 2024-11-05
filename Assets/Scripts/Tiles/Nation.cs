@@ -11,6 +11,7 @@ public class Nation
     public List<Nation> borderingNations { get; private set; } = new List<Nation>();
     public Dictionary<Nation, Relations> relations { get; private set; } = new Dictionary<Nation, Relations>();
     public int population;
+    public Tile capital;
     public TileManager tileManager;
 
     int weekCounter = 7;
@@ -78,10 +79,22 @@ public class Nation
     }
 
     public void OnTick(){
+        changeCapital();
         weekCounter--;
         if (weekCounter <= 0){
             weekCounter = 7;
             updateRelations();
+        }
+    }
+
+    void changeCapital(){
+        if (capital == null || capital.owner != this){
+            capital = null;
+            if (tiles.Count > 0){
+                capital = tiles[Random.Range(0, tiles.Count - 1)];
+                tileManager.updateColor(capital.tilePos);
+            }
+            
         }
     }
 

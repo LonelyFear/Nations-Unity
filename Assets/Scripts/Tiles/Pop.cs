@@ -8,7 +8,7 @@ public class Pop
     public Nation nation;
     public Culture culture;
     public float wealth;
-    public bool canPopChange;
+    public bool canPopChange = true;
 
     // Base growth and mortality rates
     const float baseGrowthRate = 0.0002f;

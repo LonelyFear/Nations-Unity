@@ -9,7 +9,7 @@ public class TimeManager : MonoBehaviour
     public int year = 1;
 
     [Header("Time Settings")]
-    [Range(0.01f, 5f)]
+    [Range(0f, 5f)]
     public float dayLength = 1f;
 
     [Header("Info")]

@@ -7,7 +7,6 @@ using UnityEngine.Tilemaps;
 public class GenerateWorld : MonoBehaviour
 {
     [Header("Variables And Lists")]
-    public Nation nationPrefab;
     public Tilemap tilemap;
     public TileBase tileBase;
     

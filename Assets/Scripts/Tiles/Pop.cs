@@ -5,7 +5,7 @@ public class Pop
 {
     public int population;
     public Tile home;
-    public Nation nation;
+    public State state;
     public Culture culture;
     public float wealth;
     public bool canPopChange = true;
@@ -30,7 +30,7 @@ public class Pop
                 Pop newPop = new Pop(){
                     population = 0,
                     home = destination,
-                    nation = destination.owner,
+                    state = destination.state,
                     culture = culture
                 };
                 newPop.changePopulation(amount);
@@ -46,7 +46,7 @@ public class Pop
             if (home.totalPopulation > home.getMaxPopulation()){
                 growthRate *= 0.5f - (0.001f * (home.getMaxPopulation() - home.totalPopulation));
             }
-           nation = home.owner;
+           state = home.state;
             int totalGrowth = Mathf.RoundToInt(population * (growthRate - mortalityRate));
 
             if (Random.Range(0f,1f) < (population * growthRate) - Mathf.FloorToInt(population * growthRate)){
@@ -63,15 +63,15 @@ public class Pop
             int clampedAmount = amount - Mathf.Abs(population);
             home.totalPopulation += clampedAmount;
 
-            if (nation != null){
-                nation.population += clampedAmount;
+            if (state != null){
+                state.population += clampedAmount;
             }
             population = 0;
             home.pops.Remove(this);
             } else {
                 home.totalPopulation += amount;
-            if (nation != null){
-                nation.population += amount;
+            if (state != null){
+                state.population += amount;
             }
         }
     }

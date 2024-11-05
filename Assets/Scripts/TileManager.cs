@@ -3,6 +3,7 @@ using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 
 public class TileManager : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class TileManager : MonoBehaviour
     public NationPanel nationPanel;
     public int startingNationCount = 2;
     public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
-    public List<Nation> nations = new List<Nation>();
+    public List<State> states = new List<State>();
     GenerateWorld world;
     public void Init(){
         // Gets our world generation script
@@ -38,8 +39,8 @@ public class TileManager : MonoBehaviour
     }
 
     void tickNations(){
-        foreach (Nation nation in nations){
-            nation.OnTick();
+        foreach (State state in states){
+            state.OnTick();
         }
     }
 
@@ -80,7 +81,7 @@ public class TileManager : MonoBehaviour
             float expandChance = 0.0005f;
 
             // If the tile is a frontier and if it has an owner
-            if (tile.frontier && tile.owner != null){
+            if (tile.frontier && tile.state != null){
                 // Goes through its borders
                 for (int xd = -1; xd <= 1; xd++){
                     for (int yd = -1; yd <= 1; yd++){
@@ -93,11 +94,11 @@ public class TileManager : MonoBehaviour
                                 // Checks if we can expand (Random)
                                 bool canExpand = Random.Range(0f, 1f) < getTile(pos).terrain.biome.navigability;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
-                                bool claimable = getTile(pos).terrain.biome.claimable && getTile(pos).owner == null;
+                                bool claimable = getTile(pos).terrain.biome.claimable && getTile(pos).state == null;
                                 // If both of these are true
                                 if (claimable && canExpand){
                                     // COLONIALISM!!!!!!!!!!!!!!
-                                    tile.owner.AddTile(pos);
+                                    tile.state.AddTile(pos);
                                 }
                             }
                         }   
@@ -137,18 +138,16 @@ public class TileManager : MonoBehaviour
             }
             // If the nation wasnt stopped from spawning
             if (nationTile != null){
-                Nation newNation = Nation.CreateRandomNation();
+                State newState = State.CreateRandomState();
                 // Adds it to the nations list
-                if (!nations.Contains(newNation)){
-                    nations.Add(newNation);
+                if (!states.Contains(newState)){
+                    states.Add(newState);
                 }
                 // Sets the parent of the nation to the nationholder object
                 //newNation.transform.SetParent(GameObject.FindGameObjectWithTag("NationHolder").transform);
-                newNation.tileManager = this;
-                // Initializes the nation
-                newNation.nationInit();
+                newState.tileManager = this;
                 // And adds the very first tile :D
-                newNation.AddTile(pos);
+                newState.AddTile(pos);
                 //TimeEvents.monthUpdate += newNation.OnTick;
             }
                 
@@ -170,27 +169,27 @@ public class TileManager : MonoBehaviour
         // Gets the tile we want to paint
         Tile tile = getTile(position);
 
-        if (tile.owner != null){
+        if (tile.state != null){
             // If the tile has an owner, colors it its nation
-            finalColor = tile.owner.nationColor;
+            finalColor = tile.state.stateColor;
             // If the tile is a border
             if (tile.border){
                 // Colors it slightly darker to show where nation boundaries are
-                finalColor = tile.owner.nationColor * 0.7f + Color.black * 0.3f;
+                finalColor = tile.state.stateColor * 0.7f + Color.black * 0.3f;
             }
-            if (tile.owner.capital == tile){
-                finalColor = Color.red;
+            if (tile.state.capital == tile){
+                finalColor = tile.state.capitalColor;
             }
         } else {
             // If the tile isnt owned, just sets the color to the color of the terrain
             finalColor = tile.terrain.biome.biomeColor;
         }
         // Higlights selected nation
-        if (nationPanel != null && nationPanel.tileSelected != null && nationPanel.tileSelected.owner != null){
+        if (nationPanel != null && nationPanel.tileSelected != null && nationPanel.tileSelected.state != null){
             // Sets the selected nation to the, selected nation
-            Nation selectedNation = nationPanel.tileSelected.owner;
+            State selectedState = nationPanel.tileSelected.state;
             // If the tile isnt the selected nation
-            if (tiles[position].owner != selectedNation){
+            if (tiles[position].state != selectedState){
                 // Darkens it
                 finalColor = finalColor * 0.5f + Color.black * 0.5f;
             }
@@ -212,7 +211,7 @@ public class TileManager : MonoBehaviour
             tile.frontier = false;
             
             tile.nationalBorder = false;
-            tile.borderingNations.Clear();
+            tile.borderingStates.Clear();
             // Goes through the tiles adjacents
             for (int xd = -1; xd <= 1; xd++){
                 for (int yd = -1; yd <= 1; yd++){
@@ -224,23 +223,23 @@ public class TileManager : MonoBehaviour
                     // If not, gets the adjacent tiles positon
                     Vector3Int pos = new Vector3Int(xd,yd) + position;
                     // Makes sure that tile exists
-                    if (getTile(pos) != null && getTile(pos).owner != tile.owner){
+                    if (getTile(pos) != null && getTile(pos).state != tile.state){
                         // If it does and it doesnt have the same owner as us, makes this tile a border :D
                         // But wait, theres more!
                         tile.border = true;
 
-                        if (tile.owner != null && getTile(pos).owner != tile.owner && getTile(pos).owner != null){
+                        if (tile.state != null && getTile(pos).state != tile.state && getTile(pos).state != null){
                             tile.nationalBorder = true;
 
                             //var nation = tile.owner;
-                            var borderNation = getTile(pos).owner;
+                            var borderState = getTile(pos).state;
 
-                            if (!tile.borderingNations.Contains(borderNation)){
-                                tile.borderingNations.Add(borderNation);
+                            if (!tile.borderingStates.Contains(borderState)){
+                                tile.borderingStates.Add(borderState);
                             }
                         }
 
-                        if (getTile(pos).owner == null){
+                        if (getTile(pos).state == null){
                             // If the tested border is neutral
                             if (getTile(pos).terrain.biome.claimable){
                                 // Makes it a frontier
@@ -278,9 +277,9 @@ public class TileManager : MonoBehaviour
                             // Makes that tile check its borders
                             // NOTE: Also runs on self :D
                             Border(pos);
-                            if (tile.owner != null){
-                                if (getTile(pos).owner != null){
-                                    getTile(pos).owner.getBorders();
+                            if (tile.state != null){
+                                if (getTile(pos).state != null){
+                                    getTile(pos).state.getBorders();
                                 }
                             }
                         }
@@ -321,9 +320,9 @@ public class TileManager : MonoBehaviour
                 // If the mouse isnt over a ui element, gets the tile
                 Tile tile = tiles[mouseGridPos];
                 // If the tile has an owner
-                if (tile != null && tile.owner != null){
+                if (tile != null && tile.state != null){
                     // Checks if we arent just clicking on the same tile
-                    if (nationPanel.tileSelected == null || nationPanel.tileSelected.owner != tile.owner){
+                    if (nationPanel.tileSelected == null || nationPanel.tileSelected.state != tile.state){
                         // Sets the selected tile and makes the panel active
                         nationPanel.Enable(tile);
                     }

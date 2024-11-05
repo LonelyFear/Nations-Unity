@@ -6,7 +6,7 @@ using UnityEngine;
 public class NationPanel : MonoBehaviour
 {
     [SerializeField]
-    TextMeshProUGUI nationName;
+    TextMeshProUGUI stateName;
 
     [SerializeField]
     TextMeshProUGUI borderText;
@@ -27,19 +27,19 @@ public class NationPanel : MonoBehaviour
     }
     void Update(){
         if (gameObject.activeInHierarchy){
-            if (nationName && borderText && popText && sizeText){
-                nationName.text = tileSelected.owner.nationName;
+            if (stateName && borderText && popText && sizeText){
+                stateName.text = tileSelected.state.stateName;
                 borderText.text = "Relations:" + "<br>" + DisplayBorderingNations();
-                popText.text = "Population: " + tileSelected.owner.population.ToString("#,##0");
-                sizeText.text = "Tiles: " + tileSelected.owner.tiles.Count.ToString("#,##0 Tiles");
+                popText.text = "Population: " + tileSelected.state.population.ToString("#,##0");
+                sizeText.text = "Tiles: " + tileSelected.state.tiles.Count.ToString("#,##0 Tiles");
             }
         }    
     }
 
     string DisplayBorderingNations(){
         String str = "";
-        foreach (Nation nation in tileSelected.owner.borderingNations){
-            str = str + nation.nationName + ": " + tileSelected.owner.relations[nation].opinion + "<br>";
+        foreach (State state in tileSelected.state.borderingStates){
+            str = str + state.stateName + "<br>"; //+ ": " + tileSelected.state.relations[state].opinion + "<br>";
         }
         if (str.Length > 0){
             return str;

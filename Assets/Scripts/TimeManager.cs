@@ -49,7 +49,7 @@ public class TimeManager : MonoBehaviour
     }
 
     void IncrementTime(){
-         month++;
+        month++;
         events.updateMonth();
         if (month > 12){
             month = 1;

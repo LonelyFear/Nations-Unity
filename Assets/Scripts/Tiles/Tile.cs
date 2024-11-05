@@ -3,8 +3,7 @@ using UnityEngine;
 
 public class Tile
 {
-    public TileTerrain terrain;
-    public Nation owner = null;
+    public TileTerrain terrain;    public State state = null;
     public int totalPopulation;
     public List<Pop> pops = new List<Pop>();
     public Vector3Int tilePos;
@@ -15,7 +14,7 @@ public class Tile
 
     public int carryingCapacity {get; private set;}
 
-    public List<Nation> borderingNations = new List<Nation>();
+    public List<State> borderingStates = new List<State>();
 
     public int getMaxPopulation(){
         return Mathf.RoundToInt(10000 * terrain.biome.fertility);

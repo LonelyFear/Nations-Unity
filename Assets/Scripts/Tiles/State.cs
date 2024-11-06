@@ -42,6 +42,7 @@ public class State
 
     public void AddTile(Vector3Int pos){
         Tile tile = tileManager.getTile(pos);
+        tile.anarchy = false;
         if (tile.state != null){
             tile.state.RemoveTile(pos);
         }

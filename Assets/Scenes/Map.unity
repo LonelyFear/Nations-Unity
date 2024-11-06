@@ -631,7 +631,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2b4754eeb3d737c47a686396685eed18, type: 2}
   oceanBiome: {fileID: 11400000, guid: 3a24a775a7a3a0c43961fa25aa062bd3, type: 2}
   rock: {fileID: 11400000, guid: 7bdeed2c0c6cd5e4e86e33d1940a3e9d, type: 2}
-  moistureOffset: -0.1
+  moistureOffset: -0.06
   tempOffset: -0.05
 --- !u!4 &184318060
 Transform:
@@ -981,7 +981,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8395782a88d14a489b62b768911c2e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nationName: {fileID: 732641804}
+  stateName: {fileID: 732641804}
   borderText: {fileID: 1335334498}
   popText: {fileID: 1236365759}
   sizeText: {fileID: 1077829512}
@@ -1237,7 +1237,7 @@ GameObject:
   - component: {fileID: 732641805}
   - component: {fileID: 732641804}
   m_Layer: 5
-  m_Name: Nation Name
+  m_Name: Name Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -10,7 +10,8 @@ public class Tile
     public bool border;
     public bool frontier;
     public bool nationalBorder;
-    public bool coastal;
+    public bool coastal = false;
+    public bool anarchy = true;
 
     public int carryingCapacity {get; private set;}
 

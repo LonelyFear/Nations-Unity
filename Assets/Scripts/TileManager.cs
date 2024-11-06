@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Random = UnityEngine.Random;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
+using System.Linq;
 
 public class TileManager : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class TileManager : MonoBehaviour
             initPopulation(entry.Value);
         }
         // Adds random nations to populate our world :>
-        addRandomNations(startingNationCount);
+        //addRandomNations(startingNationCount);
         updateAllColors();
     }
     public void OnTick(){
@@ -36,8 +37,15 @@ public class TileManager : MonoBehaviour
         neutralExpansion();
         tickTiles();
         tickNations();
+        creationTick();
     }
 
+    void creationTick(){
+        Tile tile = tiles.Values.ElementAt(Random.Range(0, tiles.Keys.Count - 1));
+        if (tile.anarchy && tile.terrain.biome.claimable && !tile.terrain.biome.water){
+            createRandomState(tile.tilePos);
+        }
+    }
     void tickNations(){
         foreach (State state in states){
             state.OnTick();
@@ -78,15 +86,18 @@ public class TileManager : MonoBehaviour
             Tile tile = entry.Value;
             
             // Sets the expansion chance
-            float expandChance = 0.0005f;
+            float expandChance = 0.001f;
 
             // If the tile is a frontier and if it has an owner
             if (tile.frontier && tile.state != null){
                 // Goes through its borders
                 for (int xd = -1; xd <= 1; xd++){
                     for (int yd = -1; yd <= 1; yd++){
+                        if (yd != 0 && xd != 0){
+                            continue;
+                        }
                         // Does a first random check to save performance
-                        if (Random.Range(0f, 1f) < expandChance){
+                        if (Random.Range(0f, 1f) < expandChance || (tile.coastal && Random.Range(0f, 1f) < expandChance * 4f)){
                             // Gets the tilemap pos of this adjacent tile
                             Vector3Int pos = new Vector3Int(xd,yd) + entry.Key;
                             // Checks if the tile even exists
@@ -117,8 +128,18 @@ public class TileManager : MonoBehaviour
             Vector3Int pos = new Vector3Int(Random.Range(0, world.worldSize.x), Random.Range(0, world.worldSize.y));
             // gets the tile
             Tile nationTile = getTile(pos);
+            bool openArea = true;
+            for (int x = -4; x <= 4; x++){
+                for (int y = -4; y <= 4; y++){
+                    Tile check = getTile(new Vector3Int(nationTile.tilePos.x + x, nationTile.tilePos.y + y));
+                    if (check != null && check.state != null){
+                        openArea = false;
+                    }
+                }
+            }
+            bool canSpawn = nationTile.coastal && Random.Range(0f,1f) < 0.3f;
 
-            while (nationTile == null || !nationTile.terrain.biome.claimable || nationTile.terrain.biome.fertility < 0.5f || nationTile.totalPopulation < 500){
+            while (nationTile == null || !nationTile.terrain.biome.claimable || nationTile.terrain.biome.fertility < 0.5f || nationTile.totalPopulation < 500 || !openArea || (!nationTile.coastal && !canSpawn && openArea)){
                 // If the tile doesnt exist or if it is owned or if it just cant be claimed
                 // Picks a new position
                 pos = new Vector3Int(Random.Range(0, world.worldSize.x), Random.Range(0, world.worldSize.y));
@@ -138,20 +159,23 @@ public class TileManager : MonoBehaviour
             }
             // If the nation wasnt stopped from spawning
             if (nationTile != null){
-                State newState = State.CreateRandomState();
-                // Adds it to the nations list
-                if (!states.Contains(newState)){
-                    states.Add(newState);
-                }
-                // Sets the parent of the nation to the nationholder object
-                //newNation.transform.SetParent(GameObject.FindGameObjectWithTag("NationHolder").transform);
-                newState.tileManager = this;
-                // And adds the very first tile :D
-                newState.AddTile(pos);
-                //TimeEvents.monthUpdate += newNation.OnTick;
+                createRandomState(pos);
             }
                 
         }
+    }
+
+    void createRandomState(Vector3Int pos){
+        State newState = State.CreateRandomState();
+        // Adds it to the nations list
+        if (!states.Contains(newState)){
+            states.Add(newState);
+        }
+        // Sets the parent of the nation to the nationholder object
+        //newNation.transform.SetParent(GameObject.FindGameObjectWithTag("NationHolder").transform);
+        newState.tileManager = this;
+        // And adds the very first tile :D
+        newState.AddTile(pos);
     }
 
     public void updateAllColors(){
@@ -180,6 +204,8 @@ public class TileManager : MonoBehaviour
             if (tile.state.capital == tile){
                 finalColor = tile.state.capitalColor;
             }
+        } else if (tile.anarchy && tile.terrain.biome.claimable){
+            finalColor = Color.gray;
         } else {
             // If the tile isnt owned, just sets the color to the color of the terrain
             finalColor = tile.terrain.biome.biomeColor;
@@ -203,7 +229,6 @@ public class TileManager : MonoBehaviour
     public void Border(Vector3Int position){
         // Gets a tile
         Tile tile = getTile(position);
-        
         if (tile != null){
             // If a tile is a border at all
             tile.border = false;
@@ -223,7 +248,7 @@ public class TileManager : MonoBehaviour
                     // If not, gets the adjacent tiles positon
                     Vector3Int pos = new Vector3Int(xd,yd) + position;
                     // Makes sure that tile exists
-                    if (getTile(pos) != null && getTile(pos).state != tile.state){
+                    if (getTile(pos) != null && (getTile(pos).state != tile.state)){
                         // If it does and it doesnt have the same owner as us, makes this tile a border :D
                         // But wait, theres more!
                         tile.border = true;
@@ -245,11 +270,7 @@ public class TileManager : MonoBehaviour
                                 // Makes it a frontier
                                 // Frontier tiles are the only ones that can colonize neutral tiles
                                 tile.frontier = true;
-                            } else if (getTile(pos).terrain.biome.water){
-                                // If the tested border is a naval tile
-                                // Makes us a coastal tile! (For ships in the future)
-                                tile.coastal = true;
-                            } 
+                            }
                         }
                         // Updates the color (For border shading)
                         updateColor(position);

@@ -128,9 +128,10 @@ public class GenerateWorld : MonoBehaviour
                 float minDist = 0.4f;
                 Vector2 climatePos = new Vector2(tileTerrain.temperature, tileTerrain.moisture);
 
-                if (tileTerrain.height > preset.oceanThreshold){
+                if (tileTerrain.height < preset.oceanThreshold){
+                    tileTerrain.biome = oceanBiome;
+                } else {
                     Biome chosenBiome = rock;
-
                     foreach (Biome biome in biomesToGenerate){
                         if (!biome){
                             continue;
@@ -143,8 +144,6 @@ public class GenerateWorld : MonoBehaviour
                     }
 
                     tileTerrain.biome = chosenBiome;
-                } else {
-                    tileTerrain.biome = oceanBiome;
                 }
                 
 
@@ -152,6 +151,15 @@ public class GenerateWorld : MonoBehaviour
                 // Instantiates a tile
                 var newTile = new Tile();
                 newTile.terrain = tileTerrain;
+
+                for (int ox = -1; ox <= 1; ox++){
+                    for (int oy = -1; oy <= 1; oy++){
+                        if (getHeightNoise(x + ox, y + oy) < preset.oceanThreshold){
+                            newTile.coastal = true;
+                            break;
+                        }
+                    }
+                }
 
                 // Adds the tile to the tile manager
                 GetComponent<TileManager>().tiles.Add(cellPos, newTile);

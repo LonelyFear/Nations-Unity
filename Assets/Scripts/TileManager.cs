@@ -9,9 +9,7 @@ using System.Linq;
 public class TileManager : MonoBehaviour
 {
     public Tilemap tilemap;
-
     public NationPanel nationPanel;
-    public int startingNationCount = 2;
     public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
     public List<State> states = new List<State>();
     GenerateWorld world;

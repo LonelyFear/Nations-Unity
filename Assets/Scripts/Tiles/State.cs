@@ -49,6 +49,7 @@ public class State
         tiles.Add(tile);
         population += tile.totalPopulation;
         tile.state = this;
+        tileManager.anarchy.Remove(tile);
         //Debug.Log(tile.owner.nationName);
         
         tileManager.updateColor(pos);
@@ -61,6 +62,9 @@ public class State
             tiles.Remove(tile);
             population -= tile.totalPopulation;
             tile.state = null;
+            tile.anarchy = true;
+
+            tileManager.anarchy.Add(tile);
 
             tileManager.updateColor(pos);
             tileManager.updateBorders(pos);

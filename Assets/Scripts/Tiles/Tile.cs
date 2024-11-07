@@ -11,7 +11,7 @@ public class Tile
     public bool frontier;
     public bool nationalBorder;
     public bool coastal = false;
-    public bool anarchy = true;
+    public bool anarchy = false;
 
     public int carryingCapacity {get; private set;}
 

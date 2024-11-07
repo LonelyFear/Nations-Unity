@@ -30,7 +30,48 @@ public class TileManager : MonoBehaviour
         }
         // Adds random nations to populate our world :>
         //addRandomNations(startingNationCount);
+        addInitialAnarchy(100);
         updateAllColors();
+    }
+
+    void addInitialAnarchy(int amount){
+        int totalAnarchy = 0;
+        
+        for (int i = 0; i < amount; i++) {
+            int attempts = 300;
+            // gets the tile
+            Tile tile = getRandomTile();
+
+            bool underpopulated = tile.totalPopulation > 500;
+            while (!tile.terrain.biome.claimable || tile.anarchy || !tile.coastal || tile.totalPopulation < 500){
+                tile = null;
+                attempts--;
+                if (attempts < 0){
+                    break;
+                }
+                tile = getRandomTile();
+                
+            }
+
+            if (tile != null){
+                addAnarchy(tile.tilePos);
+                totalAnarchy++;
+                for (int x = -3; x <= 3; x++){
+                    for (int y = -3; y <= 3; y++){
+                        Vector3Int newAnarchyPos = new Vector3Int(tile.tilePos.x + x, tile.tilePos.y + y);
+                        Tile tile1 = getTile(newAnarchyPos);
+                        if (tile1 != null && tile1.terrain.biome.claimable && !tile1.terrain.biome.water && Random.Range(0f, 1f) < 0.5f && !underpopulated){
+                            addAnarchy(newAnarchyPos);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    Tile getRandomTile(){
+        return tiles.Values.ElementAt(Random.Range(0, tiles.Keys.Count - 1));
     }
     public void OnTick(){
         // Each month nations can expand into neutral lands
@@ -41,10 +82,13 @@ public class TileManager : MonoBehaviour
     }
 
     void creationTick(){
-        Tile tile = tiles.Values.ElementAt(Random.Range(0, tiles.Keys.Count - 1));
-        if (tile.anarchy && tile.terrain.biome.claimable && !tile.terrain.biome.water){
-            createRandomState(tile.tilePos);
+        for (int i = 0; i < 20; i++){
+            Tile tile = tiles.Values.ElementAt(Random.Range(0, tiles.Keys.Count - 1));
+            if (tile.anarchy){
+                createRandomState(tile.tilePos);
+            }
         }
+        
     }
     void tickNations(){
         foreach (State state in states){
@@ -58,8 +102,8 @@ public class TileManager : MonoBehaviour
             home = tile,
             culture = Culture.createRandomCulture()
         };
-        tile.pops.Add(newPop);
         newPop.changePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
+        newPop.migrateToTile(newPop.population, tile);
     }
 
     void tickTiles(){
@@ -86,7 +130,7 @@ public class TileManager : MonoBehaviour
             Tile tile = entry.Value;
             
             // Sets the expansion chance
-            float expandChance = 0.001f;
+            float expandChance = 0.02f;
 
             // If the tile is a frontier and if it has an owner
             if (tile.frontier && tile.state != null){
@@ -104,12 +148,19 @@ public class TileManager : MonoBehaviour
                             if (tiles.ContainsKey(pos)){
                                 // Checks if we can expand (Random)
                                 bool canExpand = Random.Range(0f, 1f) < getTile(pos).terrain.biome.navigability;
+
+                                bool anarchy = getTile(pos).anarchy;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
                                 bool claimable = getTile(pos).terrain.biome.claimable && getTile(pos).state == null;
                                 // If both of these are true
-                                if (claimable && canExpand){
-                                    // COLONIALISM!!!!!!!!!!!!!!
-                                    tile.state.AddTile(pos);
+                                if (claimable){
+                                    if (!anarchy && canExpand){
+                                        addAnarchy(pos);
+                                    } else if (anarchy && tile.totalPopulation >= getTile(pos).totalPopulation * 0.5f){
+                                        // COLONIALISM!!!!!!!!!!!!!!
+                                        tile.state.AddTile(pos);
+                                    }
+                                    
                                 }
                             }
                         }   
@@ -118,6 +169,15 @@ public class TileManager : MonoBehaviour
             }
         }
     }
+
+    void addAnarchy(Vector3Int pos){
+        if (tiles.ContainsKey(pos)){
+            Tile tile = getTile(pos);
+            tile.anarchy = true;
+            updateColor(pos);
+        }
+    }
+    /*
     public void addRandomNations(int amount){
         // Add random nations
         for (int i = 0; i < amount; i++){
@@ -164,6 +224,7 @@ public class TileManager : MonoBehaviour
                 
         }
     }
+    */
 
     void createRandomState(Vector3Int pos){
         State newState = State.CreateRandomState();
@@ -205,7 +266,7 @@ public class TileManager : MonoBehaviour
                 finalColor = tile.state.capitalColor;
             }
         } else if (tile.anarchy && tile.terrain.biome.claimable){
-            finalColor = Color.gray;
+            finalColor = Color.black;
         } else {
             // If the tile isnt owned, just sets the color to the color of the terrain
             finalColor = tile.terrain.biome.biomeColor;

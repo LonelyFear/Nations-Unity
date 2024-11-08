@@ -13,6 +13,22 @@ public class TileManager : MonoBehaviour
     public List<State> states = new List<State>();
     GenerateWorld world;
 
+    [Header("Neutral Expansion")]
+    [SerializeField]
+    [Range(0f,1f)]
+    float anarchySpreadChance = 0.1f;
+    [SerializeField]
+    float anarchyCoastalMult = 3f;
+
+    [Header("Nation Spawning")]
+    [SerializeField]
+    [Range(0f,1f)]
+    float stateSpawnChance = 0.1f;
+
+    [SerializeField]
+    [Range(0f,1f)]
+    float anarchyConquestChance = 0.5f;
+
     public List<Tile> anarchy = new List<Tile>();
     public void Init(){
         // Gets our world generation script
@@ -87,9 +103,9 @@ public class TileManager : MonoBehaviour
 
     void creationTick(){
         Tile tile = anarchy[Random.Range(0, anarchy.Count)];
-        if (tile.anarchy && Random.Range(0f, 1.5f) < tile.terrain.biome.navigability){
+        if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability){
             createRandomState(tile.tilePos);
-        }    
+        }     
     }
     void tickNations(){
         foreach (State state in states){
@@ -154,7 +170,7 @@ public class TileManager : MonoBehaviour
                                 // Checks if we can expand (Random)
                                 bool canExpand = Random.Range(0f, 1f) < target.terrain.biome.navigability;
 
-                                bool canAnarchySpread = Random.Range(0f, 1f) < 0.1f || tile.coastal && Random.Range(0f, 1f) < 0.25f;
+                                bool canAnarchySpread = Random.Range(0f, 1f) < anarchySpreadChance || tile.coastal && Random.Range(0f, 1f) < anarchySpreadChance * anarchyCoastalMult;
 
                                 bool anarchy = target.anarchy;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
@@ -172,7 +188,7 @@ public class TileManager : MonoBehaviour
                                             addAnarchy(pos);
                                         }
                                     }
-                                    else if (anarchy && tile.totalPopulation >= target.totalPopulation * 0.5f && isState && Random.Range(0f, 1f) - 0.5f < target.terrain.biome.navigability){
+                                    else if (anarchy && tile.totalPopulation >= target.totalPopulation * 0.5f && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.biome.navigability){
                                         // COLONIALISM!!!!!!!!!!!!!!
                                         tile.state.AddTile(pos);
                                     }
@@ -220,6 +236,8 @@ public class TileManager : MonoBehaviour
         }
     }
 
+
+    // COLOR
     public void updateColor(Vector3Int position){
         tilemap.SetTileFlags(position, TileFlags.None);
         // Gets the final color
@@ -242,7 +260,7 @@ public class TileManager : MonoBehaviour
             // If the tile isnt owned, just sets the color to the color of the terrain
             finalColor = tile.terrain.biome.biomeColor;
             if (tile.anarchy){
-                //finalColor = Color.black;
+                finalColor = Color.black;
             }
         }
         // Higlights selected nation

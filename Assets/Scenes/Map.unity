@@ -674,7 +674,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
-  startingNationCount: 500
+  anarchySpreadChance: 0.2
+  anarchyCoastalMult: 3
+  stateSpawnChance: 0.4
+  anarchyConquestChance: 0.2
 --- !u!1 &253897841
 GameObject:
   m_ObjectHideFlags: 0

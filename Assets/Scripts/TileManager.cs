@@ -103,7 +103,7 @@ public class TileManager : MonoBehaviour
 
     void creationTick(){
         Tile tile = anarchy[Random.Range(0, anarchy.Count)];
-        if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability){
+        if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability && tile.totalPopulation > 500){
             createRandomState(tile.tilePos);
         }     
     }
@@ -188,7 +188,7 @@ public class TileManager : MonoBehaviour
                                             addAnarchy(pos);
                                         }
                                     }
-                                    else if (anarchy && tile.totalPopulation >= target.totalPopulation * 0.5f && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.biome.navigability){
+                                    else if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.biome.navigability){
                                         // COLONIALISM!!!!!!!!!!!!!!
                                         tile.state.AddTile(pos);
                                     }
@@ -222,7 +222,6 @@ public class TileManager : MonoBehaviour
             states.Add(newState);
         }
         // Sets the parent of the nation to the nationholder object
-        //newNation.transform.SetParent(GameObject.FindGameObjectWithTag("NationHolder").transform);
         newState.tileManager = this;
         // And adds the very first tile :D
         newState.AddTile(pos);
@@ -247,11 +246,11 @@ public class TileManager : MonoBehaviour
 
         if (tile.state != null){
             // If the tile has an owner, colors it its nation
-            finalColor = tile.state.stateColor;
+            finalColor = tile.state.mapColor;
             // If the tile is a border
             if (tile.border){
                 // Colors it slightly darker to show where nation boundaries are
-                finalColor = tile.state.stateColor * 0.7f + Color.black * 0.3f;
+                finalColor = tile.state.mapColor * 0.7f + Color.black * 0.3f;
             }
             if (tile.state.capital == tile){
                 finalColor = tile.state.capitalColor;
@@ -270,8 +269,13 @@ public class TileManager : MonoBehaviour
             // If the tile isnt the selected nation
             if (tiles[position].state != selectedState){
                 // Darkens it
-                finalColor = finalColor * 0.5f + Color.black * 0.5f;
+                if (tiles[position].state != null && (tiles[position].state == selectedState.liege || selectedState.vassals.ContainsKey(tiles[position].state))){
+                    finalColor = finalColor * 0.5f + Color.yellow * 0.5f;
+                } else {
+                    finalColor = finalColor * 0.5f + Color.black * 0.5f;
+                }
             }
+
         }
         // Finally sets the color on the tilemap
         tilemap.SetColor(position, finalColor);

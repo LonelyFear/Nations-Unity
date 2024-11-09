@@ -29,17 +29,25 @@ public class NationPanel : MonoBehaviour
         if (gameObject.activeInHierarchy){
             if (stateName && borderText && popText && sizeText){
                 stateName.text = tileSelected.state.stateName;
-                borderText.text = "Relations:" + "<br>" + DisplayBorderingNations();
+                borderText.text = "Relations:" + "<br>" + displayLiege() + DisplayBorderingNations();
                 popText.text = "Population: " + tileSelected.state.population.ToString("#,##0");
                 sizeText.text = "Tiles: " + tileSelected.state.tiles.Count.ToString("#,##0 Tiles");
             }
         }    
     }
 
+    string displayLiege(){
+        String str = "";
+        if (tileSelected.state.liege != null){
+            str = "Liege: " + tileSelected.state.liege.stateName + "<br>";
+        }
+        return str;
+    }
     string DisplayBorderingNations(){
         String str = "";
+
         foreach (State state in tileSelected.state.borderingStates){
-            str = str + state.stateName + "<br>"; //+ ": " + tileSelected.state.relations[state].opinion + "<br>";
+            str = str + state.stateName + ": " + tileSelected.state.relations[state].opinion + "<br>";
         }
         if (str.Length > 0){
             return str;

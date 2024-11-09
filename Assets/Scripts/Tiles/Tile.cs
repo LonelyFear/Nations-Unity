@@ -22,8 +22,10 @@ public class Tile
     }
 
     public void growPopulation(){
+        /*
         foreach (Pop pop in pops){
             pop.growPopulation();
-        }  
+        }
+        */
     }
 }

@@ -3,11 +3,12 @@ using Random=UnityEngine.Random;
 
 public class Pop
 {
-    public int population;
-    public Tile home;
-    public State state;
-    public Culture culture;
-    public float wealth;
+    public int population = 0;
+    public Tile home = null;
+    public State state = null;
+    public Culture culture = null;
+    public Troop troop = null;
+    public float wealth = 0;
     public bool canPopChange = true;
 
     // Base growth and mortality rates
@@ -33,14 +34,13 @@ public class Pop
                     state = destination.state,
                     culture = culture
                 };
-                newPop.changePopulation(amount);
-                destination.pops.Add(newPop);
+                newPop.assignToTile(destination);
             }
         }
     }
 
     public void growPopulation(){
-        if (canPopChange){
+        if (troop == null && canPopChange){
             float growthRate = baseGrowthRate;
             float mortalityRate = baseMortalityRate;
             if (home.totalPopulation > home.getMaxPopulation()){
@@ -56,6 +56,62 @@ public class Pop
         }
     }
 
+    public void assignToTroop(Troop unit){
+        if (troop != null){
+            troop.soldiers -= population;
+        }
+        troop = unit;
+        if (unit != null){
+            unit.soldiers += population;
+        }
+    }
+
+    public void assignToState(State newState){
+        if (state != null){
+            state.population -= population;
+        }
+        state = newState;
+        if (newState != null){
+            newState.population += population;
+        }
+    }
+
+    public void assignToTile(Tile newTile){
+        if (home != null){
+            home.totalPopulation -= population;
+            home.pops.Remove(this);
+        }
+        home = newTile;
+        if (newTile != null){
+            newTile.totalPopulation += population;
+            newTile.pops.Add(this);
+            assignToState(newTile.state);
+        }
+    }
+
+    public void mergePopsInTile(){
+        foreach (Pop pop in home.pops){
+            if (pop.culture == culture && pop.state == state && pop.troop == troop && pop.home == home){
+                pop.changePopulation(population);
+                changePopulation(-population);
+                break;
+            }
+        }
+    }
+
+    public void SplitPop(int amount, Troop newTroop, Tile newHome){
+        if (population - amount > 1){
+            changePopulation(-amount);
+
+            Pop newPop =  new Pop();
+
+            newPop.assignToTile(newHome);
+            newPop.assignToTroop(newTroop);
+
+            newPop.changePopulation(amount);
+        }
+    }
+
     public void changePopulation(int amount){
         population += amount;
         if (population < 1){
@@ -66,12 +122,18 @@ public class Pop
             if (state != null){
                 state.population += clampedAmount;
             }
+            if (troop != null){
+                troop.soldiers += clampedAmount;
+            }
             population = 0;
             home.pops.Remove(this);
             } else {
                 home.totalPopulation += amount;
             if (state != null){
                 state.population += amount;
+            }
+            if (troop != null){
+                troop.soldiers += amount;
             }
         }
     }

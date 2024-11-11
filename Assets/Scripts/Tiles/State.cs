@@ -20,6 +20,7 @@ public class State
     public State liege;
     public Dictionary<State, StateTypes> vassals = new Dictionary<State, StateTypes>();
     public Dictionary<State, Relation> relations = new Dictionary<State, Relation>();
+    public Dictionary<State, Front> fronts = new Dictionary<State, Front>();
     public StateTypes stateType = StateTypes.INDEPENDENT;
     public enum StateTypes {
         INDEPENDENT,
@@ -38,6 +39,12 @@ public class State
                     if (!borderingStates.Contains(state)){
                         borderingStates.Add(state);
                         fixRelations();
+                    }
+                    if (!fronts.ContainsKey(state)){
+                        fronts.Add(state, new Front());
+                    }
+                    if (!fronts[state].tiles.ContainsKey(tile)){
+                        fronts[state].tiles.Add(tile, null);
                     }
                 }
             }
@@ -79,6 +86,10 @@ public class State
         foreach (Tile tile in tiles){
             tileManager.updateColor(tile.tilePos);
         }
+    }
+
+    public void fixFronts(){
+        
     }
     
     public void VassalizeState(State state, StateTypes type = StateTypes.VASSAL){

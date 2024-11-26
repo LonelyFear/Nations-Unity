@@ -41,7 +41,9 @@ public class TileManager : MonoBehaviour
             entry.Value.tilePos = entry.Key;
 
             // Initializes their populations
-            initPopulation(entry.Value);
+            if (!entry.Value.terrain.biome.water){
+                initPopulation(entry.Value);
+            }
         }
         addInitialAnarchy(100);
         updateAllColors();
@@ -55,8 +57,7 @@ public class TileManager : MonoBehaviour
             // gets the tile
             Tile tile = getRandomTile();
 
-            bool underpopulated = tile.totalPopulation > 500;
-            while (!tile.terrain.biome.claimable || tile.anarchy || !tile.coastal || tile.totalPopulation < 500){
+            while (!tile.terrain.biome.claimable || tile.anarchy || !tile.coastal || tile.population < 500){
                 tile = null;
                 attempts--;
                 if (attempts < 0){
@@ -103,7 +104,7 @@ public class TileManager : MonoBehaviour
 
     void creationTick(){
         Tile tile = anarchy[Random.Range(0, anarchy.Count)];
-        if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability && tile.totalPopulation > 500){
+        if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability && tile.population > 500){
             createRandomState(tile.tilePos);
         }     
     }
@@ -114,19 +115,13 @@ public class TileManager : MonoBehaviour
     }
 
     void initPopulation(Tile tile){
-
-        Pop newPop = new Pop(){
-            home = tile,
-            culture = Culture.createRandomCulture()
-        };
-        newPop.changePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
-        newPop.migrateToTile(newPop.population, tile);
+        tile.changePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
     }
 
     void tickTiles(){
         foreach (var entry in tiles){
             Tile tile = entry.Value;
-            if (tile.totalPopulation > 0 && tile.pops.Count > 0){
+            if (tile.population > 0){
                 tile.growPopulation();
             }
         }
@@ -135,7 +130,7 @@ public class TileManager : MonoBehaviour
     public void populationGrowth(){
         foreach (var entry in tiles){
             Tile tile = entry.Value;
-            if (tile.totalPopulation > 0 && tile.pops.Count > 0){
+            if (tile.population> 0){
                 tile.growPopulation();
             }
         }

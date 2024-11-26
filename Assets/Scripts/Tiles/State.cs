@@ -20,7 +20,6 @@ public class State
     public State liege;
     public Dictionary<State, StateTypes> vassals = new Dictionary<State, StateTypes>();
     public Dictionary<State, Relation> relations = new Dictionary<State, Relation>();
-    public Dictionary<State, Front> fronts = new Dictionary<State, Front>();
     public StateTypes stateType = StateTypes.INDEPENDENT;
     public enum StateTypes {
         INDEPENDENT,
@@ -40,12 +39,6 @@ public class State
                         borderingStates.Add(state);
                         fixRelations();
                     }
-                    if (!fronts.ContainsKey(state)){
-                        fronts.Add(state, new Front());
-                    }
-                    if (!fronts[state].tiles.ContainsKey(tile)){
-                        fronts[state].tiles.Add(tile, null);
-                    }
                 }
             }
         }
@@ -58,7 +51,7 @@ public class State
             tile.state.RemoveTile(pos);
         }
         tiles.Add(tile);
-        population += tile.totalPopulation;
+        population += tile.population;
         tile.state = this;
         tileManager.anarchy.Remove(tile);
         
@@ -70,7 +63,7 @@ public class State
         Tile tile = tileManager.getTile(pos);
         if (tiles.Contains(tile)){
             tiles.Remove(tile);
-            population -= tile.totalPopulation;
+            population -= tile.population;
             tile.state = null;
             tile.anarchy = true;
 

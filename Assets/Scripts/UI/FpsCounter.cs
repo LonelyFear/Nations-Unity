@@ -10,7 +10,7 @@ public class FpsCounter : MonoBehaviour
 
     float frameCounter;
     float timeCounter;
-    float lastFramerate;
+    public float lastFramerate;
     public float refreshTime = 0.5f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

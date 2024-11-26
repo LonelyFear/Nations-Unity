@@ -2017,6 +2017,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textMeshPro: {fileID: 0}
+  lastFramerate: 0
   refreshTime: 0.5
 --- !u!114 &1124326827
 MonoBehaviour:

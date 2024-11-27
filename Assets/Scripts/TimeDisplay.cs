@@ -20,7 +20,7 @@ public class TimeDisplay : MonoBehaviour
             int month = tm.month;
             int year = tm.year;
             String m = "" + month.ToString("00");
-            String y = "" + year.ToString("0000");
+            String y = "" + Mathf.Abs(year).ToString("0000");
             text.text = m + "/" + y;
         } else {
             text.text = "";

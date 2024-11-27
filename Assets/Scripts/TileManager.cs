@@ -42,7 +42,7 @@ public class TileManager : MonoBehaviour
 
             // Initializes their populations
             if (!entry.Value.terrain.biome.water){
-                initPopulation(entry.Value);
+                initPopulation(entry.Value, 50);
             }
         }
         addInitialAnarchy(100);
@@ -57,7 +57,7 @@ public class TileManager : MonoBehaviour
             // gets the tile
             Tile tile = getRandomTile();
 
-            while (!tile.terrain.biome.claimable || tile.anarchy || !tile.coastal || tile.population < 500){
+            while (!tile.terrain.biome.claimable || tile.anarchy || !tile.coastal || tile.population < 100){
                 tile = null;
                 attempts--;
                 if (attempts < 0){
@@ -103,35 +103,38 @@ public class TileManager : MonoBehaviour
     }
 
     void creationTick(){
-        Tile tile = anarchy[Random.Range(0, anarchy.Count)];
-        if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability && tile.population > 500){
-            createRandomState(tile.tilePos);
-        }     
+        if (anarchy.Count > 0){
+            Tile tile = anarchy[Random.Range(0, anarchy.Count)];
+            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability && tile.population > 100){
+                createRandomState(tile.tilePos);
+            }   
+        }
+          
     }
+
     void tickNations(){
         foreach (State state in states){
             state.OnTick();
         }
     }
 
-    void initPopulation(Tile tile){
-        tile.changePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
+    void initPopulation(Tile tile, int amountToCreate = 50){
+        //tile.ChangePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
+        for (int i = 0; i < amountToCreate; i++){
+            Pop newPop = new Pop(){
+                population = Mathf.FloorToInt(Random.Range(100, 500) * tile.terrain.biome.fertility),
+                culture = Culture.createRandomCulture()
+            };
+            newPop.SetTile(tile);
+        }
+        
     }
 
     void tickTiles(){
         foreach (var entry in tiles){
             Tile tile = entry.Value;
             if (tile.population > 0){
-                tile.growPopulation();
-            }
-        }
-    }
-
-    public void populationGrowth(){
-        foreach (var entry in tiles){
-            Tile tile = entry.Value;
-            if (tile.population> 0){
-                tile.growPopulation();
+                tile.GrowPopulation();
             }
         }
     }

@@ -80,14 +80,9 @@ public class State
             tileManager.updateColor(tile.tilePos);
         }
     }
-
-    public void fixFronts(){
-        
-    }
     
     public void VassalizeState(State state, StateTypes type = StateTypes.VASSAL){
         if (type != StateTypes.INDEPENDENT && !vassals.ContainsKey(state) && liege != state && state.liege != this){
-            Debug.Log("Vassalization");
 
             if (state.liege != null){
                 state.liege.ReleaseState(state);   

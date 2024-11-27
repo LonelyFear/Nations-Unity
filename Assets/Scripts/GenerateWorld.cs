@@ -112,6 +112,7 @@ public class GenerateWorld : MonoBehaviour
     }
 
     void generateWorld(){
+        float landTiles = 0;
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int y = 0; y < worldSize.y; y++){
             for (int x = 0; x < worldSize.x; x++){
@@ -131,6 +132,7 @@ public class GenerateWorld : MonoBehaviour
                 if (tileTerrain.height < preset.oceanThreshold){
                     tileTerrain.biome = oceanBiome;
                 } else {
+                    landTiles += 1;
                     Biome chosenBiome = rock;
                     foreach (Biome biome in biomesToGenerate){
                         if (!biome){
@@ -166,5 +168,8 @@ public class GenerateWorld : MonoBehaviour
                 
             }
         }
+        print("Land Tiles: " + landTiles);
+        print("Total Tiles: " + (worldSize.x * worldSize.y));
+        print("Land %: " + Mathf.RoundToInt(landTiles / (worldSize.x * worldSize.y) * 100) + "%");
     }
 }

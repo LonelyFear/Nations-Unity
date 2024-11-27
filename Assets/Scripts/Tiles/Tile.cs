@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 
 public class Tile
 {
@@ -15,37 +18,26 @@ public class Tile
 
     // Population
     public int population;
+    public List<Pop> pops = new List<Pop>();
+    public const int maxPops = 25;
     public const float baseBirthRate = 0.04f;
-    public const float baseDeathRate = 0.039f;
+    public const float baseDeathRate = 0.037f;
 
-    public int getMaxPopulation(){
-        return Mathf.RoundToInt(1000 * terrain.biome.fertility);
+    public int GetMaxPopulation(){
+        return Mathf.RoundToInt(10000 * terrain.biome.fertility);
     }
 
-    public void growPopulation(){
-        float birthRate = 0f;
-        if (population > 1){
-            birthRate = baseBirthRate;
-            if (population > getMaxPopulation()){
-                birthRate *= 0.75f;
-            }
+    public void GrowPopulation(){
+        Pop[] popsArray = pops.ToArray();
+        foreach (Pop pop in popsArray){
+            pop.GrowPopulation();
         }
-        // -5.5 - -6
-        float deathRate = baseDeathRate;
-        float natutalGrowthRate = (birthRate - deathRate) / 12;
-
-        int totalGrowth = Mathf.RoundToInt(population * natutalGrowthRate);
-        if (Random.Range(0f,1f) < Mathf.Abs((population * natutalGrowthRate) - (Mathf.Sign(natutalGrowthRate) * Mathf.FloorToInt(population * natutalGrowthRate)))){
-            totalGrowth += (int) Mathf.Sign(natutalGrowthRate);
-        }
-
-        changePopulation(totalGrowth);
     }
 
-    public void changePopulation(int amount){
+    public void ChangePopulation(int amount){
         int totalChange = amount;
         if (population + amount < 1){
-            totalChange = -population;
+            totalChange = population * -1;
             population = 0;
 
         } else {

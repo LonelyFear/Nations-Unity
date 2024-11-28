@@ -678,6 +678,9 @@ MonoBehaviour:
   anarchyCoastalMult: 3
   stateSpawnChance: 0.4
   anarchyConquestChance: 0.2
+  minNationPopulation: 500
+  minAnarchyPopulation: 100
+  popsToCreate: 10
 --- !u!1 &253897841
 GameObject:
   m_ObjectHideFlags: 0

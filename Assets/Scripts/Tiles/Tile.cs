@@ -6,6 +6,7 @@ using UnityEngine.InputSystem.Interactions;
 
 public class Tile
 {
+    public TileManager tileManager;
     public TileTerrain terrain;    public State state = null;
     public Vector3Int tilePos;
     public bool border;
@@ -44,7 +45,7 @@ public class Tile
             population += amount;
         }
         if (state != null){
-            state.population += totalChange;
+            state.ChangePopulation(totalChange);
         }
     }
 }

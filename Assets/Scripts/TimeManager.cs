@@ -9,8 +9,8 @@ public class TimeManager : MonoBehaviour
     public int year = 1;
 
     [Header("Time Settings")]
-    [Range(0f, 5f)]
-    public float dayLength = 1f;
+    [Range(0f, 0.5f)]
+    public float dayLength = 0.05f;
 
     [Header("Info")]
     public bool timerStart = false; // Makes sure the timers start when worldGen is finished

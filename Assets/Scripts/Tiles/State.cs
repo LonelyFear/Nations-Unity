@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
@@ -11,6 +12,7 @@ public class State
     public Tile capital { get; private set; }
     public List<Tile> tiles { get; private set; } = new List<Tile>();
     public int population;
+    public int totalPopulation;
     public TileManager tileManager;
     public Color stateColor = Color.red;
     public Color capitalColor = Color.red;
@@ -51,7 +53,9 @@ public class State
             tile.state.RemoveTile(pos);
         }
         tiles.Add(tile);
-        population += tile.population;
+
+        ChangePopulation(tile.population);
+
         tile.state = this;
         tileManager.anarchy.Remove(tile);
         
@@ -63,7 +67,9 @@ public class State
         Tile tile = tileManager.getTile(pos);
         if (tiles.Contains(tile)){
             tiles.Remove(tile);
-            population -= tile.population;
+
+            ChangePopulation(-1 * tile.population);
+
             tile.state = null;
             tile.anarchy = true;
 
@@ -89,15 +95,9 @@ public class State
             }
 
             if (state.vassals.Count > 0){
-                List<State> stateVassals = new List<State>();
-                foreach (var entry in state.vassals){
-                    State vassalVassal = entry.Key;
-                    stateVassals.Add(vassalVassal);
+                foreach (var vassalRelation in state.vassals.ToArray<KeyValuePair<State, StateTypes>>()){
+                    state.ReleaseState(vassalRelation.Key);
                 }
-                foreach (State state1 in stateVassals){
-                    state.ReleaseState(state1);
-                }
-                
             }
 
             state.liege = this;
@@ -115,6 +115,7 @@ public class State
             state.updateColor();
             state.fixRelations();
             
+            totalPopulation += state.population;
         }
     }
 
@@ -136,6 +137,8 @@ public class State
             state.updateCapital();
             state.updateColor();
             state.fixRelations();
+
+            totalPopulation -= state.population;
         }
     }
 
@@ -243,4 +246,19 @@ public class State
         }
     }
 
+    public void ChangePopulation(int amount){
+        int totalChange = amount;
+        if (population + amount < 1){
+            totalChange = population * -1;
+            population = 0;
+
+        } else {
+            population += amount;
+            
+        }
+        totalPopulation += totalChange;
+        if (liege != null){
+            liege.totalPopulation += totalChange;
+        }
+    }
 }

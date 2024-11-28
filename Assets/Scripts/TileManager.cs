@@ -4,14 +4,17 @@ using System.Collections.Generic;
 using Random = UnityEngine.Random;
 using UnityEngine.EventSystems;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 public class TileManager : MonoBehaviour
 {
     public Tilemap tilemap;
     public NationPanel nationPanel;
-    public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
-    public List<State> states = new List<State>();
+    
+    
     GenerateWorld world;
+    
 
     [Header("Neutral Expansion")]
     [SerializeField]
@@ -29,12 +32,19 @@ public class TileManager : MonoBehaviour
     [Range(0f,1f)]
     float anarchyConquestChance = 0.5f;
 
+    // Lists & Stats
+    //public int worldPopulation;
+    public List<Pop> pops = new List<Pop>();
+    public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
+    public List<State> states = new List<State>();
     public List<Tile> anarchy = new List<Tile>();
+
     public void Init(){
         // Gets our world generation script
         world = GetComponent<GenerateWorld>();
         // Goes thru the tiles
         foreach (var entry in tiles){
+            //Tile tile = entry.Value;
             // Sets their initial color
             //updateColor(entry.Key);
             // Sets their tile positions
@@ -42,8 +52,9 @@ public class TileManager : MonoBehaviour
 
             // Initializes their populations
             if (!entry.Value.terrain.biome.water){
-                initPopulation(entry.Value, 50);
+                initPopulation(entry.Value, 1);
             }
+            entry.Value.tileManager = this;
         }
         addInitialAnarchy(100);
         updateAllColors();
@@ -94,12 +105,11 @@ public class TileManager : MonoBehaviour
         if (Random.Range(0f, 1f) < 0.75f){
             creationTick();
         }
-        // Each month nations can expand into neutral lands
+        // Each game tick nations can expand into neutral lands
         neutralExpansion();
-        // ticking tiles
-        tickTiles();
+        // ticking objects
+        tickPops();
         tickNations();
-        
     }
 
     void creationTick(){
@@ -113,8 +123,17 @@ public class TileManager : MonoBehaviour
     }
 
     void tickNations(){
-        foreach (State state in states){
+        foreach (State state in states.ToArray()){
             state.OnTick();
+        }
+    }
+    void tickPops(){
+        foreach(Pop pop in pops.ToArray()){
+            if (pop.population < 1){
+                pops.Remove(pop);
+                pop.DeletePop();
+            }
+            pop.GrowPopulation();
         }
     }
 
@@ -126,18 +145,11 @@ public class TileManager : MonoBehaviour
                 culture = Culture.createRandomCulture()
             };
             newPop.SetTile(tile);
+            pops.Add(newPop);
         }
         
     }
 
-    void tickTiles(){
-        foreach (var entry in tiles){
-            Tile tile = entry.Value;
-            if (tile.population > 0){
-                tile.GrowPopulation();
-            }
-        }
-    }
 
     public void neutralExpansion(){
         foreach (var entry in tiles){

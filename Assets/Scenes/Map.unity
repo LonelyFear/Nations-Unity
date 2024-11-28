@@ -2287,7 +2287,7 @@ MonoBehaviour:
   day: 1
   month: 1
   year: 1
-  dayLength: 0
+  dayLength: 0.05
   timerStart: 0
 --- !u!4 &1236494429
 Transform:

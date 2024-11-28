@@ -1,13 +1,17 @@
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
 using UnityEngine.Tilemaps;
+using Unity.Jobs;
+using Unity.Collections;
+using System.Buffers.Text;
 
 public class Pop
 {
     // Population
     public int population;
-    //int dependents;
-    //int workers;
+    public int dependents;
+    public int workforce;
+    public float dependentRatio = 0.75f;
     public const float baseBirthRate = 0.04f;
     public const float baseDeathRate = 0.037f;
 
@@ -34,8 +38,9 @@ public class Pop
         if (Random.Range(0f,1f) < (population * Mathf.Abs(natutalGrowthRate)) - Mathf.FloorToInt(population * Mathf.Abs(natutalGrowthRate))){
             totalGrowth += (int) Mathf.Sign(natutalGrowthRate);
         }
-
-        ChangePopulation(totalGrowth);
+        if (totalGrowth != 0){
+            ChangePopulation(totalGrowth);
+        }
     }
 
     public void SetTile(Tile newTile){
@@ -58,12 +63,14 @@ public class Pop
         if (state != null){
             //state.pops.Remove(this);
             state.population -= population;
+            state.totalPopulation -= population;
         }
 
         state = newState;
 
         if (state != null){
             state.population += population;
+            state.totalPopulation += population;
             /*
             if (!state.pops.Contains(this)){
                 state.pops.Add(this);        
@@ -77,7 +84,9 @@ public class Pop
             tile.population -= population;
             if (state != null){
                 state.population -= population;
+                state.totalPopulation -= population;
             }
+            CalcDependents();
         }
 
         population = amount;
@@ -86,6 +95,7 @@ public class Pop
             tile.population += population;
             if (state != null){
                 state.population += population;
+                state.totalPopulation += population;
             }
         }
     }
@@ -95,8 +105,10 @@ public class Pop
         // Changes population
         if (population + amount < 1){
             DeletePop();
+            CalcDependents();
         } else {
             population += amount;
+            CalcDependents();
         }
 
         // Updates statistics
@@ -104,6 +116,11 @@ public class Pop
             tile.ChangePopulation(totalChange);
         }
         
+    }
+
+    public void CalcDependents(){
+        dependents = Mathf.RoundToInt(population * dependentRatio);
+        workforce = population - dependents;
     }
 
     public void DeletePop(){

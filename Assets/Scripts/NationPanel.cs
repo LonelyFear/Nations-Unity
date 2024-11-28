@@ -28,10 +28,12 @@ public class NationPanel : MonoBehaviour
     void Update(){
         if (gameObject.activeInHierarchy){
             if (stateName && borderText && popText && sizeText){
-                stateName.text = tileSelected.state.stateName;
+                State state = tileSelected.state;
+                stateName.text = state.stateName;
                 borderText.text = "Relations:" + "<br>" + displayLiege() + DisplayBorderingNations();
-                popText.text = "Population: " + tileSelected.state.population.ToString("#,##0");
-                sizeText.text = "Tiles: " + tileSelected.state.tiles.Count.ToString("#,##0 Tiles");
+                popText.text = "Local Population: " + state.population.ToString("#,##0") + 
+                "<br>National Population: " + state.totalPopulation.ToString("#,##0");
+                sizeText.text = "Tiles: " + state.tiles.Count.ToString("#,##0 Tiles");
             }
         }    
     }

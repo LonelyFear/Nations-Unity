@@ -53,7 +53,7 @@ public class TileManager : MonoBehaviour
 
             // Initializes their populations
             if (!entry.Value.terrain.biome.water){
-                initPopulation(entry.Value, 50);
+                initPopulation(entry.Value, 1);
             }
             entry.Value.tileManager = this;
         }

@@ -33,11 +33,16 @@ public class State
     public List<State> borderingStates { get; private set; } = new List<State>();
 
     public void getBorders(){
+        // Clears our saved borders
         borderingStates.Clear();
+        // Goes through our tiles
         foreach (Tile tile in tiles){
+            // If the tile borders another nation
             if (tile.nationalBorder){
+                // Goes through the nations it borders
                 foreach (State state in tile.borderingStates){
                     if (!borderingStates.Contains(state)){
+                        // If we dont already have it down, adds it to bordering states
                         borderingStates.Add(state);
                         fixRelations();
                     }
@@ -77,13 +82,6 @@ public class State
 
             tileManager.updateColor(pos);
             tileManager.updateBorders(pos);
-        }
-    }
-
-    public void SetColor(Color color){
-        stateColor = color;
-        foreach (Tile tile in tiles){
-            tileManager.updateColor(tile.tilePos);
         }
     }
     
@@ -161,16 +159,18 @@ public class State
     }
 
     public void OnTick(){
-        if (liege == null){
-            //stateType = StateTypes.INDEPENDENT;
-        }
+        // Updates our capital every tick
         updateCapital();
 
+        DebugVassalize();
+    }
+
+    void DebugVassalize(){
         foreach (State state in borderingStates){
             if (relations.ContainsKey(state) && state.liege == null && tiles.Count > state.tiles.Count && tiles.Count > 25 && liege == null){
                 VassalizeState(state, StateTypes.PROVINCE);
             }
-        }
+        }        
     }
 
     public void fixRelations(){

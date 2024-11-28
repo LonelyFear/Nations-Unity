@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using Random = UnityEngine.Random;
 using UnityEngine.EventSystems;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
 
 public class TileManager : MonoBehaviour
 {
@@ -32,9 +30,17 @@ public class TileManager : MonoBehaviour
     [Range(0f,1f)]
     float anarchyConquestChance = 0.5f;
 
+    [SerializeField]
+    int minNationPopulation = 500;
+    [SerializeField]
+    int minAnarchyPopulation = 100;
+
+    [Header("Pops")]
+    [SerializeField]
+    int popsToCreate = 1;
+
     // Lists & Stats
     //public int worldPopulation;
-    public List<Pop> pops = new List<Pop>(750000);
     public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
     public List<State> states = new List<State>();
     public List<Tile> anarchy = new List<Tile>();
@@ -43,21 +49,21 @@ public class TileManager : MonoBehaviour
         // Gets our world generation script
         world = GetComponent<GenerateWorld>();
         // Goes thru the tiles
-        //pops.Capacity = tiles.Values.Count * 50;
         foreach (var entry in tiles){
-            //Tile tile = entry.Value;
-            // Sets their initial color
-            //updateColor(entry.Key);
+            Tile tile = entry.Value;
             // Sets their tile positions
-            entry.Value.tilePos = entry.Key;
+            tile.tilePos = entry.Key;
 
             // Initializes their populations
-            if (!entry.Value.terrain.biome.water){
-                initPopulation(entry.Value, 1);
+            if (!tile.terrain.biome.water){
+                initPopulation(tile, popsToCreate);
             }
-            entry.Value.tileManager = this;
+            TimeEvents.monthUpdate += tile.Tick;
+            tile.tileManager = this;
         }
+        // Adds initial anarchy
         addInitialAnarchy(100);
+        // Sets the map colors
         updateAllColors();
     }
 
@@ -69,38 +75,33 @@ public class TileManager : MonoBehaviour
             // gets the tile
             Tile tile = getRandomTile();
 
-            while (!tile.terrain.biome.claimable || tile.anarchy || !tile.coastal || tile.population < 100){
+            // Checks if the tile has conditions that makes anarchy impossible
+            while (!tile.terrain.biome.claimable || tile.anarchy || !tile.coastal || tile.population < minAnarchyPopulation){
                 tile = null;
                 attempts--;
+                // If we run out of attempts break to avoid forever loops
                 if (attempts < 0){
                     break;
                 }
+                // Picks another tile
                 tile = getRandomTile();
                 
             }
 
             if (tile != null){
+                // Adds anarchy to the tile
                 addAnarchy(tile.tilePos);
                 totalAnarchy++;
-                /*
-                for (int x = -3; x <= 3; x++){
-                    for (int y = -3; y <= 3; y++){
-                        Vector3Int newAnarchyPos = new Vector3Int(tile.tilePos.x + x, tile.tilePos.y + y);
-                        Tile tile1 = getTile(newAnarchyPos);
-                        if (tile1 != null && tile1.terrain.biome.claimable && !tile1.terrain.biome.water && Random.Range(0f, 1f) < 0.5f && !underpopulated){
-                            addAnarchy(newAnarchyPos);
-                        }
-                    }
-                }
-                */
             }
         }
 
     }
 
     Tile getRandomTile(){
+        // Picks a random tile
         return tiles.Values.ElementAt(Random.Range(0, tiles.Keys.Count - 1));
     }
+
     public void OnTick(){
         // Each month new nations can spawn out of anarchy
         if (Random.Range(0f, 1f) < 0.75f){
@@ -109,44 +110,30 @@ public class TileManager : MonoBehaviour
         // Each game tick nations can expand into neutral lands
         neutralExpansion();
         // ticking objects
-        tickPops();
-        tickNations();
     }
 
     void creationTick(){
+        // Checks if there are any anarchic tiles
         if (anarchy.Count > 0){
+            // Selects a random one
             Tile tile = anarchy[Random.Range(0, anarchy.Count)];
-            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability && tile.population > 100){
+            // If the tile is anarchy, has sufficient population, and passes the random check
+            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability && tile.population >= minNationPopulation){
+                // Creates a new random state at that tile
                 createRandomState(tile.tilePos);
             }   
         }
           
     }
 
-    void tickNations(){
-        foreach (State state in states.ToArray()){
-            state.OnTick();
-        }
-    }
-    void tickPops(){
-        foreach(Pop pop in pops.ToArray()){
-            if (pop.population < 1){
-                pops.Remove(pop);
-                pop.DeletePop();
-            }
-            pop.GrowPopulation();
-        }
-    }
-
     void initPopulation(Tile tile, int amountToCreate = 50){
-        //tile.ChangePopulation(Mathf.FloorToInt(Random.Range(0, 2000) * tile.terrain.biome.fertility));
         for (int i = 0; i < amountToCreate; i++){
             Pop newPop = new Pop(){
                 population = Mathf.FloorToInt(Random.Range(100, 500) * tile.terrain.biome.fertility),
                 culture = Culture.createRandomCulture()
             };
             newPop.SetTile(tile);
-            pops.Add(newPop);
+            TimeEvents.monthUpdate += newPop.Tick;
         }
         
     }
@@ -216,13 +203,12 @@ public class TileManager : MonoBehaviour
     void addAnarchy(Vector3Int pos){
         if (tiles.ContainsKey(pos)){
             Tile tile = getTile(pos);
+            // If the tile doesnt have anarchy add anarchy
             if (!tile.anarchy){
                 tile.anarchy = true;
                 updateColor(pos);
                 anarchy.Add(tile);
             }
-            
-            
         }
     }
 
@@ -236,6 +222,8 @@ public class TileManager : MonoBehaviour
         newState.tileManager = this;
         // And adds the very first tile :D
         newState.AddTile(pos);
+        // Connects the tile to ticks
+        TimeEvents.monthUpdate += newState.OnTick;
     }
 
     public void updateAllColors(){
@@ -254,35 +242,71 @@ public class TileManager : MonoBehaviour
         Color finalColor = new Color();
         // Gets the tile we want to paint
         Tile tile = getTile(position);
+        State state = tile.state;
+        State liege = null;
+        bool isCapital = false;
+        if (state != null && state.capital == tile){
+            isCapital = true;
+        }
 
-        if (tile.state != null){
+        if (state != null && state.liege != null){
+            liege = state.liege;
+        }
+
+        if (state != null){
             // If the tile has an owner, colors it its nation
-            finalColor = tile.state.mapColor;
+            finalColor = state.mapColor;
             // If the tile is a border
             if (tile.border){
                 // Colors it slightly darker to show where nation boundaries are
-                finalColor = tile.state.mapColor * 0.7f + Color.black * 0.3f;
+                finalColor = state.mapColor * 0.7f + Color.black * 0.3f;
             }
             if (tile.state.capital == tile){
-                finalColor = tile.state.capitalColor;
+                finalColor = state.capitalColor;
             }
         } else {
             // If the tile isnt owned, just sets the color to the color of the terrain
             finalColor = tile.terrain.biome.biomeColor;
+            // Or if we are anarchy visualize it
             if (tile.anarchy){
                 finalColor = Color.black;
             }
         }
+        
+        
         // Higlights selected nation
         if (nationPanel != null && nationPanel.tileSelected != null && nationPanel.tileSelected.state != null){
-            // Sets the selected nation to the, selected nation
+            // Sets all the selected data
+
+            Tile selectedTile = nationPanel.tileSelected;
             State selectedState = nationPanel.tileSelected.state;
+            State selectedLiege = null;
+
+            if (selectedState != null && selectedState.liege != null){
+                selectedLiege = selectedState.liege;
+            }
+
             // If the tile isnt the selected nation
-            if (tiles[position].state != selectedState){
-                // Darkens it
-                if (tiles[position].state != null && (tiles[position].state == selectedState.liege || selectedState.vassals.ContainsKey(tiles[position].state))){
-                    finalColor = finalColor * 0.5f + Color.yellow * 0.5f;
-                } else {
+            if (state != selectedState){
+                // Checks if we share a liege with the selected state
+                bool sharesLiege = liege != null && liege == selectedLiege;
+                // Checks if we are a vassal of the selected state
+                bool isVassal = state != null && selectedState.vassals.ContainsKey(state);
+                // Checks if we are related in any way to the selected state
+                bool related = state == selectedLiege || isVassal || sharesLiege;
+
+                // Checks if we are related to the tile and if we arent the capital
+                if (state != null && related && !isCapital){
+                    // Checks if we are a vassal of or we share a liege of the selected state
+                    if (isVassal || sharesLiege){
+                        finalColor = finalColor * 0.5f + Color.yellow * 0.5f;
+                    }
+                    // Otherwise checks if we are the liege of the selected state
+                    else if (state == selectedLiege){
+                        finalColor = finalColor * 0.5f + Color.magenta * 0.5f;
+                    }
+                } else if (!isCapital){
+                    // Otherwise darkens
                     finalColor = finalColor * 0.5f + Color.black * 0.5f;
                 }
             }

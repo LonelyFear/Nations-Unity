@@ -27,12 +27,20 @@ public class NationPanel : MonoBehaviour
     }
     void Update(){
         if (gameObject.activeInHierarchy){
+
             if (stateName && borderText && popText && sizeText){
+                // Gets the state of the selected tile
                 State state = tileSelected.state;
+                // Gets the population
+                int nationalPopulation = state.totalPopulation;
+                if (state.liege != null){
+                    // If we have a liege sets the national population to that of our liege
+                    nationalPopulation = state.liege.totalPopulation;
+                }
                 stateName.text = state.stateName;
                 borderText.text = "Relations:" + "<br>" + displayLiege() + DisplayBorderingNations();
                 popText.text = "Local Population: " + state.population.ToString("#,##0") + 
-                "<br>National Population: " + state.totalPopulation.ToString("#,##0");
+                "<br>National Population: " + nationalPopulation.ToString("#,##0");
                 sizeText.text = "Tiles: " + state.tiles.Count.ToString("#,##0 Tiles");
             }
         }    

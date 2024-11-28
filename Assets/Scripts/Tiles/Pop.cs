@@ -12,13 +12,17 @@ public class Pop
     public int dependents;
     public int workforce;
     public float dependentRatio = 0.75f;
-    public const float baseBirthRate = 0.04f;
-    public const float baseDeathRate = 0.037f;
+    const float baseBirthRate = 0.04f;
+    const float baseDeathRate = 0.037f;
 
     // Stats
     public Tile tile;
     public State state;
     public Culture culture;
+
+    public void Tick(){
+        GrowPopulation();
+    }
 
     public void GrowPopulation(){
         float birthRate = 0f;

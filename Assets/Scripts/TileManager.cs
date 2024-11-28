@@ -34,7 +34,7 @@ public class TileManager : MonoBehaviour
 
     // Lists & Stats
     //public int worldPopulation;
-    public List<Pop> pops = new List<Pop>();
+    public List<Pop> pops = new List<Pop>(750000);
     public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
     public List<State> states = new List<State>();
     public List<Tile> anarchy = new List<Tile>();
@@ -43,6 +43,7 @@ public class TileManager : MonoBehaviour
         // Gets our world generation script
         world = GetComponent<GenerateWorld>();
         // Goes thru the tiles
+        //pops.Capacity = tiles.Values.Count * 50;
         foreach (var entry in tiles){
             //Tile tile = entry.Value;
             // Sets their initial color
@@ -52,7 +53,7 @@ public class TileManager : MonoBehaviour
 
             // Initializes their populations
             if (!entry.Value.terrain.biome.water){
-                initPopulation(entry.Value, 1);
+                initPopulation(entry.Value, 50);
             }
             entry.Value.tileManager = this;
         }

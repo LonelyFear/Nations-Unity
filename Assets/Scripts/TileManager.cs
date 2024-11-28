@@ -296,16 +296,19 @@ public class TileManager : MonoBehaviour
                 bool related = state == selectedLiege || isVassal || sharesLiege;
 
                 // Checks if we are related to the tile and if we arent the capital
-                if (state != null && related && !isCapital){
+                if (state != null && related){
                     // Checks if we are a vassal of or we share a liege of the selected state
-                    if (isVassal || sharesLiege){
-                        finalColor = finalColor * 0.5f + Color.yellow * 0.5f;
+                    if (!isCapital){
+                        if (isVassal || sharesLiege){
+                            finalColor = finalColor * 0.5f + Color.yellow * 0.5f;
+                        }
+                        // Otherwise checks if we are the liege of the selected state
+                        else if (state == selectedLiege){
+                           finalColor = finalColor * 0.5f + Color.magenta * 0.5f;
+                        }
                     }
-                    // Otherwise checks if we are the liege of the selected state
-                    else if (state == selectedLiege){
-                        finalColor = finalColor * 0.5f + Color.magenta * 0.5f;
-                    }
-                } else if (!isCapital){
+
+                } else {
                     // Otherwise darkens
                     finalColor = finalColor * 0.5f + Color.black * 0.5f;
                 }

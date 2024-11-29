@@ -55,7 +55,7 @@ public class TileManager : MonoBehaviour
             tile.tilePos = entry.Key;
 
             // Initializes their populations
-            if (!tile.terrain.biome.water){
+            if (!tile.terrain.water){
                 initPopulation(tile, popsToCreate);
             }
             TimeEvents.monthUpdate += tile.Tick;
@@ -76,7 +76,7 @@ public class TileManager : MonoBehaviour
             Tile tile = getRandomTile();
 
             // Checks if the tile has conditions that makes anarchy impossible
-            while (!tile.terrain.biome.claimable || tile.anarchy || !tile.coastal || tile.population < minAnarchyPopulation){
+            while (!tile.terrain.claimable || tile.anarchy || !tile.coastal || tile.population < minAnarchyPopulation){
                 tile = null;
                 attempts--;
                 // If we run out of attempts break to avoid forever loops
@@ -118,7 +118,7 @@ public class TileManager : MonoBehaviour
             // Selects a random one
             Tile tile = anarchy[Random.Range(0, anarchy.Count)];
             // If the tile is anarchy, has sufficient population, and passes the random check
-            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.biome.navigability && tile.population >= minNationPopulation){
+            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.navigability && tile.population >= minNationPopulation){
                 // Creates a new random state at that tile
                 createRandomState(tile.tilePos);
             }   
@@ -129,7 +129,7 @@ public class TileManager : MonoBehaviour
     void initPopulation(Tile tile, int amountToCreate = 50){
         for (int i = 0; i < amountToCreate; i++){
             Pop newPop = new Pop(){
-                population = Mathf.FloorToInt(Random.Range(100, 500) * tile.terrain.biome.fertility),
+                population = Mathf.FloorToInt(Random.Range(100, 500) * tile.terrain.fertility),
                 culture = Culture.createRandomCulture()
             };
             newPop.SetTile(tile);
@@ -166,13 +166,13 @@ public class TileManager : MonoBehaviour
 
                                 bool isState = tile.state != null;
                                 // Checks if we can expand (Random)
-                                bool canExpand = Random.Range(0f, 1f) < target.terrain.biome.navigability;
+                                bool canExpand = Random.Range(0f, 1f) < target.terrain.navigability;
 
                                 bool canAnarchySpread = Random.Range(0f, 1f) < anarchySpreadChance || tile.coastal && Random.Range(0f, 1f) < anarchySpreadChance * anarchyCoastalMult;
 
                                 bool anarchy = target.anarchy;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
-                                bool claimable = target.terrain.biome.claimable && target.state == null;
+                                bool claimable = target.terrain.claimable && target.state == null;
                                 // If both of these are true
                                 if (claimable){
                                     // If the tile isnt yet anarchic
@@ -186,7 +186,7 @@ public class TileManager : MonoBehaviour
                                             addAnarchy(pos);
                                         }
                                     }
-                                    else if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.biome.navigability){
+                                    else if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.navigability){
                                         // COLONIALISM!!!!!!!!!!!!!!
                                         tile.state.AddTile(pos);
                                     }
@@ -267,6 +267,14 @@ public class TileManager : MonoBehaviour
         } else {
             // If the tile isnt owned, just sets the color to the color of the terrain
             finalColor = tile.terrain.biome.biomeColor;
+            switch (tile.terrain.heightType){
+                case Terrain.HeightTypes.HILL:
+                    finalColor = finalColor * 0.9f + Color.black * 0.1f;
+                    break;
+                case Terrain.HeightTypes.MOUNTAIN:
+                    finalColor = finalColor * 0.7f + Color.black * 0.3f;
+                    break;
+            }
             // Or if we are anarchy visualize it
             if (tile.anarchy){
                 finalColor = Color.black;

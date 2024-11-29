@@ -121,16 +121,20 @@ public class GenerateWorld : MonoBehaviour
                 tilemap.SetTile(cellPos, tileBase);
 
                 // Sets terrain to default
-                TileTerrain tileTerrain = new TileTerrain();
-                tileTerrain.height = getHeightNoise(x,y);
-                tileTerrain.temperature = getTemp(x,y);
-                tileTerrain.moisture = getMoistureNoise(x,y);
+                Terrain terrain = new Terrain(){
+                    height = getHeightNoise(x,y),
+                    temperature = getTemp(x,y),
+                    moisture = getMoistureNoise(x,y)
+                };
+                
 
                 float minDist = 0.4f;
-                Vector2 climatePos = new Vector2(tileTerrain.temperature, tileTerrain.moisture);
+                Vector2 climatePos = new Vector2(terrain.temperature, terrain.moisture);
 
-                if (tileTerrain.height < preset.oceanThreshold){
-                    tileTerrain.biome = oceanBiome;
+                terrain.heightType = Terrain.HeightTypes.FLAT;
+                if (terrain.height < preset.oceanThreshold){
+                    terrain.biome = oceanBiome;
+                    terrain.heightType = Terrain.HeightTypes.SEA;
                 } else {
                     landTiles += 1;
                     Biome chosenBiome = rock;
@@ -145,14 +149,20 @@ public class GenerateWorld : MonoBehaviour
                         }
                     }
 
-                    tileTerrain.biome = chosenBiome;
+                    terrain.biome = chosenBiome;
                 }
+
+                if (terrain.height > preset.mountainTreshold){
+                    terrain.heightType = Terrain.HeightTypes.MOUNTAIN;
+                } else if (terrain.height > preset.hillTreshold){
+                    terrain.heightType = Terrain.HeightTypes.HILL;
+                }
+
+                terrain.CalcCivStats();
                 
-
-
                 // Instantiates a tile
                 var newTile = new Tile();
-                newTile.terrain = tileTerrain;
+                newTile.terrain = terrain;
 
                 for (int ox = -1; ox <= 1; ox++){
                     for (int oy = -1; oy <= 1; oy++){

@@ -7,7 +7,7 @@ using UnityEngine.InputSystem.Interactions;
 public class Tile
 {
     public TileManager tileManager;
-    public TileTerrain terrain;    public State state = null;
+    public Terrain terrain;    public State state = null;
     public Vector3Int tilePos;
     public bool border;
     public bool frontier;
@@ -27,7 +27,7 @@ public class Tile
     }
     public int GetMaxPopulation(){
         // 10k times the fertility is the maximum population a tile can support
-        return Mathf.RoundToInt(10000 * terrain.biome.fertility);
+        return Mathf.RoundToInt(10000 * terrain.fertility);
     }
 
     public void ChangePopulation(int amount){

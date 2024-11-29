@@ -680,7 +680,7 @@ MonoBehaviour:
   anarchyConquestChance: 0.2
   minNationPopulation: 500
   minAnarchyPopulation: 100
-  popsToCreate: 10
+  popsToCreate: 1
 --- !u!1 &253897841
 GameObject:
   m_ObjectHideFlags: 0

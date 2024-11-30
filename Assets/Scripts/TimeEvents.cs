@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class TimeEvents : MonoBehaviour
 {
-    public delegate void DayFinished();
-    public static event DayFinished dayUpdate;
+    public delegate void Tick();
+    public static event Tick tick;
 
     public delegate void MonthFinished();
     public static event MonthFinished monthUpdate;
@@ -11,19 +11,19 @@ public class TimeEvents : MonoBehaviour
     public delegate void YearFinished();
     public static event YearFinished yearUpdate;
     
-    public void updateDay(){
-        if (dayUpdate != null){
-            dayUpdate();
+    public void TickGame(){
+        if (tick != null){
+            tick();
         }
     }
 
-    public void updateMonth(){
-        if (monthUpdate != null){
+    public void UpdateMonth(){
+        if (tick != null){
             monthUpdate();
         }
     }
 
-    public void updateYear(){
+    public void UpdateYear(){
         if (yearUpdate != null){
             yearUpdate();
         }

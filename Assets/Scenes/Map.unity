@@ -674,13 +674,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
-  anarchySpreadChance: 0.2
+  anarchySpreadChance: 0.1
   anarchyCoastalMult: 3
-  stateSpawnChance: 0.4
-  anarchyConquestChance: 0.2
-  minNationPopulation: 500
+  stateSpawnChance: 0.2
+  anarchyConquestChance: 0.1
+  minNationPopulation: 200
   minAnarchyPopulation: 100
-  popsToCreate: 1
+  popsToCreate: 10
 --- !u!1 &253897841
 GameObject:
   m_ObjectHideFlags: 0
@@ -2287,10 +2287,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc132eaa210e22241bdb117792a67237, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  day: 1
+  ticks: 0
   month: 1
   year: 1
-  dayLength: 0.05
+  tickLength: 0.05
+  ticksPerYear: 1
   timerStart: 0
 --- !u!4 &1236494429
 Transform:

@@ -16,12 +16,13 @@ public class TimeDisplay : MonoBehaviour
     void Update(){
         if (tm.timerStart){
             gameObject.SetActive(true);
-            int day = tm.day;
-            int month = tm.month;
-            int year = tm.year;
+            
+            int month = Mathf.RoundToInt(tm.month);
+            int year = Mathf.RoundToInt(tm.year);
+
             String m = "" + month.ToString("00");
             String y = "" + Mathf.Abs(year).ToString("0000");
-            text.text = m + "/" + y;
+            text.text = y;
         } else {
             text.text = "";
         }

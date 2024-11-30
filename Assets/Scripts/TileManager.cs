@@ -58,7 +58,7 @@ public class TileManager : MonoBehaviour
             if (!tile.terrain.water){
                 initPopulation(tile, popsToCreate);
             }
-            TimeEvents.monthUpdate += tile.Tick;
+            TimeEvents.tick += tile.Tick;
             tile.tileManager = this;
         }
         // Adds initial anarchy
@@ -102,7 +102,7 @@ public class TileManager : MonoBehaviour
         return tiles.Values.ElementAt(Random.Range(0, tiles.Keys.Count - 1));
     }
 
-    public void OnTick(){
+    public void Tick(){
         // Each month new nations can spawn out of anarchy
         if (Random.Range(0f, 1f) < 0.75f){
             creationTick();
@@ -129,11 +129,11 @@ public class TileManager : MonoBehaviour
     void initPopulation(Tile tile, int amountToCreate = 50){
         for (int i = 0; i < amountToCreate; i++){
             Pop newPop = new Pop(){
-                population = Mathf.FloorToInt(Random.Range(100, 500) * tile.terrain.fertility),
+                population = Mathf.FloorToInt(Random.Range(250/popsToCreate, 1000/popsToCreate) * tile.terrain.fertility),
                 culture = Culture.createRandomCulture()
             };
             newPop.SetTile(tile);
-            TimeEvents.monthUpdate += newPop.Tick;
+            TimeEvents.tick += newPop.Tick;
         }
         
     }
@@ -223,7 +223,7 @@ public class TileManager : MonoBehaviour
         // And adds the very first tile :D
         newState.AddTile(pos);
         // Connects the tile to ticks
-        TimeEvents.monthUpdate += newState.OnTick;
+        TimeEvents.tick += newState.Tick;
     }
 
     public void updateAllColors(){

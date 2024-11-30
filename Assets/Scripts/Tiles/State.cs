@@ -158,7 +158,7 @@ public class State
         return newState;
     }
 
-    public void OnTick(){
+    public void Tick(){
         // Updates our capital every tick
         updateCapital();
 

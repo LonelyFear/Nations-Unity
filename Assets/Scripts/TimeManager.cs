@@ -1,28 +1,33 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class TimeManager : MonoBehaviour
 {
     [Header("Time")]
-    public int day = 1;
-    public int month = 1;
+    public int ticks = 0;
+    public float month = 1f;
     public int year = 1;
 
     [Header("Time Settings")]
     [Range(0f, 0.5f)]
-    public float dayLength = 0.05f;
+    [SerializeField]
+    float tickLength = 0.05f;
+    [SerializeField]
+    int ticksPerYear = 4;
+
 
     [Header("Info")]
     public bool timerStart = false; // Makes sure the timers start when worldGen is finished
     // Private variables
-    private float currentTime = 1f; // Tracks the current time in seconds between days
+    private float currentTime = 1f; // Tracks the current time in seconds between ticks
     
     private TimeEvents events; // Events such as day updates
 
     public bool paused { get; private set; } = false;
 
     void Start(){
-        currentTime = dayLength;
+        currentTime = tickLength;
         // Gets event component
         events = GetComponent<TimeEvents>();
     }
@@ -35,7 +40,7 @@ public class TimeManager : MonoBehaviour
         if (timerStart && !paused){
             currentTime -= Time.deltaTime;
             if (currentTime <= 0){
-                currentTime = dayLength;
+                currentTime = tickLength;
                 IncrementTime();
             }
         }
@@ -49,12 +54,18 @@ public class TimeManager : MonoBehaviour
     }
 
     void IncrementTime(){
-        month++;
-        events.updateMonth();
+
+        month += 12 / ticksPerYear;
+        ticks += 1;
+        events.TickGame();
+        if (month - Math.Floor(month) == 0){
+            events.UpdateMonth();
+        }
+
         if (month > 12){
             month = 1;
             year++;
-            events.updateYear();
+            events.UpdateYear();
         }
     }
 

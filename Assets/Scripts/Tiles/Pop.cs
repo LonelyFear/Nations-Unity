@@ -35,7 +35,7 @@ public class Pop
         }
 
         float deathRate = baseDeathRate;
-        float natutalGrowthRate = (birthRate - deathRate) / 12;
+        float natutalGrowthRate = birthRate - deathRate;
 
         int totalGrowth = Mathf.RoundToInt(population * natutalGrowthRate);
 

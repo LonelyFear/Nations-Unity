@@ -25,8 +25,10 @@ public class Tile
     public const int maxPops = 50;
 
     public void Tick(){
-        if (population > 50 && state == null && Random.Range(0f,1f) < 0.5f){
+        if (population >= 50 && state == null && Random.Range(0f,1f) < 0.5f){
             tileManager.addAnarchy(tilePos);
+        } else if (population < 50 && anarchy && Random.Range(0f,1f) < 0.5f){
+            tileManager.RemoveAnarchy(tilePos);
         }
     }
     public int GetMaxPopulation(){

@@ -211,6 +211,18 @@ public class TileManager : MonoBehaviour
         }
     }
 
+    public void RemoveAnarchy(Vector3Int pos){
+        if (tiles.ContainsKey(pos)){
+            Tile tile = getTile(pos);
+            // If the tile doesnt have anarchy add anarchy
+            if (tile.anarchy){
+                tile.anarchy = false;
+                updateColor(pos);
+                anarchy.Remove(tile);
+            }
+        }
+    }
+
     void createRandomState(Vector3Int pos){
         State newState = State.CreateRandomState();
         // Adds it to the nations list

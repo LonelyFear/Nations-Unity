@@ -3,6 +3,7 @@ using System.Data;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
+using UnityEngine.Tilemaps;
 
 public class Tile
 {
@@ -16,6 +17,7 @@ public class Tile
     public bool anarchy = false;
     public int carryingCapacity {get; private set;}
     public List<State> borderingStates = new List<State>();
+    public List<Tile> borderingTiles = new List<Tile>();
 
     // Population
     public int population;
@@ -23,7 +25,9 @@ public class Tile
     public const int maxPops = 50;
 
     public void Tick(){
-
+        if (population > 50 && state == null && Random.Range(0f,1f) < 0.5f){
+            tileManager.addAnarchy(tilePos);
+        }
     }
     public int GetMaxPopulation(){
         // 10k times the fertility is the maximum population a tile can support

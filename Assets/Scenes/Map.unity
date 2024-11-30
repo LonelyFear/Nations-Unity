@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -672,12 +673,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
-  anarchySpreadChance: 0.1
-  anarchyCoastalMult: 3
-  stateSpawnChance: 0.2
-  anarchyConquestChance: 0.1
+  anarchySpreadChance: 0
+  anarchyCoastalMult: 30
+  stateSpawnChance: 0.8
+  anarchyConquestChance: 0.2
   minNationPopulation: 200
-  minAnarchyPopulation: 100
+  initialAnarchy: 10
   popsToCreate: 1
 --- !u!1 &253897841
 GameObject:
@@ -2288,7 +2289,7 @@ MonoBehaviour:
   ticks: 0
   month: 1
   year: 1
-  tickLength: 0.05
+  tickLength: 0
   ticksPerYear: 1
   timerStart: 0
 --- !u!4 &1236494429

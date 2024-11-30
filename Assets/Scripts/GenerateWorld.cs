@@ -92,7 +92,7 @@ public class GenerateWorld : MonoBehaviour
         float seas = getNoise(x,y, 0.75f, noiseSeed + 257);
         float shape = getNoise(x, y, 1f, noiseSeed);
 
-        float totalNoise = ((shape * 0.6f) + (seas * 0.2f) + (systems * 0.15f) + (clouds * 0.05f)) + moistureOffset;
+        float totalNoise = (shape * 0.6f) + (seas * 0.2f) + (systems * 0.15f) + (clouds * 0.05f) + moistureOffset;
         return totalNoise;
     }
 
@@ -131,7 +131,7 @@ public class GenerateWorld : MonoBehaviour
                 Vector2 climatePos = new Vector2(terrain.temperature, terrain.moisture);
 
                 terrain.heightType = Terrain.HeightTypes.FLAT;
-                if (terrain.height < preset.oceanThreshold){
+                if (terrain.height <= preset.oceanThreshold){
                     terrain.biome = oceanBiome;
                     terrain.heightType = Terrain.HeightTypes.SEA;
                 } else {

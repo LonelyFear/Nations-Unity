@@ -1,9 +1,5 @@
 using UnityEngine;
-using UnityEngine.InputSystem.Interactions;
-using UnityEngine.Tilemaps;
-using Unity.Jobs;
-using Unity.Collections;
-using System.Buffers.Text;
+using Random = UnityEngine.Random;
 
 public class Pop
 {
@@ -20,8 +16,55 @@ public class Pop
     public State state;
     public Culture culture;
 
+    enum PopStates {
+        HUNTER_GATHERER,
+        SETTLED
+    }
+
+    PopStates popState = PopStates.HUNTER_GATHERER;
+
     public void Tick(){
-        GrowPopulation();
+        if (tile == null){
+            DeletePop();
+        }
+
+        if (population > 0 && tile != null){
+            state = tile.state;
+            GrowPopulation();
+            
+            if (popState == PopStates.HUNTER_GATHERER){
+                if (state != null && Random.Range(0f, 1f) < 0.5f){
+                    popState = PopStates.SETTLED;
+                } else {
+                    HGMigration();
+                }
+            } else {
+                SettlerMigration();
+            }
+        }
+    }
+    void SettlerMigration(){
+        if (Random.Range(0f, 1f) < 0.01f && population > 100){
+            foreach (Tile target in tile.borderingTiles){
+                // If the target has significantly lower population
+                bool tileNotFull = target.population * 4 < tile.population && Random.Range(0f, 1f) < 0.05f * target.terrain.fertility;
+                // If the tile is close to its maximum population
+                bool tileFull = tile.population * 1.2 > tile.GetMaxPopulation() && Random.Range(0f, 1f) < 0.2f * target.terrain.fertility;
+                if (tileNotFull || tileFull){
+                    MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
+                }
+            }
+        } 
+    }
+    void HGMigration(){
+        // 0.01 is the chance a hunter gatherer moves
+        if (Random.Range(0f, 1f) < 0.01f && population > 100){
+            foreach (Tile target in tile.borderingTiles){
+                if (target.population * 2 < tile.population && target.terrain.fertility >= tile.terrain.fertility && target.state == null){
+                    MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
+                }
+            }
+        }    
     }
 
     public void GrowPopulation(){
@@ -29,6 +72,9 @@ public class Pop
 
         if (population > 1){
             birthRate = baseBirthRate;
+            if (tile.population < 500){
+                birthRate += 0.01f;
+            }
             if (population > tile.GetMaxPopulation()){
                 birthRate *= 0.75f;
             }
@@ -47,6 +93,44 @@ public class Pop
         }
     }
 
+    public void MoveTile(Tile newTile, int amount){
+        // Checks if we are actually moving people to a new tile
+        if (newTile != tile && amount > 0 && !newTile.terrain.water){
+            if (amount > population){
+                // If the amount we are trying to move is greater than our population
+                // Sets it to our population to prevent creating people out of nothing
+                amount = population;
+            }
+            Pop popToMerge = null;
+            foreach (Pop pop in newTile.pops){
+                // Goes through all the pops in our target tile
+                if (pop.culture == culture && pop.popState == popState){
+                    // If the pop matches up with our pop
+                    // Sets our pop to merge with that pop
+                    popToMerge = pop;
+                    break;
+                }
+            }
+            if (popToMerge != null){
+                // Changes the pop we are merging with by amount
+                popToMerge.ChangePopulation(amount);
+            } else {
+                // Otherwise makes a new pop with our culture
+                Pop newPop = new Pop{
+                    population = amount,
+                    culture = culture,
+                    popState = popState
+                };
+                // And moves that new pop into the tile
+                newPop.SetTile(newTile);
+                TimeEvents.tick += newPop.Tick;
+            }
+            // Finally subtracts the amount from our population
+            ChangePopulation(amount * -1);
+        }
+       
+    }
+
     public void SetTile(Tile newTile){
         if (tile != null){
             tile.pops.Remove(this);
@@ -55,11 +139,11 @@ public class Pop
 
         tile = newTile;
 
-        if (tile != null){
-            tile.population += population;
-            tile.pops.Add(this);       
+        if (newTile != null){
+            newTile.population += population;
+            newTile.pops.Add(this);       
 
-            SetState(tile.state);
+            SetState(newTile.state);
         }  
     }
 
@@ -135,12 +219,5 @@ public class Pop
         population = 0;
         tile = null;
         state = null;
-    }
-
-    public static void MergePops(Pop pop1, Pop pop2){
-        if (pop1.culture == pop2.culture && pop1.tile == pop2.tile){
-            pop1.ChangePopulation(pop2.population);
-            pop2.DeletePop();
-        }
     }
 }

@@ -9,17 +9,6 @@ public class TileManager : MonoBehaviour
 {
     public Tilemap tilemap;
     public NationPanel nationPanel;
-    
-    
-    GenerateWorld world;
-    
-
-    [Header("Neutral Expansion")]
-    [SerializeField]
-    [Range(0f,1f)]
-    float anarchySpreadChance = 0.1f;
-    [SerializeField]
-    float anarchyCoastalMult = 3f;
 
     [Header("Nation Spawning")]
     [SerializeField]
@@ -33,7 +22,7 @@ public class TileManager : MonoBehaviour
     [SerializeField]
     int minNationPopulation = 500;
     [SerializeField]
-    int minAnarchyPopulation = 100;
+    int initialAnarchy = 20;
 
     [Header("Pops")]
     [SerializeField]
@@ -46,37 +35,43 @@ public class TileManager : MonoBehaviour
     public List<Tile> anarchy = new List<Tile>();
 
     public void Init(){
-        // Gets our world generation script
-        world = GetComponent<GenerateWorld>();
         // Goes thru the tiles
         foreach (var entry in tiles){
             Tile tile = entry.Value;
+            Vector3Int tilePos = entry.Key;
             // Sets their tile positions
-            tile.tilePos = entry.Key;
-
-            // Initializes their populations
-            if (!tile.terrain.water){
-                initPopulation(tile, popsToCreate);
-            }
+            tile.tilePos = tilePos;
             TimeEvents.tick += tile.Tick;
             tile.tileManager = this;
+
+            for (int x = -1; x <= 1; x++){
+                for (int y = -1; y <= 1; y++){
+                    Tile borderTile = getTile(new Vector3Int(x, y) + tilePos);
+                    if (borderTile != null){
+                        tile.borderingTiles.Add(borderTile);
+                    }
+                }
+            }
         }
         // Adds initial anarchy
-        addInitialAnarchy(100);
+        addInitialAnarchy(initialAnarchy);
+        // Initializes tile populations
+        foreach (Tile tile in anarchy){
+            initPopulation(tile, popsToCreate);
+        }
         // Sets the map colors
         updateAllColors();
     }
 
-    void addInitialAnarchy(int amount){
-        int totalAnarchy = 0;
+    void addInitialAnarchy(int seedAmount){
         
-        for (int i = 0; i < amount; i++) {
+        for (int i = 0; i < seedAmount; i++) {
             int attempts = 300;
             // gets the tile
             Tile tile = getRandomTile();
 
             // Checks if the tile has conditions that makes anarchy impossible
-            while (!tile.terrain.claimable || tile.anarchy || !tile.coastal || tile.population < minAnarchyPopulation){
+            while (!tile.terrain.claimable || tile.anarchy || tile.terrain.fertility < 0.5f){
                 tile = null;
                 attempts--;
                 // If we run out of attempts break to avoid forever loops
@@ -91,7 +86,16 @@ public class TileManager : MonoBehaviour
             if (tile != null){
                 // Adds anarchy to the tile
                 addAnarchy(tile.tilePos);
-                totalAnarchy++;
+ 
+                for (int x = -3; x <= 3; x++){
+                    for (int y = -3; y <= 3; y++){
+                        Vector3Int newAnarchyPos = new Vector3Int(tile.tilePos.x + x, tile.tilePos.y + y);
+                        Tile tile1 = getTile(newAnarchyPos);
+                        if (tile1 != null && tile1.terrain.biome.claimable && !tile1.terrain.biome.water && Random.Range(0f, 1f) < 0.2f){
+                            addAnarchy(newAnarchyPos);
+                        }
+                    }
+                }
             }
         }
 
@@ -113,6 +117,7 @@ public class TileManager : MonoBehaviour
     }
 
     void creationTick(){
+
         // Checks if there are any anarchic tiles
         if (anarchy.Count > 0){
             // Selects a random one
@@ -127,10 +132,11 @@ public class TileManager : MonoBehaviour
     }
 
     void initPopulation(Tile tile, int amountToCreate = 50){
+        Culture newCulture = Culture.createRandomCulture();
         for (int i = 0; i < amountToCreate; i++){
             Pop newPop = new Pop(){
-                population = Mathf.FloorToInt(Random.Range(250/popsToCreate, 1000/popsToCreate) * tile.terrain.fertility),
-                culture = Culture.createRandomCulture()
+                population = Mathf.FloorToInt(Random.Range(50/popsToCreate, 300/popsToCreate) * tile.terrain.fertility),
+                culture = newCulture
             };
             newPop.SetTile(tile);
             TimeEvents.tick += newPop.Tick;
@@ -157,7 +163,7 @@ public class TileManager : MonoBehaviour
                             continue;
                         }
                         // Does a first random check to save performance
-                        if (Random.Range(0f, 1f) < expandChance || (tile.coastal && Random.Range(0f, 1f) < expandChance * 4f)){
+                        if ((Random.Range(0f, 1f) < expandChance || tile.coastal && Random.Range(0f, 1f) < expandChance * 4f) && tile.population > 0){
                             // Gets the tilemap pos of this adjacent tile
                             Vector3Int pos = new Vector3Int(xd,yd) + entry.Key;
                             // Checks if the tile even exists
@@ -168,8 +174,6 @@ public class TileManager : MonoBehaviour
                                 // Checks if we can expand (Random)
                                 bool canExpand = Random.Range(0f, 1f) < target.terrain.navigability;
 
-                                bool canAnarchySpread = Random.Range(0f, 1f) < anarchySpreadChance || tile.coastal && Random.Range(0f, 1f) < anarchySpreadChance * anarchyCoastalMult;
-
                                 bool anarchy = target.anarchy;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
                                 bool claimable = target.terrain.claimable && target.state == null;
@@ -177,11 +181,7 @@ public class TileManager : MonoBehaviour
                                 if (claimable){
                                     // If the tile isnt yet anarchic
                                     if (!anarchy && canExpand){
-                                        if (canAnarchySpread && tile.state == null){
-                                            // ANARCHY!!!!
-                                            addAnarchy(pos);
-                                        }
-                                        else if (tile.state != null){
+                                        if (tile.state != null){
                                             // Uhh, controlled anarchy?
                                             addAnarchy(pos);
                                         }
@@ -190,7 +190,6 @@ public class TileManager : MonoBehaviour
                                         // COLONIALISM!!!!!!!!!!!!!!
                                         tile.state.AddTile(pos);
                                     }
-                                    
                                 }
                             }
                         }   
@@ -200,7 +199,7 @@ public class TileManager : MonoBehaviour
         }
     }
 
-    void addAnarchy(Vector3Int pos){
+    public void addAnarchy(Vector3Int pos){
         if (tiles.ContainsKey(pos)){
             Tile tile = getTile(pos);
             // If the tile doesnt have anarchy add anarchy

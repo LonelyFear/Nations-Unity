@@ -602,7 +602,8 @@ MonoBehaviour:
   preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
   noiseSeed: 76324
-  totalNoiseScale: 100
+  randomizeSeed: 1
+  totalNoiseScale: 50
   scales:
   - 1
   - 0.75
@@ -673,10 +674,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
-  anarchySpreadChance: 0
-  anarchyCoastalMult: 30
   stateSpawnChance: 0.8
-  anarchyConquestChance: 0.2
+  anarchyConquestChance: 0.4
   minNationPopulation: 200
   initialAnarchy: 10
   popsToCreate: 1

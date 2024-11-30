@@ -12,7 +12,6 @@ public class GenerateWorld : MonoBehaviour
     
     [Header("World Generation Settings")]
     public Vector2Int worldSize = new Vector2Int(100, 100);
-    public int randomNationCount = 1;
 
     [Header("Noise Texture Settings")]
     [Tooltip("Overrides all other noise settings")]

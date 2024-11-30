@@ -18,7 +18,7 @@ public class TimeEvents : MonoBehaviour
     }
 
     public void UpdateMonth(){
-        if (tick != null){
+        if (monthUpdate != null){
             monthUpdate();
         }
     }

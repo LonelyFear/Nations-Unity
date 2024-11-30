@@ -47,9 +47,9 @@ public class Pop
         if (Random.Range(0f, 1f) < 0.01f && population > 100){
             foreach (Tile target in tile.borderingTiles){
                 // If the target has significantly lower population
-                bool tileNotFull = target.population * 4 < tile.population && Random.Range(0f, 1f) < 0.05f * target.terrain.fertility;
+                bool tileNotFull = target.population * 4 < tile.population && Random.Range(0f, 1f) < 0.2f * target.terrain.navigability;
                 // If the tile is close to its maximum population
-                bool tileFull = tile.population * 1.2 > tile.GetMaxPopulation() && Random.Range(0f, 1f) < 0.2f * target.terrain.fertility;
+                bool tileFull = tile.population * 1.2 > tile.GetMaxPopulation() && Random.Range(0f, 1f) < 0.5f * target.terrain.navigability;
                 if (tileNotFull || tileFull){
                     MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
                 }
@@ -58,10 +58,12 @@ public class Pop
     }
     void HGMigration(){
         // 0.005 is the chance a hunter gatherer moves
-        float moveChance = 0.005f;
+        float moveChance = 0.05f;
         if (Random.Range(0f, 1f) < moveChance && population > 100){
             foreach (Tile target in tile.borderingTiles){
-                if (target.population * 2 < tile.population && Random.Range(0f, 1f) <= 1 * target.terrain.fertility){
+                bool coastal = tile.coastal && Random.Range(0f, 1f) <= target.terrain.navigability;
+                bool inland = Random.Range(0f, 1f) <= 0.05 * target.terrain.navigability;
+                if (target.population * 2 < tile.population && (inland || coastal)){
                     MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
                 }
             }

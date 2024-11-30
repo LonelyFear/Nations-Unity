@@ -20,6 +20,7 @@ public class GenerateWorld : MonoBehaviour
     public bool fixToTexture = true;
     [Header("Random Noise Settings")]
     public float noiseSeed = 0;
+    public bool randomizeSeed = false;
     [Tooltip("The noise scale for RANDOM NOISE | Higher scale = Smoother")]
     public int totalNoiseScale;
     [Tooltip("Higher scale = Smoother")]
@@ -38,6 +39,9 @@ public class GenerateWorld : MonoBehaviour
 
     void Start()
     {
+        if (randomizeSeed){
+            noiseSeed = Random.Range(0, 99999);
+        }
         if (fixToTexture && preset.noiseTexture){
             fitYToTexture();
         }

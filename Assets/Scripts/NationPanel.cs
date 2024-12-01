@@ -37,7 +37,7 @@ public class NationPanel : MonoBehaviour
                     // If we have a liege sets the national population to that of our liege
                     nationalPopulation = state.liege.totalPopulation;
                 }
-                stateName.text = state.stateName;
+                stateName.text = state.govtName + " of " + state.stateName;
                 borderText.text = "Relations:" + "<br>" + displayLiege() + DisplayBorderingNations();
                 popText.text = "Local Population: " + state.population.ToString("#,##0") + 
                 "<br>National Population: " + nationalPopulation.ToString("#,##0");

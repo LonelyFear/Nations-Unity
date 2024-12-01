@@ -31,6 +31,8 @@ public class GenerateWorld : MonoBehaviour
     [Header("Terrain Settings")]
     public Biome[] biomesToGenerate;
     public Biome oceanBiome;
+    public Biome openOceanBiome;
+    public Biome deepOceanBiome;
     public Biome rock;
     [Range(-0.5f, 0.5f)]
     public float moistureOffset;
@@ -135,9 +137,26 @@ public class GenerateWorld : MonoBehaviour
                 Vector2 climatePos = new Vector2(terrain.temperature, terrain.moisture);
 
                 terrain.heightType = Terrain.HeightTypes.FLAT;
+                // If we are below the ocean threshold
                 if (terrain.height <= preset.oceanThreshold){
+                    // Shallow Ocean
                     terrain.biome = oceanBiome;
                     terrain.heightType = Terrain.HeightTypes.SEA;
+                    // If we can generate deeper oceans
+                    if (preset.oceanThreshold > 0 ){
+                        if (terrain.height <= preset.oceanThreshold * 0.65){
+                            // Deep Ocean
+                            terrain.biome = deepOceanBiome;
+                            terrain.heightType = Terrain.HeightTypes.DEEP_SEA;
+
+                        } else if (terrain.height <= preset.oceanThreshold * 0.85){
+                            // Open Ocean (Between deep and shallow)
+                            terrain.biome = openOceanBiome;
+                            terrain.heightType = Terrain.HeightTypes.OPEN_SEA;
+                        }
+                    }
+
+                    
                 } else {
                     landTiles += 1;
                     Biome chosenBiome = rock;

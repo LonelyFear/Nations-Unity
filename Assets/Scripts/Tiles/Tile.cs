@@ -25,10 +25,25 @@ public class Tile
     public const int maxPops = 50;
 
     public void Tick(){
-        if (population >= 50 && state == null && Random.Range(0f,1f) < 0.5f){
+        if (population >= 50 && state == null){
             tileManager.addAnarchy(tilePos);
-        } else if (population < 50 && anarchy && Random.Range(0f,1f) < 0.5f){
+        } else if (population < 50 && anarchy){
             tileManager.RemoveAnarchy(tilePos);
+        }
+        PrunePops();
+    }
+
+    void PrunePops(){
+        if (pops.Count > maxPops){
+            Pop smallestPop = new Pop(){
+                population = 100000000
+            };
+            foreach (Pop pop in pops){
+                if (pop.population < smallestPop.population){
+                    smallestPop = pop;
+                }
+            }
+            smallestPop.DeletePop();
         }
     }
     public int GetMaxPopulation(){

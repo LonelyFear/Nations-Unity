@@ -9,6 +9,7 @@ using Random = UnityEngine.Random;
 public class State
 {
     public string stateName { get; private set; } = "New State";
+    public string govtName { get; private set; } = "State";
     public Tile capital { get; private set; }
     public List<Tile> tiles { get; private set; } = new List<Tile>();
     public int population;
@@ -22,6 +23,9 @@ public class State
     public State liege;
     public Dictionary<State, StateTypes> vassals = new Dictionary<State, StateTypes>();
     public Dictionary<State, Relation> relations = new Dictionary<State, Relation>();
+    // StateType is us them
+    // Eg. Us <- Liege: Vassal
+    // Liege -> Us: Independent
     public StateTypes stateType = StateTypes.INDEPENDENT;
     public enum StateTypes {
         INDEPENDENT,
@@ -101,23 +105,41 @@ public class State
             state.liege = this;
             vassals.Add(state, type);
 
-            if (!state.relations.ContainsKey(this)){
-                state.relations.Add(this, new Relation(){
-                    relationType = type
-                });
-            } else {
-                state.relations[this].relationType = type;
-            }
-            state.updateStateType();
+            state.CreateRelations(state, type, true);
+            state.UpdateStateType();
             state.updateCapital();
             state.updateColor();
             state.fixRelations();
+
+            // Give us relations with all our puppets relations
+            foreach (var entry in state.relations){
+                Relation relation = entry.Value;
+                State state1 = entry.Key;
+                if (!relations.ContainsKey(state1)){
+                    CreateRelations(state1);
+                }
+            }
             
             totalPopulation += state.population;
         }
     }
 
-    public void updateStateType(){
+    public void CreateRelations(State state, StateTypes type = StateTypes.INDEPENDENT, bool mutual = false){
+        // Mutual creates relations both ways
+        if (!relations.ContainsKey(state)){
+            relations.Add(state, new Relation(){
+                relationType = type,
+                opinion = 0
+            });
+        } else if (relations.ContainsKey(state)) {
+            relations[state].relationType = type;
+        }
+        if (mutual){
+            state.CreateRelations(this);
+        }
+    }
+
+    public void UpdateStateType(){
         if (liege != null && relations.ContainsKey(liege)){
             stateType = relations[liege].relationType;
         }
@@ -129,7 +151,7 @@ public class State
             vassals.Remove(state);
             
 
-            state.updateStateType();
+            state.UpdateStateType();
             state.liege = null;
 
             state.updateCapital();
@@ -153,7 +175,8 @@ public class State
         if (stateNames.Length > 0 && stateGovernments.Length > 0){
             string name = stateNames[Random.Range(0, stateNames.Length - 1)];
             string govt = stateGovernments[Random.Range(0, stateGovernments.Length - 1)];
-            newState.stateName = name + " " + govt;
+            newState.stateName = name;
+            newState.govtName = govt;
         }
         return newState;
     }
@@ -165,6 +188,7 @@ public class State
         DebugVassalize();
     }
 
+    // Makes automatic vassalage of neighbors
     void DebugVassalize(){
         foreach (State state in borderingStates){
             if (relations.ContainsKey(state) && state.liege == null && tiles.Count > state.tiles.Count && tiles.Count > 25 && liege == null){

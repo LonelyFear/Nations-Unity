@@ -601,8 +601,8 @@ MonoBehaviour:
   worldSize: {x: 270, y: 135}
   preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
-  noiseSeed: 76324
-  randomizeSeed: 1
+  noiseSeed: 23228
+  randomizeSeed: 0
   totalNoiseScale: 50
   scales:
   - 1
@@ -630,6 +630,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 62969cc3fa17a0f48b4d168b8360ccff, type: 2}
   - {fileID: 11400000, guid: 2b4754eeb3d737c47a686396685eed18, type: 2}
   oceanBiome: {fileID: 11400000, guid: 3a24a775a7a3a0c43961fa25aa062bd3, type: 2}
+  openOceanBiome: {fileID: 11400000, guid: 4000b03d1beb9f642b2d854ae892a71c, type: 2}
+  deepOceanBiome: {fileID: 11400000, guid: 39757e631e0c03449ab93e13da8b9594, type: 2}
   rock: {fileID: 11400000, guid: 7bdeed2c0c6cd5e4e86e33d1940a3e9d, type: 2}
   moistureOffset: -0.06
   tempOffset: -0.05
@@ -1745,7 +1747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e638ce1709761654bbe92359112a5c87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraSpeed: 70
+  cameraSpeed: 60
   moveDamping: 3
   cameraSize: 40
   minZoom: 6
@@ -2288,7 +2290,7 @@ MonoBehaviour:
   ticks: 0
   month: 1
   year: 1
-  tickLength: 0
+  tickLength: 0.05
   ticksPerYear: 1
   timerStart: 0
 --- !u!4 &1236494429

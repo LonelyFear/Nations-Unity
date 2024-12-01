@@ -14,6 +14,7 @@ public class Terrain
 
     public enum HeightTypes{
         DEEP_SEA,
+        OPEN_SEA,
         SEA,
         FLAT,
         HILL,
@@ -28,6 +29,12 @@ public class Terrain
 
         switch (heightType){
             case HeightTypes.SEA:
+                fertility = 0;
+                navigability = 0;
+                water = true;
+                claimable = false;
+                break;
+            case HeightTypes.OPEN_SEA:
                 fertility = 0;
                 navigability = 0;
                 water = true;

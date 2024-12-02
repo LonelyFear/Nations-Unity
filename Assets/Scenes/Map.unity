@@ -674,6 +674,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbf84c3074a7f964eb039b624c23da38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  worldSize: {x: 0, y: 0}
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
   stateSpawnChance: 0.8
@@ -683,6 +684,7 @@ MonoBehaviour:
   popsToCreate: 1
   frontDebug: 0
   popDebug: 0
+  cultureDebug: 0
   updateMap: 0
 --- !u!1 &253897841
 GameObject:

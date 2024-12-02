@@ -7,6 +7,7 @@ using System.Linq;
 
 public class TileManager : MonoBehaviour
 {
+    public Vector2Int worldSize;
     public Tilemap tilemap;
     public NationPanel nationPanel;
 
@@ -33,6 +34,8 @@ public class TileManager : MonoBehaviour
     bool frontDebug = false;
     [SerializeField]
     bool popDebug = false;
+    [SerializeField]
+    bool cultureDebug = false;
     [SerializeField]
     bool updateMap = false;
 
@@ -115,7 +118,7 @@ public class TileManager : MonoBehaviour
     }
 
     public void Tick(){
-        if (frontDebug || popDebug){
+        if (frontDebug || popDebug || cultureDebug){
             updateAllColors();
         }
         // Each month new nations can spawn out of anarchy
@@ -143,11 +146,15 @@ public class TileManager : MonoBehaviour
     }
 
     void initPopulation(Tile tile, int amountToCreate = 50){
-        Culture newCulture = Culture.createRandomCulture();
         for (int i = 0; i < amountToCreate; i++){
+            float r = (tile.tilePos.x + 0.001f) / (worldSize.x + 0.001f);
+            float g = (tile.tilePos.y + 0.001f) / (worldSize.y + 0.001f);
+            float b = (worldSize.x - tile.tilePos.x + 0.001f) / (worldSize.x + 0.001f);
             Pop newPop = new Pop(){
                 population = Mathf.FloorToInt(Random.Range(50/popsToCreate, 300/popsToCreate) * tile.terrain.fertility),
-                culture = newCulture
+                culture = new Culture(){
+                    color = new Color(r, g, b, 1f)
+                }
             };
             newPop.SetTile(tile);
             TimeEvents.tick += newPop.Tick;
@@ -357,6 +364,13 @@ public class TileManager : MonoBehaviour
                 finalColor = new Color(0f, 0f, tile.population / 10000f);
             } 
         }
+        if (cultureDebug){
+            if (tile.pops.Count > 0){
+                //Debug.Log(tile.pops[0].culture.color);
+                finalColor = tile.pops[0].culture.color;
+            }
+        }
+        
         // Finally sets the color on the tilemap
         tilemap.SetColor(position, finalColor);
         tilemap.SetTileFlags(position, TileFlags.LockColor);

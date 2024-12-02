@@ -69,4 +69,8 @@ public class Tile
             state.workforce += amount;
         }
     }
+
+    public void UpdateColor(){
+        tileManager.updateColor(tilePos);
+    }
 }

@@ -47,7 +47,7 @@ public class Pop
             GrowPopulation();
             
             if (status == PopStates.HUNTER_GATHERER){
-                if (state != null && Random.Range(0f, 1f) < 0.25f){
+                if (state != null && Random.Range(0f, 1f) < 0.05f){
                     status = PopStates.SETTLED;
                 } else {
                     HGMigration();
@@ -72,7 +72,7 @@ public class Pop
     }
     void HGMigration(){
         // 0.005 is the chance a hunter gatherer moves
-        float moveChance = 0.05f;
+        float moveChance = 0.1f;
         if (Random.Range(0f, 1f) < moveChance && population > 100){
             foreach (Tile target in tile.borderingTiles){
                 bool coastal = tile.coastal && Random.Range(0f, 1f) <= target.terrain.navigability;
@@ -142,6 +142,7 @@ public class Pop
                 newPop.SetTile(newTile);
                 TimeEvents.tick += newPop.Tick;
             }
+            tile.UpdateColor();
             // Finally subtracts the amount from our population
             ChangePopulation(amount * -1);
         }
@@ -277,6 +278,7 @@ public class Pop
             if (similarRed && similarGreen && similarBlue){
                 culture = pop.culture;
             }
+            tile.UpdateColor();
         }
     }
 

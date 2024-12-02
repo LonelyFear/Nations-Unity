@@ -119,7 +119,7 @@ public class TileManager : MonoBehaviour
 
     public void Tick(){
         if (frontDebug || popDebug || cultureDebug){
-            updateAllColors();
+            //updateAllColors();
         }
         // Each month new nations can spawn out of anarchy
         if (Random.Range(0f, 1f) < 0.75f){
@@ -127,11 +127,9 @@ public class TileManager : MonoBehaviour
         }
         // Each game tick nations can expand into neutral lands
         neutralExpansion();
-        // ticking objects
     }
 
     void creationTick(){
-
         // Checks if there are any anarchic tiles
         if (anarchy.Count > 0){
             // Selects a random one
@@ -255,128 +253,6 @@ public class TileManager : MonoBehaviour
         TimeEvents.tick += newState.Tick;
     }
 
-    public void updateAllColors(){
-        // LAGGY
-        foreach (var entry in tiles){
-            // Goes through every tile and updates its color
-            updateColor(entry.Key);
-        }
-    }
-
-
-    // COLOR
-    public void updateColor(Vector3Int position){
-        tilemap.SetTileFlags(position, TileFlags.None);
-        // Gets the final color
-        Color finalColor = new Color();
-        // Gets the tile we want to paint
-        Tile tile = getTile(position);
-        State state = tile.state;
-        State liege = null;
-        bool isCapital = false;
-        if (state != null && state.capital == tile){
-            isCapital = true;
-        }
-
-        if (state != null && state.liege != null){
-            liege = state.liege;
-        }
-
-        if (state != null){
-            // If the tile has an owner, colors it its nation
-            finalColor = state.mapColor;
-            // If the tile is a border
-            if (tile.border){
-                // Colors it slightly darker to show where nation boundaries are
-                finalColor = state.mapColor * 0.7f + Color.black * 0.3f;
-            }
-            if (tile.state.capital == tile){
-                finalColor = state.capitalColor;
-            }
-        } else {
-            // If the tile isnt owned, just sets the color to the color of the terrain
-            finalColor = tile.terrain.biome.biomeColor;
-            switch (tile.terrain.heightType){
-                case Terrain.HeightTypes.HILL:
-                    finalColor = finalColor * 0.9f + Color.black * 0.1f;
-                    break;
-                case Terrain.HeightTypes.MOUNTAIN:
-                    finalColor = finalColor * 0.7f + Color.black * 0.3f;
-                    break;
-            }
-            // Or if we are anarchy visualize it
-            if (tile.anarchy){
-                finalColor = Color.black;
-            }
-        }
-        
-        
-        // Higlights selected nation
-        if (nationPanel != null && nationPanel.tileSelected != null && nationPanel.tileSelected.state != null){
-            // Sets all the selected data
-
-            Tile selectedTile = nationPanel.tileSelected;
-            State selectedState = nationPanel.tileSelected.state;
-            State selectedLiege = null;
-
-            if (selectedState != null && selectedState.liege != null){
-                selectedLiege = selectedState.liege;
-            }
-
-            // If the tile isnt the selected nation
-            if (state != selectedState){
-                // Checks if we share a liege with the selected state
-                bool sharesLiege = liege != null && liege == selectedLiege;
-                // Checks if we are a vassal of the selected state
-                bool isVassal = state != null && selectedState.vassals.ContainsKey(state);
-                // Checks if we are related in any way to the selected state
-                bool related = state == selectedLiege || isVassal || sharesLiege;
-
-                // Checks if we are related to the tile and if we arent the capital
-                if (state != null && related){
-                    // Checks if we are a vassal of or we share a liege of the selected state
-                    if (!isCapital){
-                        if (isVassal || sharesLiege){
-                            finalColor = finalColor * 0.5f + Color.yellow * 0.5f;
-                        }
-                        // Otherwise checks if we are the liege of the selected state
-                        else if (state == selectedLiege){
-                           finalColor = finalColor * 0.5f + Color.magenta * 0.5f;
-                        }
-                    }
-
-                } else {
-                    // Otherwise darkens
-                    finalColor = finalColor * 0.5f + Color.black * 0.5f;
-                }
-            }
-
-        }
-        if (frontDebug){
-            if (tile.front != null){
-                finalColor = tile.state.mapColor;
-            } else if (!tile.terrain.water){
-                finalColor = Color.gray;
-            } 
-        }
-        if (popDebug){
-            if (!tile.terrain.water){
-                finalColor = new Color(0f, 0f, tile.population / 10000f);
-            } 
-        }
-        if (cultureDebug){
-            if (tile.pops.Count > 0){
-                //Debug.Log(tile.pops[0].culture.color);
-                finalColor = tile.pops[0].culture.color;
-            }
-        }
-        
-        // Finally sets the color on the tilemap
-        tilemap.SetColor(position, finalColor);
-        tilemap.SetTileFlags(position, TileFlags.LockColor);
-    }
-
-    // Updates the tile's border bool
     public void Border(Vector3Int position){
         // Gets a tile
         Tile tile = getTile(position);
@@ -471,15 +347,191 @@ public class TileManager : MonoBehaviour
         return null;
     }
 
+    // Map Rendering
+
+    public enum MapModes {
+        POLITICAL,
+        CULTURE,
+        POPULATION,
+        TERRAIN
+    }
+
+    MapModes mapMode = MapModes.POLITICAL;
+
+    public void updateAllColors(){
+        // LAGGY
+        foreach (var entry in tiles){
+            // Goes through every tile and updates its color
+            updateColor(entry.Key);
+        }
+    }
+
+
+    // COLOR
+    public void updateColor(Vector3Int position){
+        tilemap.SetTileFlags(position, TileFlags.None);
+        // Gets the final color
+        Color finalColor = new Color();
+        // Gets the tile we want to paint
+        Tile tile = getTile(position);
+        State state = tile.state;
+        State liege = null;
+        bool isCapital = false;
+        if (state != null && state.capital == tile){
+            isCapital = true;
+        }
+
+        if (state != null && state.liege != null){
+            liege = state.liege;
+        }
+        switch (mapMode){
+            case MapModes.POLITICAL:
+                if (state != null){
+                    // If the tile has an owner, colors it its nation
+                    finalColor = state.mapColor;
+                    // If the tile is a border
+                    if (tile.border){
+                        // Colors it slightly darker to show where nation boundaries are
+                        finalColor = state.mapColor * 0.7f + Color.black * 0.3f;
+                    }
+                    if (tile.state.capital == tile){
+                        finalColor = state.capitalColor;
+                    }
+                } else {
+                    ColorTerrain();
+                    // Or if we are anarchy visualize it
+                    if (tile.anarchy){
+                        finalColor = Color.black;
+                    }
+                }
+            break;
+            case MapModes.TERRAIN:
+                if (state != null && tile.border){
+                    // Colors it slightly darker to show where nation boundaries are
+                    finalColor = state.mapColor;
+                } else {
+                    ColorTerrain();
+                }
+            break;
+            case MapModes.POPULATION:
+                if (!tile.terrain.water){
+                    finalColor = new Color(0f, tile.population / 10000f, 0f); 
+                } else {
+                    ColorTerrain();
+                }           
+            break;
+            case MapModes.CULTURE:
+                if (tile.pops.Count > 0){
+                    Pop largest = new Pop(){
+                        population = -1
+                    };
+                    foreach (Pop pop in tile.pops.ToArray()){
+                        if (pop.population > largest.population){
+                            largest = pop;
+                        }
+                    }
+                    finalColor = largest.culture.color;
+                } else {
+                    ColorTerrain();
+                }
+            break; 
+        }
+
+        
+        void ColorTerrain(){
+            // If the tile isnt owned, just sets the color to the color of the terrain
+            finalColor = tile.terrain.biome.biomeColor;
+            switch (tile.terrain.heightType){
+                case Terrain.HeightTypes.HILL:
+                    finalColor = finalColor * 0.9f + Color.black * 0.1f;
+                    break;
+                case Terrain.HeightTypes.MOUNTAIN:
+                    finalColor = finalColor * 0.7f + Color.black * 0.3f;
+                    break;
+            }   
+        }
+        
+        // Higlights selected nation
+        if (nationPanel.tileSelected != null){
+            // Sets all the selected data
+
+            Tile selectedTile = nationPanel.tileSelected;
+            State selectedState = nationPanel.tileSelected.state;
+            State selectedLiege = null;
+
+            if (selectedState != null && selectedState.liege != null){
+                selectedLiege = selectedState.liege;
+            }
+            // If the tile is one that is colored by the mapmode
+            bool colored = false;
+            switch (mapMode){
+                case MapModes.POLITICAL:
+                    // If the tile isnt the selected nation
+                    if (state != selectedState){
+                        // Checks if we share a liege with the selected state
+                        bool sharesLiege = liege != null && liege == selectedLiege;
+                        // Checks if we are a vassal of the selected state
+                        bool isVassal = state != null && selectedState.vassals.ContainsKey(state);
+                        // Checks if we are related in any way to the selected state
+                        bool related = state == selectedLiege || isVassal || sharesLiege;
+
+                        // Checks if we are related to the tile and if we arent the capital
+                        if (state != null && related){
+                            // Checks if we are a vassal of or we share a liege of the selected state
+                            if (!isCapital){
+                                if (isVassal || sharesLiege){
+                                    finalColor = finalColor * 0.5f + Color.yellow * 0.5f;
+                                }
+                                // Otherwise checks if we are the liege of the selected state
+                                else if (state == selectedLiege){
+                                finalColor = finalColor * 0.5f + Color.magenta * 0.5f;
+                                }
+                            }
+                            colored = true;
+                        }
+                    } else {
+                        colored = true;
+                    }                
+                break;
+            }
+            if (!colored){
+                // Darkens tiles that werent colored by mapmode
+                finalColor = finalColor * 0.5f + Color.black * 0.5f;
+            }
+
+
+        }
+        
+        // Finally sets the color on the tilemap
+        tilemap.SetColor(position, finalColor);
+        tilemap.SetTileFlags(position, TileFlags.LockColor);
+    }
+
+    void ChangeMapMode(MapModes newMode){
+        mapMode = newMode;
+        updateAllColors();
+    }
+
+    void CheckMapModeSwitch(KeyCode key, MapModes mode){
+        if (Input.GetKeyDown(key)){
+            if (mapMode != mode){
+                ChangeMapMode(mode);
+            } else {
+                ChangeMapMode(MapModes.POLITICAL);
+            }
+        }          
+    }
     void Update(){
         if (updateMap){
             updateAllColors();
             updateMap = false;
         }
-        if (nationPanel && Input.GetMouseButtonDown(0)){
+        if (nationPanel && Input.GetMouseButtonDown(0) && mapMode == MapModes.POLITICAL){
             // Stops everything from running if there isnt input or if the panel doesnt even exist
             detectTileClick();
-        }   
+        }
+        CheckMapModeSwitch(KeyCode.C, MapModes.CULTURE);
+        CheckMapModeSwitch(KeyCode.X, MapModes.TERRAIN);
     }
 
     void detectTileClick(){
@@ -514,4 +566,7 @@ public class TileManager : MonoBehaviour
             }
         }
     }
+
+    // Updates the tile's border bool
+
 }

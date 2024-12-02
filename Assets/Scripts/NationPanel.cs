@@ -40,7 +40,9 @@ public class NationPanel : MonoBehaviour
                 stateName.text = state.govtName + " of " + state.stateName;
                 borderText.text = "Relations:" + "<br>" + displayLiege() + DisplayBorderingNations();
                 popText.text = "Local Population: " + state.population.ToString("#,##0") + 
-                "<br>National Population: " + nationalPopulation.ToString("#,##0");
+                "<br>National Population: " + nationalPopulation.ToString("#,##0") + 
+                "<br>Workforce: " + state.workforce.ToString("#,##0") + 
+                "<br>Manpower: " + state.manpower.ToString("#,##0");
                 sizeText.text = "Tiles: " + state.tiles.Count.ToString("#,##0 Tiles");
             }
         }    

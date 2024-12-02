@@ -681,6 +681,9 @@ MonoBehaviour:
   minNationPopulation: 200
   initialAnarchy: 10
   popsToCreate: 1
+  frontDebug: 0
+  popDebug: 0
+  updateMap: 0
 --- !u!1 &253897841
 GameObject:
   m_ObjectHideFlags: 0
@@ -1288,7 +1291,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Nation Name
+  m_text: Republic of Nationalia
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1966,7 +1969,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -17.52599, y: 126.67}
+  m_AnchoredPosition: {x: -17.523, y: 56.559}
   m_SizeDelta: {x: 423.45, y: 50.792}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1124326824
@@ -2155,8 +2158,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -17.526001, y: 177.46004}
-  m_SizeDelta: {x: 423.45, y: 50.792}
+  m_AnchoredPosition: {x: -17.525, y: 142.41}
+  m_SizeDelta: {x: 423.45, y: 120.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1236365759
 MonoBehaviour:
@@ -2178,7 +2181,15 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Population: 69,401'
+  m_text: 'Population: 69,401
+
+    National Population:
+
+    Workforce:
+
+    Manpower:
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2243,7 +2254,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.38587952, y: 0.073028564, z: -0.054260254, w: -0.19837952}
+  m_margin: {x: 0.38587952, y: 0.073028564, z: -0.054260254, w: -2.0883026}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2290,7 +2301,7 @@ MonoBehaviour:
   ticks: 0
   month: 1
   year: 1
-  tickLength: 0.05
+  tickLength: 0
   ticksPerYear: 1
   timerStart: 0
 --- !u!4 &1236494429
@@ -2462,7 +2473,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.38587952, y: 0.073028564, z: -0.054260254, w: -0.19837952}
+  m_margin: {x: 0.38587952, y: 0.073028564, z: -0.054260254, w: -0.19841003}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2492,8 +2503,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -17.524, y: -95.889}
-  m_SizeDelta: {x: 423.452, y: 394.3264}
+  m_AnchoredPosition: {x: -17.524, y: -134.8175}
+  m_SizeDelta: {x: 423.45, y: 331.9614}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1528272084
 GameObject:
@@ -3206,7 +3217,7 @@ MonoBehaviour:
   m_Direction: 3
   m_Value: 0
   m_Size: 1
-  m_NumberOfSteps: 0
+  m_NumberOfSteps: 5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []

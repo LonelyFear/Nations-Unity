@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class Culture
 {
-    public Color cultureColor;
+    public Color color;
     public static Culture createRandomCulture(){
         return new Culture(){
-            cultureColor = new Color(Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f))
+            color = new Color(Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f))
         };
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -8,6 +10,8 @@ public class Pop
     public int dependents;
     public int workforce;
     public float dependentRatio = 0.75f;
+
+    const float baseDependentRatio = 0.75f;
     const float baseBirthRate = 0.04f;
     const float baseDeathRate = 0.037f;
 
@@ -21,20 +25,30 @@ public class Pop
         SETTLED
     }
 
-    PopStates popState = PopStates.HUNTER_GATHERER;
+    PopStates status = PopStates.HUNTER_GATHERER;
 
     public void Tick(){
         if (tile == null){
             DeletePop();
         }
 
+        if (tile != null){
+            AssimilateCulture();
+            MergePops();  
+        }
+        // Top functions can unnasign pop from tile
         if (population > 0 && tile != null){
+
+
+            dependentRatio = Mathf.Lerp(dependentRatio, baseDependentRatio, 0.03f);
+            CalcDependents();
+
             state = tile.state;
             GrowPopulation();
             
-            if (popState == PopStates.HUNTER_GATHERER){
+            if (status == PopStates.HUNTER_GATHERER){
                 if (state != null && Random.Range(0f, 1f) < 0.25f){
-                    popState = PopStates.SETTLED;
+                    status = PopStates.SETTLED;
                 } else {
                     HGMigration();
                 }
@@ -107,7 +121,7 @@ public class Pop
             Pop popToMerge = null;
             foreach (Pop pop in newTile.pops){
                 // Goes through all the pops in our target tile
-                if (pop.culture == culture && pop.popState == popState){
+                if (pop.culture == culture && pop.status == status){
                     // If the pop matches up with our pop
                     // Sets our pop to merge with that pop
                     popToMerge = pop;
@@ -122,7 +136,7 @@ public class Pop
                 Pop newPop = new Pop{
                     population = amount,
                     culture = culture,
-                    popState = popState
+                    status = status
                 };
                 // And moves that new pop into the tile
                 newPop.SetTile(newTile);
@@ -138,12 +152,14 @@ public class Pop
         if (tile != null){
             tile.pops.Remove(this);
             tile.population -= population;
+            tile.workforce -= workforce;
         }
 
         tile = newTile;
 
         if (newTile != null){
             newTile.population += population;
+            newTile.workforce += workforce;
             newTile.pops.Add(this);       
 
             SetState(newTile.state);
@@ -155,13 +171,15 @@ public class Pop
             //state.pops.Remove(this);
             state.population -= population;
             state.totalPopulation -= population;
+            state.workforce -= workforce;
         }
 
         state = newState;
 
-        if (state != null){
-            state.population += population;
-            state.totalPopulation += population;
+        if (newState != null){
+            newState.population += population;
+            newState.totalPopulation += population;
+            newState.workforce += workforce;
             /*
             if (!state.pops.Contains(this)){
                 state.pops.Add(this);        
@@ -206,21 +224,71 @@ public class Pop
         if (tile != null){
             tile.ChangePopulation(totalChange);
         }
-        
+    }
+
+    public void ChangeWorkforce(int amount){
+        CalcDependents();
+        int totalChange = amount;
+        if (workforce + amount < 1){
+            totalChange = workforce * -1;
+        }
+        workforce += totalChange;
+        dependentRatio = dependents + 0.001f / (dependents + workforce + 0.001f);
+
+        CalcDependents();
+        ChangePopulation(totalChange);
     }
 
     public void CalcDependents(){
-        dependents = Mathf.RoundToInt(population * dependentRatio);
-        workforce = population - dependents;
+        if (tile != null){
+            tile.ChangeWorkforce(-1 * workforce);
+
+            dependents = Mathf.RoundToInt(population * dependentRatio);
+            workforce = population - dependents;
+
+            tile.ChangeWorkforce(workforce);
+        }
+        
     }
 
     public void DeletePop(){
         if (tile != null){
             tile.pops.Remove(this);
             tile.ChangePopulation(-population);
+            // Adjusts the workforces of our tile and state
+            tile.ChangePopulation(-workforce);
         }
         population = 0;
         tile = null;
         state = null;
+    }
+
+    void AssimilateCulture(){
+        foreach (Pop pop in tile.pops.ToArray()){
+            if (pop == this){
+                continue;
+            }
+            Color cultureColor = culture.color;
+            Color otherCulture = pop.culture.color;
+            float minDifference = 0.2f;
+            bool similarRed = Math.Abs(cultureColor.r - otherCulture.r) <=minDifference;
+            bool similarGreen = Math.Abs(cultureColor.g - otherCulture.g) <=minDifference;
+            bool similarBlue = Math.Abs(cultureColor.b - otherCulture.b) <=minDifference;
+            if (similarRed && similarGreen && similarBlue){
+                culture = pop.culture;
+            }
+        }
+    }
+
+    void MergePops(){
+        foreach (Pop pop in tile.pops.ToArray()){
+            if (pop == this){
+                continue;
+            }
+            if (pop.culture == culture && pop.status == status && pop.tile == tile){
+                ChangePopulation(pop.population);
+                pop.DeletePop();
+            }
+        }
     }
 }

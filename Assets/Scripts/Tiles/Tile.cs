@@ -10,6 +10,7 @@ public class Tile
     public TileManager tileManager;
     public Terrain terrain;    public State state = null;
     public Vector3Int tilePos;
+    public Front front;
     public bool border;
     public bool frontier;
     public bool nationalBorder;
@@ -21,6 +22,7 @@ public class Tile
 
     // Population
     public int population;
+    public int workforce;
     public List<Pop> pops = new List<Pop>();
     public const int maxPops = 50;
 
@@ -43,7 +45,9 @@ public class Tile
                     smallestPop = pop;
                 }
             }
-            smallestPop.DeletePop();
+            if (smallestPop.population < population/pops.Count * 2){
+                smallestPop.DeletePop();
+            }
         }
     }
     public int GetMaxPopulation(){
@@ -52,21 +56,17 @@ public class Tile
     }
 
     public void ChangePopulation(int amount){
-        // Sets our total change to the amount
-        int totalChange = amount;
-        if (population + amount < 1){
-            // If the population plus the amount goes below 1
-            // Sets the change to negative population
-            totalChange = population * -1;
-            population = 0;
-
-        } else {
-            // Changes population by amount
-            population += amount;
-        }
+        population += amount;
         if (state != null){
             // Updates our state
-            state.ChangePopulation(totalChange);
+            state.ChangePopulation(amount);
+        }
+    }
+
+    public void ChangeWorkforce(int amount){
+        workforce += amount;
+        if (state != null){
+            state.workforce += amount;
         }
     }
 }

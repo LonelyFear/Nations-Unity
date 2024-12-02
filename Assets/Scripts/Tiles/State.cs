@@ -14,6 +14,9 @@ public class State
     public List<Tile> tiles { get; private set; } = new List<Tile>();
     public int population;
     public int totalPopulation;
+    public int workforce;
+    public int manpower;
+
     public TileManager tileManager;
     public Color stateColor = Color.red;
     public Color capitalColor = Color.red;
@@ -35,6 +38,7 @@ public class State
     }
 
     public List<State> borderingStates { get; private set; } = new List<State>();
+    public Dictionary<State, Front> fronts = new Dictionary<State, Front>();
 
     public void getBorders(){
         // Clears our saved borders
@@ -50,6 +54,23 @@ public class State
                         borderingStates.Add(state);
                         fixRelations();
                     }
+                    // Checks if we dont have a front with the state
+                    if (!fronts.ContainsKey(state)){
+                        // Makes a new front
+                        Front newFront = new Front(){
+                            targetState = state,
+                            state = this
+                        };
+                        TimeEvents.tick += newFront.Tick;
+
+                        fronts.Add(state, newFront);
+                        
+                    }
+                    // Adds tiles to the front
+                    Front front = fronts[state];
+                    if (!front.tiles.ContainsKey(tile)){
+                        front.tiles.Add(tile, 0);
+                    }
                 }
             }
         }
@@ -64,6 +85,7 @@ public class State
         tiles.Add(tile);
 
         ChangePopulation(tile.population);
+        workforce += tile.workforce;
 
         tile.state = this;
         tileManager.anarchy.Remove(tile);
@@ -78,6 +100,7 @@ public class State
             tiles.Remove(tile);
 
             ChangePopulation(-1 * tile.population);
+            workforce -= tile.workforce;
 
             tile.state = null;
             tile.anarchy = true;
@@ -105,11 +128,13 @@ public class State
             state.liege = this;
             vassals.Add(state, type);
 
-            state.CreateRelations(state, type, true);
+            state.CreateRelations(this, type, true);
+
             state.UpdateStateType();
+            state.fixRelations();
             state.updateCapital();
             state.updateColor();
-            state.fixRelations();
+            
 
             // Give us relations with all our puppets relations
             foreach (var entry in state.relations){
@@ -142,6 +167,8 @@ public class State
     public void UpdateStateType(){
         if (liege != null && relations.ContainsKey(liege)){
             stateType = relations[liege].relationType;
+        } else {
+            stateType = StateTypes.INDEPENDENT;
         }
     }
 
@@ -182,6 +209,10 @@ public class State
     }
 
     public void Tick(){
+        // Mobilizes able bodied men
+        if (manpower < workforce * 0.5f){
+            manpower += Mathf.RoundToInt(workforce * 0.01f);
+        }
         // Updates our capital every tick
         updateCapital();
 
@@ -271,18 +302,10 @@ public class State
     }
 
     public void ChangePopulation(int amount){
-        int totalChange = amount;
-        if (population + amount < 1){
-            totalChange = population * -1;
-            population = 0;
-
-        } else {
-            population += amount;
-            
-        }
-        totalPopulation += totalChange;
+        population += amount;
+        totalPopulation += amount;
         if (liege != null){
-            liege.totalPopulation += totalChange;
+            liege.totalPopulation += amount;
         }
     }
 }

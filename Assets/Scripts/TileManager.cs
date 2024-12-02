@@ -28,6 +28,14 @@ public class TileManager : MonoBehaviour
     [SerializeField]
     int popsToCreate = 1;
 
+    [Header("Debug")]
+    [SerializeField]
+    bool frontDebug = false;
+    [SerializeField]
+    bool popDebug = false;
+    [SerializeField]
+    bool updateMap = false;
+
     // Lists & Stats
     //public int worldPopulation;
     public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
@@ -107,6 +115,9 @@ public class TileManager : MonoBehaviour
     }
 
     public void Tick(){
+        if (frontDebug || popDebug){
+            updateAllColors();
+        }
         // Each month new nations can spawn out of anarchy
         if (Random.Range(0f, 1f) < 0.75f){
             creationTick();
@@ -334,6 +345,18 @@ public class TileManager : MonoBehaviour
             }
 
         }
+        if (frontDebug){
+            if (tile.front != null){
+                finalColor = tile.state.mapColor;
+            } else if (!tile.terrain.water){
+                finalColor = Color.gray;
+            } 
+        }
+        if (popDebug){
+            if (!tile.terrain.water){
+                finalColor = new Color(0f, 0f, tile.population / 10000f);
+            } 
+        }
         // Finally sets the color on the tilemap
         tilemap.SetColor(position, finalColor);
         tilemap.SetTileFlags(position, TileFlags.LockColor);
@@ -435,6 +458,10 @@ public class TileManager : MonoBehaviour
     }
 
     void Update(){
+        if (updateMap){
+            updateAllColors();
+            updateMap = false;
+        }
         if (nationPanel && Input.GetMouseButtonDown(0)){
             // Stops everything from running if there isnt input or if the panel doesnt even exist
             detectTileClick();

@@ -37,6 +37,7 @@ public class TimeManager : MonoBehaviour
     }
     void Update()
     {
+        year = ticks / ticksPerYear;
         if (timerStart && !paused){
             currentTime -= Time.deltaTime;
             if (currentTime <= 0){

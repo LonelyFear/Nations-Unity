@@ -26,7 +26,14 @@ public class Tile
     public List<Pop> pops = new List<Pop>();
     public const int maxPops = 50;
 
+    // Stats
+    public float development;
+
     public void Tick(){
+        if (population > 600){
+            float developmentIncrease = (population + 0.001f) / 100000f;
+            development += developmentIncrease;
+        }
         if (population >= 50 && state == null){
             tileManager.addAnarchy(tilePos);
         } else if (population < 50 && anarchy){
@@ -45,7 +52,7 @@ public class Tile
                     smallestPop = pop;
                 }
             }
-            if (smallestPop.population < population/pops.Count * 2){
+            if (smallestPop.population < population/pops.Count){
                 smallestPop.DeletePop();
             }
         }
@@ -60,6 +67,9 @@ public class Tile
         if (state != null){
             // Updates our state
             state.ChangePopulation(amount);
+        }
+        if (tileManager.mapMode == TileManager.MapModes.POPULATION){
+            UpdateColor();
         }
     }
 

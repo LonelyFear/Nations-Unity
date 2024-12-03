@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -47,37 +48,92 @@ public class Pop
             GrowPopulation();
             
             if (status == PopStates.HUNTER_GATHERER){
-                if (state != null && Random.Range(0f, 1f) < 0.05f){
+                if (state != null && Random.Range(0f, 1f) < 0.25f){
                     status = PopStates.SETTLED;
                 } else {
                     HGMigration();
                 }
             } else {
+                //SimpleMigration();
                 SettlerMigration();
             }
         }
     }
-    void SettlerMigration(){
-        if (Random.Range(0f, 1f) < 0.01f && population > 100){
+
+    void SimpleMigration(){
+        float moveChance = 0.01f;
+        if (Random.Range(0f, 1f) < moveChance && population > 100){
             foreach (Tile target in tile.borderingTiles){
-                // If the target has significantly lower population
-                bool tileNotFull = target.population * 4 < tile.population && Random.Range(0f, 1f) < 0.2f * target.terrain.navigability;
-                // If the tile is close to its maximum population
-                bool tileFull = tile.population * 1.2 > tile.GetMaxPopulation() && Random.Range(0f, 1f) < 0.5f * target.terrain.navigability;
-                if (tileNotFull || tileFull){
+                float chooseChance = 0.5f;
+                chooseChance *= target.terrain.fertility;
+                chooseChance *= 1f + target.development;
+
+                if (chooseChance > 0.5f){
+                    chooseChance = 0.5f;
+                }
+                if (Random.Range(0f, 1f) < chooseChance){
                     MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
                 }
             }
+        }
+    }
+    void SettlerMigration(){
+        float moveChance = 0.2f;
+        if (Random.Range(0f, 1f) < moveChance && population > 100){
+            Dictionary<Tile, float> candidates = new Dictionary<Tile, float>();
+            List<float> attractions = new List<float>();
+            foreach (Tile target in tile.borderingTiles.ToArray()){
+                attractions.Add(CalcAttraction(target));
+            }
+            Tile selectedTile = null;
+            foreach (var entry in candidates){
+                Tile candidate = entry.Key;
+                float attraction = entry.Value;
+
+                
+                if ((selectedTile == null && attraction > 0) || (selectedTile != null && attraction > candidates[selectedTile])){
+                    selectedTile = candidate;
+                }
+            }
+            if (selectedTile != null){
+                MoveTile(selectedTile, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
+            }
         } 
     }
+    float CalcAttraction(Tile target){
+        float attraction = 0f;
+        if (tile != null){
+            if (target.population <= tile.tileManager.minNationPopulation * 2){
+                attraction += 2;
+            }
+            if (target.population * 1.1f >= tile.GetMaxPopulation()){
+                attraction += -1;
+            }
+            if (target.anarchy){
+                attraction *= 1.25f;
+            }
+            if (target.population < tile.population && target.population > 0){
+                attraction += 1 * ((tile.population + 0.001f) / target.population + 0.001f);
+            }
+            attraction += (target.development - tile.development) * 1f;
+
+            if (target.state != state && target.state != null){
+                attraction *= 0.9f;
+            }
+            if (tile.terrain.fertility <= 0.5f){
+                attraction *= tile.terrain.fertility + 0.3f;
+            } 
+        }
+
+        return attraction;
+    }
     void HGMigration(){
-        // 0.005 is the chance a hunter gatherer moves
         float moveChance = 0.1f;
         if (Random.Range(0f, 1f) < moveChance && population > 100){
-            foreach (Tile target in tile.borderingTiles){
-                bool coastal = tile.coastal && Random.Range(0f, 1f) <= target.terrain.navigability;
-                bool inland = Random.Range(0f, 1f) <= 0.05 * target.terrain.navigability;
-                if (target.population * 2 < tile.population && (inland || coastal)){
+            foreach (Tile target in tile.borderingTiles.ToArray()){
+                bool coastal = tile.coastal && Random.Range(0f, 1f) <= target.terrain.fertility;
+                bool inland = Random.Range(0f, 1f) <= 0.05 * target.terrain.fertility;
+                if (target.population * 4 < tile.population && (inland || coastal)){
                     MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
                 }
             }
@@ -142,7 +198,9 @@ public class Pop
                 newPop.SetTile(newTile);
                 TimeEvents.tick += newPop.Tick;
             }
-            tile.UpdateColor();
+            if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE){
+                tile.UpdateColor();
+            }
             // Finally subtracts the amount from our population
             ChangePopulation(amount * -1);
         }
@@ -271,14 +329,16 @@ public class Pop
             }
             Color cultureColor = culture.color;
             Color otherCulture = pop.culture.color;
-            float minDifference = 0.2f;
+            float minDifference = 0.5f;
             bool similarRed = Math.Abs(cultureColor.r - otherCulture.r) <=minDifference;
             bool similarGreen = Math.Abs(cultureColor.g - otherCulture.g) <=minDifference;
             bool similarBlue = Math.Abs(cultureColor.b - otherCulture.b) <=minDifference;
             if (similarRed && similarGreen && similarBlue){
                 culture = pop.culture;
             }
-            tile.UpdateColor();
+            if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE){
+                tile.UpdateColor();
+            }
         }
     }
 
@@ -291,6 +351,9 @@ public class Pop
                 ChangePopulation(pop.population);
                 pop.DeletePop();
             }
+        }
+        if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE){
+            tile.UpdateColor();
         }
     }
 }

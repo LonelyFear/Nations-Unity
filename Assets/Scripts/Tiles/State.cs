@@ -216,7 +216,7 @@ public class State
         // Updates our capital every tick
         updateCapital();
 
-        DebugVassalize();
+        //DebugVassalize();
     }
 
     // Makes automatic vassalage of neighbors

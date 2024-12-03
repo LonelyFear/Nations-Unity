@@ -682,10 +682,8 @@ MonoBehaviour:
   minNationPopulation: 200
   initialAnarchy: 10
   popsToCreate: 1
-  frontDebug: 0
-  popDebug: 0
-  cultureDebug: 0
   updateMap: 0
+  mapMode: 0
 --- !u!1 &253897841
 GameObject:
   m_ObjectHideFlags: 0
@@ -2303,7 +2301,7 @@ MonoBehaviour:
   ticks: 0
   month: 1
   year: 1
-  tickLength: 0
+  tickLength: 0.05
   ticksPerYear: 1
   timerStart: 0
 --- !u!4 &1236494429

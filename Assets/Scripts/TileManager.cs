@@ -21,7 +21,7 @@ public class TileManager : MonoBehaviour
     float anarchyConquestChance = 0.5f;
 
     [SerializeField]
-    int minNationPopulation = 500;
+    public int minNationPopulation = 500;
     [SerializeField]
     int initialAnarchy = 20;
 
@@ -30,12 +30,7 @@ public class TileManager : MonoBehaviour
     int popsToCreate = 1;
 
     [Header("Debug")]
-    [SerializeField]
-    bool frontDebug = false;
-    [SerializeField]
-    bool popDebug = false;
-    [SerializeField]
-    bool cultureDebug = false;
+
     [SerializeField]
     bool updateMap = false;
 
@@ -118,9 +113,6 @@ public class TileManager : MonoBehaviour
     }
 
     public void Tick(){
-        if (frontDebug || popDebug || cultureDebug){
-            //updateAllColors();
-        }
         // Each month new nations can spawn out of anarchy
         if (Random.Range(0f, 1f) < 0.75f){
             creationTick();
@@ -356,7 +348,7 @@ public class TileManager : MonoBehaviour
         TERRAIN
     }
 
-    MapModes mapMode = MapModes.POLITICAL;
+    public MapModes mapMode = MapModes.POLITICAL;
 
     public void updateAllColors(){
         // LAGGY
@@ -415,7 +407,7 @@ public class TileManager : MonoBehaviour
             break;
             case MapModes.POPULATION:
                 if (!tile.terrain.water){
-                    finalColor = new Color(0f, tile.population / 10000f, 0f); 
+                    finalColor = new Color(0f, tile.population / 50000f, 0f); 
                 } else {
                     ColorTerrain();
                 }           
@@ -532,6 +524,7 @@ public class TileManager : MonoBehaviour
         }
         CheckMapModeSwitch(KeyCode.C, MapModes.CULTURE);
         CheckMapModeSwitch(KeyCode.X, MapModes.TERRAIN);
+        CheckMapModeSwitch(KeyCode.Z, MapModes.POPULATION);
     }
 
     void detectTileClick(){

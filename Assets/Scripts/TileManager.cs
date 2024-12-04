@@ -26,6 +26,7 @@ public class TileManager : MonoBehaviour
     int initialAnarchy = 20;
 
     [Header("Pops")]
+    public int worldPopulation;
     [SerializeField]
     int popsToCreate = 1;
 
@@ -141,7 +142,7 @@ public class TileManager : MonoBehaviour
             float g = (tile.tilePos.y + 0.001f) / (worldSize.y + 0.001f);
             float b = (worldSize.x - tile.tilePos.x + 0.001f) / (worldSize.x + 0.001f);
             Pop newPop = new Pop(){
-                population = Mathf.FloorToInt(Random.Range(50/popsToCreate, 300/popsToCreate) * tile.terrain.fertility),
+                population = Mathf.FloorToInt(500 * tile.terrain.fertility),
                 culture = new Culture(){
                     color = new Color(r, g, b, 1f)
                 }
@@ -149,6 +150,7 @@ public class TileManager : MonoBehaviour
             newPop.SetTile(tile);
             TimeEvents.tick += newPop.Tick;
         }
+        worldPopulation += tile.population;
         
     }
 
@@ -407,7 +409,7 @@ public class TileManager : MonoBehaviour
             break;
             case MapModes.POPULATION:
                 if (!tile.terrain.water){
-                    finalColor = new Color(0f, tile.population / 50000f, 0f); 
+                    finalColor = new Color(0f, tile.population / 10000f, 0f); 
                 } else {
                     ColorTerrain();
                 }           

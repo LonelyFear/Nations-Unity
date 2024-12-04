@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 using Random = UnityEngine.Random;
 
 public class Pop
@@ -14,121 +15,54 @@ public class Pop
 
     const float baseDependentRatio = 0.75f;
     const float baseBirthRate = 0.04f;
-    const float baseDeathRate = 0.037f;
+    const float baseDeathRate = 0.036f;
 
     // Stats
     public Tile tile;
     public State state;
     public Culture culture;
 
+
     enum PopStates {
-        HUNTER_GATHERER,
+        MIGRATORY,
         SETTLED
     }
 
-    PopStates status = PopStates.HUNTER_GATHERER;
-
+    PopStates status = PopStates.MIGRATORY;
     public void Tick(){
         if (tile == null){
             DeletePop();
         }
 
-        if (tile != null){
+        if (tile != null && tile.pops.Count > 1){
             AssimilateCulture();
             MergePops();  
         }
+
         // Top functions can unnasign pop from tile
         if (population > 0 && tile != null){
-
 
             dependentRatio = Mathf.Lerp(dependentRatio, baseDependentRatio, 0.03f);
             CalcDependents();
 
             state = tile.state;
             GrowPopulation();
-            
-            if (status == PopStates.HUNTER_GATHERER){
+
+            if (status == PopStates.MIGRATORY){
                 if (state != null && Random.Range(0f, 1f) < 0.25f){
                     status = PopStates.SETTLED;
                 } else {
-                    HGMigration();
+                    EarlyMigration();
                 }
             } else {
-                //SimpleMigration();
-                SettlerMigration();
+                SimpleMigration();
+                //SettlerMigration();
             }
+            //SettlerMigration();
         }
     }
-
-    void SimpleMigration(){
-        float moveChance = 0.01f;
-        if (Random.Range(0f, 1f) < moveChance && population > 100){
-            foreach (Tile target in tile.borderingTiles){
-                float chooseChance = 0.5f;
-                chooseChance *= target.terrain.fertility;
-                chooseChance *= 1f + target.development;
-
-                if (chooseChance > 0.5f){
-                    chooseChance = 0.5f;
-                }
-                if (Random.Range(0f, 1f) < chooseChance){
-                    MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
-                }
-            }
-        }
-    }
-    void SettlerMigration(){
+        void EarlyMigration(){
         float moveChance = 0.2f;
-        if (Random.Range(0f, 1f) < moveChance && population > 100){
-            Dictionary<Tile, float> candidates = new Dictionary<Tile, float>();
-            List<float> attractions = new List<float>();
-            foreach (Tile target in tile.borderingTiles.ToArray()){
-                attractions.Add(CalcAttraction(target));
-            }
-            Tile selectedTile = null;
-            foreach (var entry in candidates){
-                Tile candidate = entry.Key;
-                float attraction = entry.Value;
-
-                
-                if ((selectedTile == null && attraction > 0) || (selectedTile != null && attraction > candidates[selectedTile])){
-                    selectedTile = candidate;
-                }
-            }
-            if (selectedTile != null){
-                MoveTile(selectedTile, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
-            }
-        } 
-    }
-    float CalcAttraction(Tile target){
-        float attraction = 0f;
-        if (tile != null){
-            if (target.population <= tile.tileManager.minNationPopulation * 2){
-                attraction += 2;
-            }
-            if (target.population * 1.1f >= tile.GetMaxPopulation()){
-                attraction += -1;
-            }
-            if (target.anarchy){
-                attraction *= 1.25f;
-            }
-            if (target.population < tile.population && target.population > 0){
-                attraction += 1 * ((tile.population + 0.001f) / target.population + 0.001f);
-            }
-            attraction += (target.development - tile.development) * 1f;
-
-            if (target.state != state && target.state != null){
-                attraction *= 0.9f;
-            }
-            if (tile.terrain.fertility <= 0.5f){
-                attraction *= tile.terrain.fertility + 0.3f;
-            } 
-        }
-
-        return attraction;
-    }
-    void HGMigration(){
-        float moveChance = 0.1f;
         if (Random.Range(0f, 1f) < moveChance && population > 100){
             foreach (Tile target in tile.borderingTiles.ToArray()){
                 bool coastal = tile.coastal && Random.Range(0f, 1f) <= target.terrain.fertility;
@@ -140,20 +74,91 @@ public class Pop
         }    
     }
 
+    void SimpleMigration(){
+        float moveChance = 0.08f;
+        if (Random.Range(0f, 1f) < moveChance && population > 100){
+            Tile target = tile.borderingTiles[Random.Range(0, tile.borderingTiles.Count - 1)];
+            float chooseChance = 0.5f;
+            chooseChance *= target.terrain.fertility;
+            chooseChance *= 1f + target.development;
+
+            if (chooseChance > 0.5f){
+                chooseChance = 0.5f;
+            }
+            if (Random.Range(0f, 1f) < chooseChance){
+                MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
+            }
+        }
+    }
+    void SettlerMigration(){
+        float moveChance = 0.1f;
+        if (Random.Range(0f, 1f) < moveChance && population > 50){
+            Dictionary<Tile, float> candidates = new Dictionary<Tile, float>();
+            List<float> attractions = new List<float>();
+            foreach (Tile target in tile.borderingTiles.ToArray()){
+                candidates.Add(target, CalcAttraction(target));
+            }
+            Tile selectedTile = null;
+            foreach (var entry in candidates){
+                Tile candidate = entry.Key;
+                float attraction = entry.Value;
+
+                
+                if ((selectedTile == null && attraction > 0) || (selectedTile != null && attraction > candidates[selectedTile])){
+                    selectedTile = candidate;
+                }
+            }
+            
+            if (selectedTile != null && selectedTile != tile){
+                
+                MoveTile(selectedTile, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
+            }
+        } 
+    }
+    float CalcAttraction(Tile target){
+        float attraction = 0f;
+        if (tile != null){
+            if (target.population <= tile.tileManager.minNationPopulation * 2){
+                attraction += 1;
+            }
+            if (target.population * 1.1f >= tile.GetMaxPopulation()){
+                attraction += -1;
+            }
+            if (target.pops.Count == 0){
+                attraction += 1;
+            }
+            if (target.state == null){
+                attraction += 1;
+            }
+            if (target.population < tile.population && target.population > 0){
+                attraction += 1 * ((tile.population + 0.001f) / target.population + 0.001f);
+            }
+            attraction += (target.development - tile.development) * 1f;
+
+            if (target.state != state && target.state != null){
+                attraction += -0.5f;
+            }
+            attraction += target.terrain.fertility;
+        }
+
+        return attraction;
+    }
+
     public void GrowPopulation(){
         float birthRate = 0f;
+        
 
         if (population > 1){
             birthRate = baseBirthRate;
-            if (tile.population < 500){
-                birthRate += 0.01f;
-            }
+
             if (population > tile.GetMaxPopulation()){
                 birthRate *= 0.75f;
             }
         }
 
         float deathRate = baseDeathRate;
+
+        
         float natutalGrowthRate = birthRate - deathRate;
 
         int totalGrowth = Mathf.RoundToInt(population * natutalGrowthRate);
@@ -177,7 +182,7 @@ public class Pop
             Pop popToMerge = null;
             foreach (Pop pop in newTile.pops){
                 // Goes through all the pops in our target tile
-                if (pop.culture == culture && pop.status == status){
+                if (pop.culture == culture){
                     // If the pop matches up with our pop
                     // Sets our pop to merge with that pop
                     popToMerge = pop;
@@ -187,16 +192,17 @@ public class Pop
             if (popToMerge != null){
                 // Changes the pop we are merging with by amount
                 popToMerge.ChangePopulation(amount);
+                //popToMerge.AssimilateCulture();
             } else {
                 // Otherwise makes a new pop with our culture
                 Pop newPop = new Pop{
                     population = amount,
                     culture = culture,
-                    status = status
                 };
                 // And moves that new pop into the tile
                 newPop.SetTile(newTile);
                 TimeEvents.tick += newPop.Tick;
+                //newPop.AssimilateCulture();
             }
             if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE){
                 tile.UpdateColor();
@@ -329,7 +335,7 @@ public class Pop
             }
             Color cultureColor = culture.color;
             Color otherCulture = pop.culture.color;
-            float minDifference = 0.5f;
+            float minDifference = 0.2f;
             bool similarRed = Math.Abs(cultureColor.r - otherCulture.r) <=minDifference;
             bool similarGreen = Math.Abs(cultureColor.g - otherCulture.g) <=minDifference;
             bool similarBlue = Math.Abs(cultureColor.b - otherCulture.b) <=minDifference;
@@ -347,7 +353,7 @@ public class Pop
             if (pop == this){
                 continue;
             }
-            if (pop.culture == culture && pop.status == status && pop.tile == tile){
+            if (pop.culture == culture && pop.tile == tile){
                 ChangePopulation(pop.population);
                 pop.DeletePop();
             }

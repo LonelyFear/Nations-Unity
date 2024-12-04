@@ -677,10 +677,11 @@ MonoBehaviour:
   worldSize: {x: 0, y: 0}
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
-  stateSpawnChance: 0.8
-  anarchyConquestChance: 0.4
+  stateSpawnChance: 1
+  anarchyConquestChance: 0.2
   minNationPopulation: 200
   initialAnarchy: 10
+  worldPopulation: 0
   popsToCreate: 1
   updateMap: 0
   mapMode: 0
@@ -1752,11 +1753,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraSpeed: 60
   moveDamping: 3
-  cameraSize: 40
+  cameraSize: 76.81899
   minZoom: 6
   maxZoom: 100
   zoomDamping: 3
-  zoomSpeed: 1
+  zoomSpeed: 0.5
 --- !u!1 &935202348
 GameObject:
   m_ObjectHideFlags: 0

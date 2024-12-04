@@ -68,6 +68,7 @@ public class Tile
             // Updates our state
             state.ChangePopulation(amount);
         }
+        tileManager.worldPopulation += amount;
         if (tileManager.mapMode == TileManager.MapModes.POPULATION){
             UpdateColor();
         }

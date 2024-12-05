@@ -1,5 +1,5 @@
 # Nations
-A simple nation simulation game where you can watch nations develop through the ages as they rise and fall. The simulation isnt public as of now but an alpha will release soon.
+A nation simulation game where you can watch nations develop through the ages as they rise and fall. The simulation isnt public as of now but an alpha will release soon.
 # Features (For Alpha Release)
 - A pops system that aims to simulate several cultures and peoples as they move about
 - A world generator that can generate a variety of worlds for your simulations

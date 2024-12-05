@@ -201,17 +201,33 @@ public class State
 
     public static State CreateRandomState(){
         State newState = new State(){
-            stateColor = new Color(Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f), Random.Range(0.2f, 0.8f)),
+            stateColor = new Color(Random.Range(0.3f, 0.8f), Random.Range(0.3f, 0.8f), Random.Range(0.3f, 0.8f)),
             stateName = "New State"
         };
-        string[] stateNames = System.IO.File.ReadAllLines("Assets/Text Files/NationNames.txt");
+        string[] statePrefixes = System.IO.File.ReadAllLines("Assets/Text Files/NationPrefixes.txt");
+        string[] stateSyllables = System.IO.File.ReadAllLines("Assets/Text Files/NationSyllables.txt");
+        string[] stateSuffixes = System.IO.File.ReadAllLines("Assets/Text Files/NationSuffixes.txt");
         string[] stateGovernments = System.IO.File.ReadAllLines("Assets/Text Files/TribalGovernments.txt");
 
         newState.mapColor = newState.stateColor;
 
-        if (stateNames.Length > 0 && stateGovernments.Length > 0){
-            string name = stateNames[Random.Range(0, stateNames.Length - 1)];
+        if (stateGovernments.Length > 0){
+
+            string name = "";
+            // Adds our prefix
+            name += statePrefixes[Random.Range(0, statePrefixes.Length - 1)];
+            int syllables = 0;
+            while (Random.Range(0f, 1f) < 0.5f && syllables <= 3){
+                // Adds syllables
+                syllables++;
+                name += stateSyllables[Random.Range(0, stateSyllables.Length - 1)];
+            }
+            // Adds our suffix
+            name += stateSuffixes[Random.Range(0, stateSuffixes.Length - 1)];
+            // Gets the governmment (Cosmetic for now)
             string govt = stateGovernments[Random.Range(0, stateGovernments.Length - 1)];
+
+            // Sets the value
             newState.stateName = name;
             newState.govtName = govt;
         }

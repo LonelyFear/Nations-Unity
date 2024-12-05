@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
@@ -57,12 +58,22 @@ public class Pop
                     EarlyMigration();
                 }
             } else {
-                SimpleMigration();
-                //SettlerMigration();
+                if (tile != null){
+                    // Settled functions
+                    SimpleMigration();
+                    DevelopTech();
+                    //SettlerMigration();                    
+                }
+
             }
         }
     }
-        void EarlyMigration(){
+    void DevelopTech(){
+        if (Random.Range(0f, 1f) < 0.0001f + Mathf.Clamp(tile.development / 2f, 0f, 1f)){
+            tech.societyLevel += 1;
+        }
+    }
+    void EarlyMigration(){
         float moveChance = 0.2f;
         if (Random.Range(0f, 1f) < moveChance && tile != null){
             foreach (Tile target in tile.borderingTiles.ToArray()){
@@ -102,9 +113,12 @@ public class Pop
             if (population > tile.GetMaxPopulation()){
                 birthRate *= 0.75f;
             }
+            if (tech.societyLevel > 5){
+                birthRate -= Mathf.Clamp((tech.societyLevel - 5)/900, 0f, 0.5f);
+            }
         }
 
-        float deathRate = baseDeathRate;
+        float deathRate = baseDeathRate - Mathf.Clamp(tech.societyLevel/1000, 0f, 0.3f);
 
         
         float natutalGrowthRate = birthRate - deathRate;
@@ -130,7 +144,7 @@ public class Pop
             Pop popToMerge = null;
             foreach (Pop pop in newTile.pops){
                 // Goes through all the pops in our target tile
-                if (pop.culture == culture){
+                if (pop.culture == culture && CheckSimilarTech(pop)){
                     // If the pop matches up with our pop
                     // Sets our pop to merge with that pop
                     popToMerge = pop;
@@ -146,6 +160,7 @@ public class Pop
                 Pop newPop = new Pop{
                     population = amount,
                     culture = culture,
+                    tech = tech,
                 };
                 // And moves that new pop into the tile
                 newPop.SetTile(newTile);
@@ -159,6 +174,20 @@ public class Pop
             ChangePopulation(amount * -1);
         }
        
+    }
+
+    public bool CheckSimilarTech(Pop pop){
+        float minTechDiff = 0.5f;
+        Tech techToCheck = pop.tech;
+        if (pop != this){
+            bool similarSociety = techToCheck.societyLevel - tech.societyLevel <= minTechDiff;
+            bool similarMilitary = techToCheck.militaryLevel - tech.militaryLevel <= minTechDiff;
+            bool similarIndustry = techToCheck.industryLevel - tech.industryLevel <= minTechDiff;
+            if (similarIndustry && similarMilitary && similarSociety){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void SetTile(Tile newTile){
@@ -297,7 +326,7 @@ public class Pop
             if (pop == this){
                 continue;
             }
-            if (pop.culture == culture && pop.tile == tile){
+            if (pop.culture == culture && pop.tile == tile && CheckSimilarTech(pop)){
                 ChangePopulation(pop.population);
                 pop.DeletePop();
             }

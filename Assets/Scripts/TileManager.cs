@@ -128,7 +128,7 @@ public class TileManager : MonoBehaviour
             // Selects a random one
             Tile tile = anarchy[Random.Range(0, anarchy.Count)];
             // If the tile is anarchy, has sufficient population, and passes the random check
-            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * tile.terrain.navigability && tile.population >= minNationPopulation){
+            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance && tile.population >= minNationPopulation){
                 // Creates a new random state at that tile
                 createRandomState(tile.tilePos);
             }   
@@ -409,7 +409,10 @@ public class TileManager : MonoBehaviour
             break;
             case MapModes.POPULATION:
                 if (!tile.terrain.water){
-                    finalColor = new Color(0f, tile.population / 10000f, 0f); 
+                    finalColor = new Color(0f, tile.population / 10000f, 0f);
+                    if (tile.population == 0){
+                        finalColor = Color.red;
+                    } 
                 } else {
                     ColorTerrain();
                 }           

@@ -31,8 +31,13 @@ public class Tile
 
     public void Tick(){
         if (population > 600){
-            float developmentIncrease = (population + 0.001f) / 100000f;
+            float developmentIncrease = (population + 0.001f) / 1000000f;
+            //Debug.Log(developmentIncrease);
             development += developmentIncrease;
+            if (development > 1){
+                development = 1f;
+            }
+            //Debug.Log(development);
         }
         if (population >= 50 && state == null){
             tileManager.addAnarchy(tilePos);
@@ -64,6 +69,7 @@ public class Tile
 
     public void ChangePopulation(int amount){
         population += amount;
+
         if (state != null){
             // Updates our state
             state.ChangePopulation(amount);

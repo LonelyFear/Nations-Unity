@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
@@ -21,14 +22,15 @@ public class Pop
     public Tile tile;
     public State state;
     public Culture culture;
+    public Tech tech = new Tech();
 
 
-    enum PopStates {
+    public enum PopStates {
         MIGRATORY,
         SETTLED
     }
 
-    PopStates status = PopStates.MIGRATORY;
+    public PopStates status = PopStates.MIGRATORY;
     public void Tick(){
         if (tile == null){
             DeletePop();
@@ -58,12 +60,11 @@ public class Pop
                 SimpleMigration();
                 //SettlerMigration();
             }
-            //SettlerMigration();
         }
     }
         void EarlyMigration(){
         float moveChance = 0.2f;
-        if (Random.Range(0f, 1f) < moveChance && population > 100){
+        if (Random.Range(0f, 1f) < moveChance && tile != null){
             foreach (Tile target in tile.borderingTiles.ToArray()){
                 bool coastal = tile.coastal && Random.Range(0f, 1f) <= target.terrain.fertility;
                 bool inland = Random.Range(0f, 1f) <= 0.05 * target.terrain.fertility;
@@ -76,74 +77,21 @@ public class Pop
 
     void SimpleMigration(){
         float moveChance = 0.08f;
-        if (Random.Range(0f, 1f) < moveChance && population > 100){
+        if (Random.Range(0f, 1f) < moveChance && tile != null){
             Tile target = tile.borderingTiles[Random.Range(0, tile.borderingTiles.Count - 1)];
-            float chooseChance = 0.5f;
-            chooseChance *= target.terrain.fertility;
-            chooseChance *= 1f + target.development;
+            bool fertile = Random.Range(0f, 1f) <= 0.5 * target.terrain.fertility;
+            bool developed = Random.Range(0f, 1f) <= 0.5 * target.development;
+            bool lowPop = Random.Range(0f, 1f) <= 0.5 / (target.population / tile.population);
+            bool noPop = (target.pops.Count == 0 && Random.Range(0f, 1f) <= 0.9) ? true : false;
+            bool sameState = (target.state == state || target.state != state && Random.Range(0f, 1f) <= 0.9) ? true : false;
 
-            if (chooseChance > 0.5f){
-                chooseChance = 0.5f;
-            }
-            if (Random.Range(0f, 1f) < chooseChance){
+            bool rulingPopCheck = state.rulingPop == this && population > 100 || state.rulingPop != this;
+
+            if ((fertile || developed || lowPop || noPop) && sameState && rulingPopCheck){
                 MoveTile(target, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
             }
         }
     }
-    void SettlerMigration(){
-        float moveChance = 0.1f;
-        if (Random.Range(0f, 1f) < moveChance && population > 50){
-            Dictionary<Tile, float> candidates = new Dictionary<Tile, float>();
-            List<float> attractions = new List<float>();
-            foreach (Tile target in tile.borderingTiles.ToArray()){
-                candidates.Add(target, CalcAttraction(target));
-            }
-            Tile selectedTile = null;
-            foreach (var entry in candidates){
-                Tile candidate = entry.Key;
-                float attraction = entry.Value;
-
-                
-                if ((selectedTile == null && attraction > 0) || (selectedTile != null && attraction > candidates[selectedTile])){
-                    selectedTile = candidate;
-                }
-            }
-            
-            if (selectedTile != null && selectedTile != tile){
-                
-                MoveTile(selectedTile, Mathf.RoundToInt(population * Random.Range(0.2f, 0.5f)));
-            }
-        } 
-    }
-    float CalcAttraction(Tile target){
-        float attraction = 0f;
-        if (tile != null){
-            if (target.population <= tile.tileManager.minNationPopulation * 2){
-                attraction += 1;
-            }
-            if (target.population * 1.1f >= tile.GetMaxPopulation()){
-                attraction += -1;
-            }
-            if (target.pops.Count == 0){
-                attraction += 1;
-            }
-            if (target.state == null){
-                attraction += 1;
-            }
-            if (target.population < tile.population && target.population > 0){
-                attraction += 1 * ((tile.population + 0.001f) / target.population + 0.001f);
-            }
-            attraction += (target.development - tile.development) * 1f;
-
-            if (target.state != state && target.state != null){
-                attraction += -0.5f;
-            }
-            attraction += target.terrain.fertility;
-        }
-
-        return attraction;
-    }
-
     public void GrowPopulation(){
         float birthRate = 0f;
         
@@ -216,24 +164,24 @@ public class Pop
     public void SetTile(Tile newTile){
         if (tile != null){
             tile.pops.Remove(this);
-            tile.population -= population;
-            tile.workforce -= workforce;
+            tile.ChangePopulation(-population);
+            tile.ChangeWorkforce(-workforce);
         }
 
         tile = newTile;
 
         if (newTile != null){
-            newTile.population += population;
-            newTile.workforce += workforce;
+            newTile.ChangePopulation(population);
+            newTile.ChangeWorkforce(workforce);
             newTile.pops.Add(this);       
 
-            SetState(newTile.state);
+            //SetState(newTile.state);
         }  
     }
 
+    /*
     public void SetState(State newState){
         if (state != null){
-            //state.pops.Remove(this);
             state.population -= population;
             state.totalPopulation -= population;
             state.workforce -= workforce;
@@ -245,14 +193,9 @@ public class Pop
             newState.population += population;
             newState.totalPopulation += population;
             newState.workforce += workforce;
-            /*
-            if (!state.pops.Contains(this)){
-                state.pops.Add(this);        
-            }
-            */
         }  
     }
-
+    */
     public void SetPopulation(int amount){
         if (tile != null){
             tile.population -= population;
@@ -273,11 +216,12 @@ public class Pop
             }
         }
     }
-    public void ChangePopulation(int amount){
+    public void ChangePopulation(int amount, bool updateTile = true){
         int totalChange = amount;
 
         // Changes population
         if (population + amount < 1){
+            totalChange = -population;
             DeletePop();
             CalcDependents();
         } else {
@@ -286,7 +230,7 @@ public class Pop
         }
 
         // Updates statistics
-        if (tile != null){
+        if (tile != null && updateTile){
             tile.ChangePopulation(totalChange);
         }
     }

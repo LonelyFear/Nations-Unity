@@ -40,6 +40,11 @@ public class State
     public List<State> borderingStates { get; private set; } = new List<State>();
     public Dictionary<State, Front> fronts = new Dictionary<State, Front>();
 
+    // Stats
+    public Tech tech;
+    public Culture culture;
+    public Pop rulingPop;
+
     public void getBorders(){
         // Clears our saved borders
         borderingStates.Clear();
@@ -78,6 +83,11 @@ public class State
 
     public void AddTile(Vector3Int pos){
         Tile tile = tileManager.getTile(pos);
+        if (tiles.Count < 1 && tile.anarchy){
+            rulingPop = tile.pops[0];
+            rulingPop.status = Pop.PopStates.SETTLED;
+        }
+        
         tile.anarchy = false;
         if (tile.state != null){
             tile.state.RemoveTile(pos);
@@ -209,14 +219,64 @@ public class State
     }
 
     public void Tick(){
+        MoveCapital();
+        if (capital != null){
+            RulingPop();
+        }
         // Mobilizes able bodied men
         if (manpower < workforce * 0.5f){
             manpower += Mathf.RoundToInt(workforce * 0.01f);
+        } else if (manpower > workforce * 0.5f){
+            manpower -= Mathf.RoundToInt(workforce * 0.01f);
         }
         // Updates our capital every tick
         updateCapital();
 
         //DebugVassalize();
+    }
+
+    void MoveCapital(){
+        if (capital == null || capital.state != this){
+            if (tiles.Count > 1){
+                Tile candidate = tiles[Random.Range(0, tiles.Count - 1)];
+                Pop popCandidate = null;
+                int attempts = 100;
+                foreach (Pop pop in candidate.pops.ToArray()){
+                    if (pop.culture == culture){
+                        popCandidate = pop;
+                        break;
+                    }
+                }
+
+                while (popCandidate == null){
+                    attempts--;
+                    if (attempts <= 0){
+                        break;
+                    }
+                    candidate = tiles[Random.Range(0, tiles.Count - 1)];
+                    foreach (Pop pop in candidate.pops.ToArray()){
+                        if (pop.culture == culture){
+                            popCandidate = pop;
+                            break;
+                        }
+                    }
+                }
+
+                if (rulingPop !=  null){
+                    capital = candidate;
+                    rulingPop = popCandidate;
+                }
+            }
+        }
+    }
+
+    void RulingPop(){
+        if (rulingPop == null){
+            rulingPop = capital.pops[0];
+        }
+        culture = rulingPop.culture;
+        // Makes our tech that of our ruling pop
+        tech = rulingPop.tech;
     }
 
     // Makes automatic vassalage of neighbors

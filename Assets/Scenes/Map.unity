@@ -677,7 +677,7 @@ MonoBehaviour:
   worldSize: {x: 0, y: 0}
   tilemap: {fileID: 2120070809}
   nationPanel: {fileID: 412732667}
-  stateSpawnChance: 1
+  stateSpawnChance: 0.8
   anarchyConquestChance: 0.2
   minNationPopulation: 200
   initialAnarchy: 10

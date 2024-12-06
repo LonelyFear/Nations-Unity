@@ -69,8 +69,29 @@ public class Pop
         }
     }
     void DevelopTech(){
-        if (Random.Range(0f, 1f) < 0.0001f + Mathf.Clamp(tile.development / 2f, 0f, 1f)){
+        // TODO: Optimize Tech
+        
+        float developmentOffset = Mathf.Clamp(tile.development / 20000f, 0f, 1f);
+        bool initialCheck = Random.Range(0f, 1f) < 0.0001f + developmentOffset;
+
+        // Society
+        if (initialCheck){
             tech.societyLevel += 1;
+            if (tile.rulingPop == this && tile.tileManager.mapMode == TileManager.MapModes.TECH){
+                tile.tileManager.updateColor(tile.tilePos);
+            }
+        }
+
+        initialCheck = Random.Range(0f, 1f) < 0.0001f + developmentOffset;
+        bool tensionCheck = (state != null && state.atTensions && Random.Range(0f, 1f) < 0.00015f + developmentOffset) ? true : false;
+        bool warCheck = (state != null && state.atWar && Random.Range(0f, 1f) < 0.0002f + developmentOffset) ? true : false;
+
+        // Military
+        if (initialCheck || tensionCheck || warCheck){
+            tech.militaryLevel += 1;
+            if (tile.rulingPop == this && tile.tileManager.mapMode == TileManager.MapModes.TECH){
+                tile.tileManager.updateColor(tile.tilePos);
+            }
         }
     }
     void EarlyMigration(){
@@ -92,7 +113,7 @@ public class Pop
             Tile target = tile.borderingTiles[Random.Range(0, tile.borderingTiles.Count - 1)];
             bool fertile = Random.Range(0f, 1f) <= 0.5 * target.terrain.fertility;
             bool developed = Random.Range(0f, 1f) <= 0.5 * target.development;
-            bool lowPop = Random.Range(0f, 1f) <= 0.5 / (target.population / tile.population);
+            bool lowPop = Random.Range(0f, 1f) <= 0.5 / (target.population + 0.001f / tile.population + 0.001f);
             bool noPop = (target.pops.Count == 0 && Random.Range(0f, 1f) <= 0.9) ? true : false;
             bool sameState = (target.state == state || target.state != state && Random.Range(0f, 1f) <= 0.9) ? true : false;
 
@@ -160,7 +181,11 @@ public class Pop
                 Pop newPop = new Pop{
                     population = amount,
                     culture = culture,
-                    tech = tech,
+                    tech = new Tech(){
+                        societyLevel = tech.societyLevel,
+                        militaryLevel = tech.militaryLevel,
+                        industryLevel = tech.industryLevel
+                    },
                 };
                 // And moves that new pop into the tile
                 newPop.SetTile(newTile);

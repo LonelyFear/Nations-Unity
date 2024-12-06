@@ -347,7 +347,8 @@ public class TileManager : MonoBehaviour
         POLITICAL,
         CULTURE,
         POPULATION,
-        TERRAIN
+        TERRAIN,
+        TECH
     }
 
     public MapModes mapMode = MapModes.POLITICAL;
@@ -408,8 +409,8 @@ public class TileManager : MonoBehaviour
                 }
             break;
             case MapModes.POPULATION:
-                if (!tile.terrain.water){
-                    finalColor = new Color(0f, tile.population / 10000f, 0f);
+                if (!tile.terrain.water && tile.pops.Count > 0){
+                    finalColor = new Color(0f, tile.population / 100000f, 0f);
                     if (tile.population == 0){
                         finalColor = Color.red;
                     } 
@@ -431,7 +432,18 @@ public class TileManager : MonoBehaviour
                 } else {
                     ColorTerrain();
                 }
-            break; 
+            break;
+            case MapModes.TECH:
+                if (tile.pops.Count > 0){
+                    finalColor = Color.black;
+                    if (tile.tech != null){
+                        finalColor = new Color(tile.tech.militaryLevel / 20f, 0f, tile.tech.societyLevel / 20f);
+                    }
+                } else {
+                    ColorTerrain();
+                }
+            break;
+
         }
 
         
@@ -512,6 +524,8 @@ public class TileManager : MonoBehaviour
     void CheckMapModeSwitch(KeyCode key, MapModes mode){
         if (Input.GetKeyDown(key)){
             if (mapMode != mode){
+                nationPanel.tileSelected = null;
+                nationPanel.Disable();
                 ChangeMapMode(mode);
             } else {
                 ChangeMapMode(MapModes.POLITICAL);
@@ -530,6 +544,7 @@ public class TileManager : MonoBehaviour
         CheckMapModeSwitch(KeyCode.C, MapModes.CULTURE);
         CheckMapModeSwitch(KeyCode.X, MapModes.TERRAIN);
         CheckMapModeSwitch(KeyCode.Z, MapModes.POPULATION);
+        CheckMapModeSwitch(KeyCode.V, MapModes.TECH);
     }
 
     void detectTileClick(){

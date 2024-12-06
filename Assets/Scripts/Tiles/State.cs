@@ -45,6 +45,9 @@ public class State
     public Culture culture;
     public Pop rulingPop;
 
+    public bool atWar;
+    public bool atTensions;
+
     public void getBorders(){
         // Clears our saved borders
         borderingStates.Clear();

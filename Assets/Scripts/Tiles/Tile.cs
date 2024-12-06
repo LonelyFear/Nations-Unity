@@ -3,6 +3,7 @@ using System.Data;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 
 public class Tile
@@ -27,9 +28,22 @@ public class Tile
     public const int maxPops = 50;
 
     // Stats
+    public Pop rulingPop;
+    public Culture rulingCulture;
+    public Culture majorityCulture;
+    public Tech tech;
     public float development;
 
     public void Tick(){
+        if (rulingPop == null || rulingPop.tile != this){
+            rulingPop = null;
+            SetRulingPop();
+        }
+        if (rulingPop != null){
+            rulingCulture = rulingPop.culture;
+            tech = rulingPop.tech;
+        }
+
         if (population > 600){
             float developmentIncrease = (population + 0.001f) / 1000000f;
             //Debug.Log(developmentIncrease);
@@ -45,6 +59,23 @@ public class Tile
             tileManager.RemoveAnarchy(tilePos);
         }
         PrunePops();
+    }
+
+    void SetRulingPop(){
+        foreach (Pop pop in pops){
+            if (state != null){
+                if (pop.culture == state.culture){
+                    rulingPop = pop;
+                    return;
+                } else if (pop.culture == rulingCulture){
+                    rulingPop = pop;
+                    return;
+                } else if (Random.Range(0f, 1f) < (1f/pops.Count)){
+                    rulingPop = pop;
+                    return;
+                }
+            }
+        }
     }
 
     void PrunePops(){

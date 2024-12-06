@@ -41,3 +41,5 @@ E
 Ed
 Nor
 Troj
+Iz
+It

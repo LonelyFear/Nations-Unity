@@ -37,3 +37,5 @@ k
 rod
 man
 wa
+z
+iz

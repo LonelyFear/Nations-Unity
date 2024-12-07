@@ -680,7 +680,7 @@ MonoBehaviour:
   stateSpawnChance: 0.8
   anarchyConquestChance: 0.2
   minNationPopulation: 200
-  initialAnarchy: 10
+  initialAnarchy: 8
   worldPopulation: 0
   popsToCreate: 1
   updateMap: 0

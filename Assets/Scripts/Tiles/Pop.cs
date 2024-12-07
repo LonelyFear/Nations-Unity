@@ -61,7 +61,13 @@ public class Pop
                 if (tile != null){
                     // Settled functions
                     SimpleMigration();
-                    DevelopTech();
+
+                    float developmentOffset = Mathf.Clamp(tile.development / 20000f, 0f, 1f);
+                    float techChance = 0.0002f;
+                    if (Random.Range(0f, 1f) < techChance + developmentOffset){
+                        DevelopTech();
+                    }
+                    
                     //SettlerMigration();                    
                 }
 
@@ -70,28 +76,37 @@ public class Pop
     }
     void DevelopTech(){
         // TODO: Optimize Tech
-        
-        float developmentOffset = Mathf.Clamp(tile.development / 20000f, 0f, 1f);
-        bool initialCheck = Random.Range(0f, 1f) < 0.0001f + developmentOffset;
+        float chance = 0.5f;
+
+        bool initialCheck = Random.Range(0f, 1f) < chance;
 
         // Society
+        
         if (initialCheck){
             tech.societyLevel += 1;
             if (tile.rulingPop == this && tile.tileManager.mapMode == TileManager.MapModes.TECH){
                 tile.tileManager.updateColor(tile.tilePos);
             }
+            initialCheck = false;
         }
 
-        initialCheck = Random.Range(0f, 1f) < 0.0001f + developmentOffset;
-        bool tensionCheck = (state != null && state.atTensions && Random.Range(0f, 1f) < 0.00015f + developmentOffset) ? true : false;
-        bool warCheck = (state != null && state.atWar && Random.Range(0f, 1f) < 0.0002f + developmentOffset) ? true : false;
+        if ((state != null && state.atTensions) || (state != null && state.atWar)){
+            if (state.atTensions){
+                chance = 0.75f;
+            } else if (state.atWar){
+                chance = 1f;
+            }
+        }
+        
+        initialCheck = Random.Range(0f, 1f) < chance;
 
         // Military
-        if (initialCheck || tensionCheck || warCheck){
+        if (initialCheck){
             tech.militaryLevel += 1;
             if (tile.rulingPop == this && tile.tileManager.mapMode == TileManager.MapModes.TECH){
                 tile.tileManager.updateColor(tile.tilePos);
             }
+            initialCheck = false;
         }
     }
     void EarlyMigration(){

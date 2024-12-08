@@ -128,7 +128,7 @@ public class TileManager : MonoBehaviour
             // Selects a random one
             Tile tile = anarchy[Random.Range(0, anarchy.Count)];
             // If the tile is anarchy, has sufficient population, and passes the random check
-            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * Mathf.Clamp01(tile.terrain.fertility + 0.4f) && tile.population >= minNationPopulation){
+            if (tile.anarchy && Random.Range(0f, 1f) < stateSpawnChance * Mathf.Clamp01(tile.terrain.fertility + 0.2f) && tile.population >= minNationPopulation){
                 // Creates a new random state at that tile
                 createRandomState(tile.tilePos);
             }   

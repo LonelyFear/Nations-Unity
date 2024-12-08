@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
@@ -34,14 +35,14 @@ public class State
         INDEPENDENT,
         PROVINCE,
         COLONY,
-        VASSAL
+        PUPPET
     }
 
     public List<State> borderingStates { get; private set; } = new List<State>();
     public Dictionary<State, Front> fronts = new Dictionary<State, Front>();
 
     // Stats
-    public Tech tech;
+    public Tech tech = new Tech();
     public Culture culture;
     public Pop rulingPop;
 
@@ -87,6 +88,7 @@ public class State
     public void AddTile(Vector3Int pos){
         Tile tile = tileManager.getTile(pos);
         if (tiles.Count < 1 && tile.anarchy){
+            capital = tile;
             rulingPop = tile.pops[0];
             rulingPop.status = Pop.PopStates.SETTLED;
         }
@@ -125,7 +127,7 @@ public class State
         }
     }
     
-    public void VassalizeState(State state, StateTypes type = StateTypes.VASSAL){
+    public void VassalizeState(State state, StateTypes type = StateTypes.PUPPET){
         if (type != StateTypes.INDEPENDENT && !vassals.ContainsKey(state) && liege != state && state.liege != this){
 
             if (state.liege != null){
@@ -248,12 +250,52 @@ public class State
         } else if (manpower > workforce * 0.5f){
             manpower -= Mathf.RoundToInt(workforce * 0.01f);
         }
+
         // Updates our capital every tick
         updateCapital();
 
         //DebugVassalize();
+        if (capital != null){
+            UpdateRelations();
+        }
+        
     }
 
+    void UpdateRelations(){
+        foreach (var entry in relations){
+            State state = entry.Key;
+            Relation relation = entry.Value;
+            //relation.percievedThreat = CalcPercievedThreat(state);
+            relation.opinion = Mathf.RoundToInt(CalcPercievedThreat(state));
+        }
+    }
+
+    float CalcPercievedThreat(State state){
+        float percievedThreat;
+
+        float armyFactor = ((state.manpower + 0.1f) / (manpower + 0.1f)) - 1f;
+        if (state.manpower > manpower){
+            armyFactor = (((manpower + 0.1f) / (state.manpower + 0.1f)) - 1f) * -1f;
+        }
+
+        float techFactor = ((state.tech.militaryLevel + 0.1f) / (tech.militaryLevel + 0.1f)) - 1f;
+        if (state.tech.militaryLevel > tech.militaryLevel){
+            armyFactor = (((tech.militaryLevel + 0.1f) / (state.tech.militaryLevel + 0.1f)) - 1f) * -1f;
+        }
+
+        float sizeFactor = ((state.tiles.Count + 0.1f) / (tiles.Count + 0.1f)) - 1f;
+        if (state.tiles.Count > tiles.Count){
+            sizeFactor = (((tiles.Count + 0.1f) / (state.tiles.Count + 0.1f)) - 1f) * -1;
+        }
+
+        float distanceFactor = 1f;
+        if (!borderingStates.Contains(state)){
+            distanceFactor = 1 / (1 + Vector3Int.Distance(state.capital.tilePos, capital.tilePos));
+        }
+        percievedThreat = ((armyFactor + techFactor + sizeFactor) / 3f) * distanceFactor * 100f;
+
+        return percievedThreat;
+    }
     void MoveCapital(){
         if (capital == null || capital.state != this){
             if (tiles.Count > 1){
@@ -291,7 +333,7 @@ public class State
 
     void RulingPop(){
         if (rulingPop == null){
-            rulingPop = capital.pops[0];
+            rulingPop = capital.rulingPop;
         }
         culture = rulingPop.culture;
         // Makes our tech that of our ruling pop
@@ -345,7 +387,7 @@ public class State
             case StateTypes.COLONY:
                 capitalColor = Color.blue;
                 break;
-            case StateTypes.VASSAL:
+            case StateTypes.PUPPET:
                 capitalColor = Color.yellow;
                 break;
         }
@@ -371,7 +413,7 @@ public class State
             case StateTypes.COLONY:
                 mapColor = stateColor * 0.5f + liege.mapColor * 0.5f;;
                 break;
-            case StateTypes.VASSAL:
+            case StateTypes.PUPPET:
                 mapColor = stateColor * 0.5f + liege.mapColor * 0.5f;
                 break;
         }

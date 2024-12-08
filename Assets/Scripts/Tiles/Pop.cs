@@ -62,9 +62,9 @@ public class Pop
                     // Settled functions
                     SimpleMigration();
 
-                    float developmentOffset = Mathf.Clamp(tile.development / 20000f, 0f, 1f);
+                    float techOffset = Mathf.Clamp(tile.development / 20000f, 0f, 1f);
                     float techChance = 0.0002f;
-                    if (Random.Range(0f, 1f) < techChance + developmentOffset){
+                    if (Random.Range(0f, 1f) < techChance + techOffset){
                         DevelopTech();
                     }
                     

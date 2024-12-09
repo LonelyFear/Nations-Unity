@@ -13,6 +13,7 @@ public class Terrain
     public bool claimable;
 
     public enum HeightTypes{
+        SEA_ICE,
         DEEP_SEA,
         OPEN_SEA,
         SEA,
@@ -41,6 +42,12 @@ public class Terrain
                 claimable = false;
                 break;
             case HeightTypes.DEEP_SEA:
+                fertility = 0;
+                navigability = 0;
+                water = true;
+                claimable = false;
+                break;
+            case HeightTypes.SEA_ICE:
                 fertility = 0;
                 navigability = 0;
                 water = true;

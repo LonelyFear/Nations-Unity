@@ -10,7 +10,7 @@ public class TimeManager : MonoBehaviour
     public int year = 1;
 
     [Header("Time Settings")]
-    [Range(0f, 0.5f)]
+    [Range(0.05f, 1f)]
     [SerializeField]
     float tickLength = 0.05f;
     [SerializeField]

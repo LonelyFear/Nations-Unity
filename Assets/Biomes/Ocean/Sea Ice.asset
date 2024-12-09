@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd483347c7c90924e83eaeaee1ffe137, type: 3}
-  m_Name: Tropical Desert
+  m_Name: Sea Ice
   m_EditorClassIdentifier: 
-  temperature: 0.9
-  moisture: 0.2
-  water: 0
-  claimable: 1
-  fertility: 0.2
-  navigability: 0.1
-  biomeColor: {r: 0.83396226, g: 0.79305094, b: 0.6089498, a: 1}
+  temperature: 0
+  moisture: 0
+  water: 1
+  claimable: 0
+  fertility: 0
+  navigability: 0.5
+  biomeColor: {r: 0.91186523, g: 0.93249565, b: 0.949, a: 1}

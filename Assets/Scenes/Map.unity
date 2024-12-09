@@ -598,12 +598,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
   tileBase: {fileID: 11400000, guid: 9ff30deb5bfc664478d266f55e9243e6, type: 2}
-  worldSize: {x: 270, y: 135}
+  worldSize: {x: 360, y: 180}
   preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
   noiseSeed: 23228
   randomizeSeed: 0
-  totalNoiseScale: 50
+  totalNoiseScale: 70
   scales:
   - 1
   - 0.75
@@ -632,9 +632,10 @@ MonoBehaviour:
   oceanBiome: {fileID: 11400000, guid: 3a24a775a7a3a0c43961fa25aa062bd3, type: 2}
   openOceanBiome: {fileID: 11400000, guid: 4000b03d1beb9f642b2d854ae892a71c, type: 2}
   deepOceanBiome: {fileID: 11400000, guid: 39757e631e0c03449ab93e13da8b9594, type: 2}
+  seaIceBiome: {fileID: 11400000, guid: 67994cab12ba58a408f74b8bc6a62c63, type: 2}
   rock: {fileID: 11400000, guid: 7bdeed2c0c6cd5e4e86e33d1940a3e9d, type: 2}
   moistureOffset: -0.06
-  tempOffset: -0.05
+  tempOffset: -0.1
 --- !u!4 &184318060
 Transform:
   m_ObjectHideFlags: 0
@@ -1753,9 +1754,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraSpeed: 60
   moveDamping: 3
-  cameraSize: 76.81899
+  cameraSize: 103
   minZoom: 6
-  maxZoom: 100
+  maxZoom: 120
   zoomDamping: 3
   zoomSpeed: 0.5
 --- !u!1 &935202348

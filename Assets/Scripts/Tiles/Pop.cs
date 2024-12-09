@@ -207,8 +207,9 @@ public class Pop
                 TimeEvents.tick += newPop.Tick;
                 //newPop.AssimilateCulture();
             }
-            if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE){
+            if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE || tile.tileManager.mapMode == TileManager.MapModes.POPS){
                 tile.UpdateColor();
+                newTile.UpdateColor();
             }
             // Finally subtracts the amount from our population
             ChangePopulation(amount * -1);
@@ -371,7 +372,7 @@ public class Pop
                 pop.DeletePop();
             }
         }
-        if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE){
+        if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE || tile.tileManager.mapMode == TileManager.MapModes.POPS){
             tile.UpdateColor();
         }
     }

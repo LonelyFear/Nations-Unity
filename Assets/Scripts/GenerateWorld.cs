@@ -33,6 +33,7 @@ public class GenerateWorld : MonoBehaviour
     public Biome oceanBiome;
     public Biome openOceanBiome;
     public Biome deepOceanBiome;
+    public Biome seaIceBiome;
     public Biome rock;
     [Range(-0.5f, 0.5f)]
     public float moistureOffset;
@@ -112,9 +113,9 @@ public class GenerateWorld : MonoBehaviour
     }
     float getTemp(int x, int y){
         float equatorPos = worldSize.y / 2;
-        float tempValue = 1 - Mathf.Abs(equatorPos - y) / equatorPos;
+        float tempValue = 1f - Mathf.Abs(equatorPos - y) / equatorPos;
         tempValue = Mathf.Clamp(tempValue + tempOffset, 0f, 1f);
-        return (tempValue * 0.8f) + (getTempRandomNoise(x,y) * 0.2f);
+        return (tempValue * 0.9f) + (getTempRandomNoise(x,y) * 0.1f);
     }
 
     void generateWorld(){
@@ -155,6 +156,11 @@ public class GenerateWorld : MonoBehaviour
                             terrain.biome = openOceanBiome;
                             terrain.heightType = Terrain.HeightTypes.OPEN_SEA;
                         }
+                    }
+                    float freezingTemp = (biomesToGenerate[13].temperature + biomesToGenerate[10].temperature)/3;
+                    if (getTemp(x,y) <= freezingTemp){
+                        terrain.biome = seaIceBiome;
+                        terrain.heightType = Terrain.HeightTypes.SEA_ICE;
                     }
 
                     

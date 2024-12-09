@@ -348,7 +348,8 @@ public class TileManager : MonoBehaviour
         CULTURE,
         POPULATION,
         TERRAIN,
-        TECH
+        TECH,
+        POPS
     }
 
     public MapModes mapMode = MapModes.POLITICAL;
@@ -411,13 +412,17 @@ public class TileManager : MonoBehaviour
             case MapModes.POPULATION:
                 if (!tile.terrain.water && tile.pops.Count > 0){
                     finalColor = new Color(0f, tile.population / 100000f, 0f);
-                    if (tile.population == 0){
-                        finalColor = Color.red;
-                    } 
                 } else {
                     ColorTerrain();
                 }           
             break;
+            case MapModes.POPS:
+                if (!tile.terrain.water && tile.pops.Count > 0){
+                    finalColor = new Color(0f, tile.pops.Count / 10f, 0f);
+                } else {
+                    ColorTerrain();
+                }  
+            break;  
             case MapModes.CULTURE:
                 if (tile.pops.Count > 0){
                     Pop largest = new Pop(){
@@ -437,7 +442,7 @@ public class TileManager : MonoBehaviour
                 if (tile.pops.Count > 0){
                     finalColor = Color.black;
                     if (tile.tech != null){
-                        finalColor = new Color(tile.tech.militaryLevel / 20f, 0f, tile.tech.societyLevel / 20f);
+                        finalColor = new Color(tile.tech.militaryLevel / 20f, tile.tech.industryLevel / 20f, tile.tech.societyLevel / 20f);
                     }
                 } else {
                     ColorTerrain();
@@ -545,6 +550,7 @@ public class TileManager : MonoBehaviour
         CheckMapModeSwitch(KeyCode.X, MapModes.TERRAIN);
         CheckMapModeSwitch(KeyCode.Z, MapModes.POPULATION);
         CheckMapModeSwitch(KeyCode.V, MapModes.TECH);
+        CheckMapModeSwitch(KeyCode.P, MapModes.POPS);
     }
 
     void detectTileClick(){

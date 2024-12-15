@@ -686,6 +686,7 @@ MonoBehaviour:
   worldPopulation: 0
   popsToCreate: 1
   updateMap: 0
+  popManager: {fileID: 0}
   mapMode: 0
 --- !u!114 &184318063
 MonoBehaviour:
@@ -1987,6 +1988,52 @@ RectTransform:
   m_AnchoredPosition: {x: -17.523, y: 56.559}
   m_SizeDelta: {x: 423.45, y: 50.792}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1103100580
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1103100582}
+  - component: {fileID: 1103100581}
+  m_Layer: 0
+  m_Name: PopManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1103100581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103100580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c995764cddfa1ff419eaf4c71726e494, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popPrefab: {fileID: 8142723127017260153, guid: 1b0637c51c56df448bc5fb25ede49420, type: 3}
+  pops: []
+--- !u!4 &1103100582
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103100580}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 156.25775, y: 77.401405, z: -1.2559707}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1124326824
 GameObject:
   m_ObjectHideFlags: 0
@@ -3285,3 +3332,4 @@ SceneRoots:
   - {fileID: 1236494429}
   - {fileID: 184318060}
   - {fileID: 864857214}
+  - {fileID: 1103100582}

@@ -4,17 +4,17 @@ using System.Linq.Expressions;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem.Interactions;
 using Random = UnityEngine.Random;
 
-public class Pop
+public class Pop : MonoBehaviour
 {
     // Population
     public int population;
     public int dependents;
     public int workforce;
     public float dependentRatio = 0.75f;
-
     const float baseDependentRatio = 0.75f;
     const float baseBirthRate = 0.04f;
     const float baseDeathRate = 0.036f;
@@ -25,6 +25,8 @@ public class Pop
     public Culture culture;
     public Tech tech = new Tech();
 
+    // References
+    public PopManager popManager;
 
     public enum PopStates {
         MIGRATORY,
@@ -32,9 +34,10 @@ public class Pop
     }
 
     public PopStates status = PopStates.MIGRATORY;
+
     public void Tick(){
         if (tile == null){
-            DeletePop();
+            popManager.DeletePop(this);;
         }
 
         if (tile != null && tile.pops.Count > 1){
@@ -49,7 +52,7 @@ public class Pop
             CalcDependents();
 
             state = tile.state;
-            GrowPopulation();
+            //GrowPopulation();
 
             if (status == PopStates.MIGRATORY){
                 if (state != null && Random.Range(0f, 1f) < 0.25f){
@@ -192,19 +195,12 @@ public class Pop
                 popToMerge.ChangePopulation(amount);
                 //popToMerge.AssimilateCulture();
             } else {
-                // Otherwise makes a new pop with our culture
-                Pop newPop = new Pop{
-                    population = amount,
-                    culture = culture,
-                    tech = new Tech(){
+                Tech techInstance = new Tech(){
                         societyLevel = tech.societyLevel,
                         militaryLevel = tech.militaryLevel,
                         industryLevel = tech.industryLevel
-                    },
                 };
-                // And moves that new pop into the tile
-                newPop.SetTile(newTile);
-                TimeEvents.tick += newPop.Tick;
+                popManager.CreatePop(amount, culture, tile, techInstance);
                 //newPop.AssimilateCulture();
             }
             if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE || tile.tileManager.mapMode == TileManager.MapModes.POPS){
@@ -231,23 +227,6 @@ public class Pop
         return false;
     }
 
-    public void SetTile(Tile newTile){
-        if (tile != null){
-            tile.pops.Remove(this);
-            tile.ChangePopulation(-population);
-            tile.ChangeWorkforce(-workforce);
-        }
-
-        tile = newTile;
-
-        if (newTile != null){
-            newTile.ChangePopulation(population);
-            newTile.ChangeWorkforce(workforce);
-            newTile.pops.Add(this);       
-
-            //SetState(newTile.state);
-        }  
-    }
 
     /*
     public void SetState(State newState){
@@ -292,7 +271,7 @@ public class Pop
         // Changes population
         if (population + amount < 1){
             totalChange = -population;
-            DeletePop();
+            popManager.DeletePop(this);
             CalcDependents();
         } else {
             population += amount;
@@ -330,18 +309,6 @@ public class Pop
         
     }
 
-    public void DeletePop(){
-        if (tile != null){
-            tile.pops.Remove(this);
-            tile.ChangePopulation(-population);
-            // Adjusts the workforces of our tile and state
-            tile.ChangePopulation(-workforce);
-        }
-        population = 0;
-        tile = null;
-        state = null;
-    }
-
     void AssimilateCulture(){
         foreach (Pop pop in tile.pops.ToArray()){
             if (pop == this){
@@ -369,7 +336,7 @@ public class Pop
             }
             if (pop.culture == culture && pop.tile == tile && CheckSimilarTech(pop)){
                 ChangePopulation(pop.population);
-                pop.DeletePop();
+                popManager.DeletePop(this);
             }
         }
         if (tile.tileManager.mapMode == TileManager.MapModes.CULTURE || tile.tileManager.mapMode == TileManager.MapModes.POPS){

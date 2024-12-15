@@ -41,6 +41,12 @@ public class TileManager : MonoBehaviour
     public List<State> states = new List<State>();
     public List<Tile> anarchy = new List<Tile>();
 
+    // References
+    [SerializeField] PopManager popManager;
+
+    public void Awake(){
+        TimeEvents.tick += Tick;
+    }
     public void Init(){
         // Goes thru the tiles
         foreach (var entry in tiles){
@@ -141,14 +147,10 @@ public class TileManager : MonoBehaviour
             float r = (tile.tilePos.x + 0.001f) / (worldSize.x + 0.001f);
             float g = (tile.tilePos.y + 0.001f) / (worldSize.y + 0.001f);
             float b = (worldSize.x - tile.tilePos.x + 0.001f) / (worldSize.x + 0.001f);
-            Pop newPop = new Pop(){
-                population = Mathf.FloorToInt(500 * tile.terrain.fertility),
-                culture = new Culture(){
+            Culture culture = new Culture(){
                     color = new Color(r, g, b, 1f)
-                }
             };
-            newPop.SetTile(tile);
-            TimeEvents.tick += newPop.Tick;
+            popManager.CreatePop(Mathf.FloorToInt(500 * tile.terrain.fertility), culture, tile);
         }
         worldPopulation += tile.population;
         

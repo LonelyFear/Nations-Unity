@@ -58,7 +58,7 @@ public class Tile
         } else if (population < 50 && anarchy){
             tileManager.RemoveAnarchy(tilePos);
         }
-        PrunePops();
+        //PrunePops();
     }
 
     void SetRulingPop(){
@@ -78,6 +78,7 @@ public class Tile
         }
     }
 
+    /*
     void PrunePops(){
         if (pops.Count > maxPops){
             Pop smallestPop = new Pop(){
@@ -93,10 +94,12 @@ public class Tile
             }
         }
     }
+    */
     public int GetMaxPopulation(){
         // 10k times the fertility is the maximum population a tile can support
         return Mathf.RoundToInt(10000 * terrain.fertility);
     }
+
 
     public void ChangePopulation(int amount){
         population += amount;

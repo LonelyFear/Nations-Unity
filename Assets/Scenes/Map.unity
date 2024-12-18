@@ -577,7 +577,6 @@ GameObject:
   - component: {fileID: 184318059}
   - component: {fileID: 184318061}
   - component: {fileID: 184318062}
-  - component: {fileID: 184318063}
   m_Layer: 0
   m_Name: Tile Manager
   m_TagString: Untagged
@@ -683,23 +682,10 @@ MonoBehaviour:
   anarchyConquestChance: 0.2
   minNationPopulation: 200
   initialAnarchy: 8
-  worldPopulation: 0
   popsToCreate: 1
   updateMap: 0
-  popManager: {fileID: 0}
+  popManager: {fileID: 1103100581}
   mapMode: 0
---- !u!114 &184318063
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 184318058}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: acbbdc8de61e74944801cfc83fca8a27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &253897841
 GameObject:
   m_ObjectHideFlags: 0
@@ -2017,8 +2003,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c995764cddfa1ff419eaf4c71726e494, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  popPrefab: {fileID: 8142723127017260153, guid: 1b0637c51c56df448bc5fb25ede49420, type: 3}
   pops: []
+  populations: 
+  worldPopulation: 0
+  tm: {fileID: 0}
 --- !u!4 &1103100582
 Transform:
   m_ObjectHideFlags: 0
@@ -2340,7 +2328,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1236494429}
   - component: {fileID: 1236494428}
-  - component: {fileID: 1236494430}
   m_Layer: 0
   m_Name: Time Manager
   m_TagString: Untagged
@@ -2381,18 +2368,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1236494430
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1236494427}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1604713e7acb71841af776e5d4c572db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1296658222
 GameObject:
   m_ObjectHideFlags: 0

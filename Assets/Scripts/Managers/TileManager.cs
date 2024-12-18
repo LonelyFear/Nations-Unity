@@ -26,7 +26,6 @@ public class TileManager : MonoBehaviour
     int initialAnarchy = 20;
 
     [Header("Pops")]
-    public int worldPopulation;
     [SerializeField]
     int popsToCreate = 1;
 
@@ -65,12 +64,16 @@ public class TileManager : MonoBehaviour
                     }
                 }
             }
+
+            if (tile.terrain.claimable){
+                initPopulation(tile, popsToCreate);
+            }
         }
         // Adds initial anarchy
         addInitialAnarchy(initialAnarchy);
         // Initializes tile populations
         foreach (Tile tile in anarchy){
-            initPopulation(tile, popsToCreate);
+            //initPopulation(tile, popsToCreate);
         }
         // Sets the map colors
         updateAllColors();
@@ -120,9 +123,9 @@ public class TileManager : MonoBehaviour
     }
 
     public void Tick(){
-        // Each month new nations can spawn out of anarchy
+        // Each tick new nations can spawn out of anarchy
         if (Random.Range(0f, 1f) < 0.75f){
-            creationTick();
+            //creationTick();
         }
         // Each game tick nations can expand into neutral lands
         neutralExpansion();
@@ -148,12 +151,10 @@ public class TileManager : MonoBehaviour
             float g = (tile.tilePos.y + 0.001f) / (worldSize.y + 0.001f);
             float b = (worldSize.x - tile.tilePos.x + 0.001f) / (worldSize.x + 0.001f);
             Culture culture = new Culture(){
-                    color = new Color(r, g, b, 1f)
+                color = new Color(r, g, b, 1f)
             };
             popManager.CreatePop(Mathf.FloorToInt(500 * tile.terrain.fertility), culture, tile);
         }
-        worldPopulation += tile.population;
-        
     }
 
 

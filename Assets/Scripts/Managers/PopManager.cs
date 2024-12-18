@@ -4,45 +4,59 @@ using Unity.Jobs;
 using Unity.Burst;
 using System;
 using Unity.Collections;
-using Unity.Mathematics;
+using Unity.VisualScripting;
+using System.Linq;
 
 public class PopManager : MonoBehaviour
 {   
-    [SerializeField] private Pop popPrefab;
     public List<Pop> pops = new List<Pop>();
-    List<int> populations = new List<int>();
+    public List<int> populations = new List<int>();
+    public int worldPopulation;
 
+    [SerializeField] TileManager tm;
+
+    int[] popGrowth;
     public void Awake(){
         TimeEvents.tick += Tick;
     }
 
     public void Tick(){
         GrowPopulations();
+
+        for (int i = 0; i < pops.Count; i++){
+            Pop pop = pops[i];
+
+            if (pop.population <= 0){
+                DeletePop(pop);
+                continue;
+            }
+            MovePop(pop, tm.getTile(new Vector3Int(pop.tile.tilePos.x - 1 , pop.tile.tilePos.y)), 50);
+        }
     }
 
     void GrowPopulations(){
-        NativeArray<int> numbers = new NativeArray<int>(pops.Count, Allocator.TempJob);
+        NativeArray<int> output = new NativeArray<int>(pops.Count, Allocator.TempJob);
         NativeArray<int> population = new NativeArray<int>(populations.ToArray(), Allocator.TempJob);
 
         GrowPopJob popJob = new GrowPopJob(){
             population = population,
-            outputs = numbers,
+            outputs = output,
             seed = (uint)UnityEngine.Random.Range(1, 1000)
         };
 
-        JobHandle jobHandle = popJob.Schedule(pops.Count, 64);
+        JobHandle jobHandle = popJob.Schedule(pops.Count, 32);
         jobHandle.Complete();
 
-        for(int i = 0; i < pops.Count; i++){
-            ChangePopPopulation(pops[i], popJob.outputs.ToArray()[i]);
+        for (int i = 0; i < pops.Count; i++){
+            ChangePopulation(i, output[i]);
         }
 
-        numbers.Dispose();
+        output.Dispose();
         population.Dispose();
     }
 
     public void CreatePop(int population, Culture culture, Tile tile = null, Tech tech = null){
-        Pop pop = Instantiate(popPrefab);
+        Pop pop = new Pop();
 
         // Updates Lists
         pops.Add(pop);
@@ -51,8 +65,11 @@ public class PopManager : MonoBehaviour
         pop.population = population;
         pop.culture = culture;
         pop.popManager = this;
-        pop.transform.parent = transform;
-        TimeEvents.tick += pop.Tick;
+
+        pop.index = pops.IndexOf(pop);
+
+        //TimeEvents.tick += pop.Tick;
+
         if (tech == null){
             pop.tech = new Tech();
         } else {
@@ -63,37 +80,69 @@ public class PopManager : MonoBehaviour
         }
     }
 
-    public void ChangePopPopulation(Pop pop, int amount, bool updateTile = true){
+    public void MovePop(Pop pop, Tile newTile, int amount){
+        if (newTile != null && !newTile.terrain.water){
+            if (amount > pop.population){
+                amount = pop.population;
+            }
+            foreach (Pop merger in pop.tile.pops){
+                if (MergePops(pop, merger)){
+                    return;
+                }
+            }
+            CreatePop(amount, pop.culture, newTile, pop.tech);
+            ChangePopulation(pops.IndexOf(pop), -amount);
+        }
+
+    }
+
+    bool MergePops(Pop a, Pop b){
+        bool merged = false;
+        if (Culture.CheckSimilarity(a.culture, b.culture) && Tech.CheckSimilarity(a.tech, b.tech) && a.status == b.status){
+            ChangePopulation(pops.IndexOf(a), -a.population);
+            ChangePopulation(pops.IndexOf(b), a.population);
+            merged = true;
+        }
+
+        return merged;
+    }
+    void EarlyMigration(int index){
+        float moveChance = 0.2f;
+        if (UnityEngine.Random.Range(0f, 1f) < moveChance && pops[index].tile != null){
+            foreach (Tile target in pops[index].tile.borderingTiles.ToArray()){
+                bool coastal = pops[index].tile.coastal && UnityEngine.Random.Range(0f, 1f) <= target.terrain.fertility;
+                bool inland = UnityEngine.Random.Range(0f, 1f) <= 0.05 * target.terrain.fertility;
+                if (target.population * 4 < pops[index].tile.population && (inland || coastal)){
+                    MovePop(pops[index], target, Mathf.RoundToInt(pops[index].population * UnityEngine.Random.Range(0.2f, 0.5f)));
+                }
+            }
+        } 
+    }
+    public void ChangePopulation(int index, int amount){
+        int population = populations[index];
         int totalChange = amount;
 
         // Changes population
-        if (pop.population + amount < 1){
-            totalChange = -pop.population;
-            pop.popManager.DeletePop(pop);
-            pop.CalcDependents();
-        } else {
-            pop.population += amount;
-            pop.CalcDependents();
+        if (population + amount < 1){
+            totalChange = -population;
         }
 
-        // Updates statistics
-        if (pop.tile != null && updateTile){
-            pop.tile.ChangePopulation(totalChange);
+        populations[index] += totalChange;
+        if (pops[index].tile != null){
+            pops[index].tile.ChangePopulation(totalChange);
         }
-        if (pops.Contains(pop)){
-            populations[pops.IndexOf(pop)] = pop.population;
-        }
+        pops[index].population += populations[index];
     }
 
     public void DeletePop(Pop pop){
-        pops.Remove(pop);
         if (pop.tile != null){
             pop.tile.pops.Remove(pop);
             pop.tile.ChangePopulation(-pop.population);
             // Adjusts the workforces of our tile and state
-            pop.tile.ChangePopulation(-pop.workforce);
+            pop.tile.ChangeWorkforce(-pop.workforce);
         }
-        Destroy(pop.gameObject);
+        populations.Remove(pops.IndexOf(pop));
+        pops.Remove(pop);
     }
 
     public void SetPopTile(Pop pop, Tile tile){
@@ -130,17 +179,20 @@ public class PopManager : MonoBehaviour
             if (population[i] < 2){
                 birthRate = 0f;
             }
+            if (population[i] > 10000){
+                birthRate *= 0.75f;
+            }
 
             float natutalGrowthRate = birthRate - deathRate;
             int totalGrowth = Mathf.RoundToInt(population[i] * natutalGrowthRate);
-
+            
             if (rand.NextDouble() < (population[i] * Math.Abs(natutalGrowthRate)) - Math.Floor(population[i] * Math.Abs(natutalGrowthRate))){
                 totalGrowth += (int) Math.Sign(natutalGrowthRate);
             }
 
             if (totalGrowth != 0){
                 population[i] += totalGrowth;
-                outputs[i] = population[i];
+                outputs[i] = totalGrowth;
             }
         }
     }

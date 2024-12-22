@@ -6,6 +6,7 @@ using System;
 using Unity.Collections;
 using Unity.VisualScripting;
 using System.Linq;
+using TMPro;
 
 public class PopManager : MonoBehaviour
 {   
@@ -15,7 +16,6 @@ public class PopManager : MonoBehaviour
 
     [SerializeField] TileManager tm;
 
-    int[] popGrowth;
     public void Awake(){
         TimeEvents.tick += Tick;
     }
@@ -25,12 +25,13 @@ public class PopManager : MonoBehaviour
 
         for (int i = 0; i < pops.Count; i++){
             Pop pop = pops[i];
-
+            pop.index = pops.IndexOf(pop);
+            pop.population = populations[pop.index];
             if (pop.population <= 0){
                 DeletePop(pop);
                 continue;
             }
-            MovePop(pop, tm.getTile(new Vector3Int(pop.tile.tilePos.x - 1 , pop.tile.tilePos.y)), 50);
+            MovePop(pop, tm.getTile(new Vector3Int(pop.tile.tilePos.x - 1 , pop.tile.tilePos.y)), Mathf.RoundToInt(pop.population * 0.5f));
         }
     }
 
@@ -56,51 +57,68 @@ public class PopManager : MonoBehaviour
     }
 
     public void CreatePop(int population, Culture culture, Tile tile = null, Tech tech = null){
-        Pop pop = new Pop();
+        if (population > 0){
+            Pop pop = new Pop();
 
-        // Updates Lists
-        pops.Add(pop);
-        populations.Add(population);
+            // Updates Lists
+            pops.Add(pop);
+            populations.Add(population);
+            pop.index = pops.IndexOf(pop);
 
-        pop.population = population;
-        pop.culture = culture;
-        pop.popManager = this;
+            worldPopulation += population;
 
-        pop.index = pops.IndexOf(pop);
+            pop.population = populations[pop.index];
+            pop.culture = culture;
+            pop.popManager = this;
 
-        //TimeEvents.tick += pop.Tick;
+            
+            pop.dependents = 1;
 
-        if (tech == null){
-            pop.tech = new Tech();
-        } else {
-            pop.tech = tech;
+            //TimeEvents.tick += pop.Tick;
+
+            if (tech == null){
+                pop.tech = new Tech();
+            } else {
+                pop.tech = tech;
+            }
+            if (tile != null){
+                SetPopTile(pop, tile);
+            }
         }
-        if (tile != null){
-            SetPopTile(pop, tile);
-        }
+
     }
 
     public void MovePop(Pop pop, Tile newTile, int amount){
+        
+        bool moved = false;
         if (newTile != null && !newTile.terrain.water){
             if (amount > pop.population){
                 amount = pop.population;
             }
-            foreach (Pop merger in pop.tile.pops){
-                if (MergePops(pop, merger)){
-                    return;
+            foreach (Pop merger in newTile.pops){
+                if (SimilarPops(pop, merger)){
+                    ChangePopulation(pops.IndexOf(merger), amount);
+                    moved = true;
+                    break;
                 }
             }
-            CreatePop(amount, pop.culture, newTile, pop.tech);
+            if (!moved){
+                CreatePop(amount, pop.culture, newTile, pop.tech);
+            }
+            //print("Called");
             ChangePopulation(pops.IndexOf(pop), -amount);
         }
 
     }
 
+    bool SimilarPops(Pop a, Pop b){
+        return Culture.CheckSimilarity(a.culture, b.culture) && Tech.CheckSimilarity(a.tech, b.tech) && a.status == b.status;
+    }
     bool MergePops(Pop a, Pop b){
         bool merged = false;
-        if (Culture.CheckSimilarity(a.culture, b.culture) && Tech.CheckSimilarity(a.tech, b.tech) && a.status == b.status){
-            ChangePopulation(pops.IndexOf(a), -a.population);
+        if (SimilarPops(a, b)){
             ChangePopulation(pops.IndexOf(b), a.population);
+            ChangePopulation(pops.IndexOf(a), -a.population);
             merged = true;
         }
 
@@ -128,10 +146,13 @@ public class PopManager : MonoBehaviour
         }
 
         populations[index] += totalChange;
+        pops[index].population = populations[index];
+        
         if (pops[index].tile != null){
             pops[index].tile.ChangePopulation(totalChange);
         }
-        pops[index].population += populations[index];
+        
+        worldPopulation += totalChange;
     }
 
     public void DeletePop(Pop pop){

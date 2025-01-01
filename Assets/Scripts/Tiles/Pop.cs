@@ -5,8 +5,8 @@ public class Pop
     public int population;
     public int dependents;
     public int workforce;
-    public float dependentRatio = 0.75f;
-    const float baseDependentRatio = 0.75f;
+    public float workforceRatio = 0.25f;
+    const float baseworkforceRatio = 0.25f;
     const float baseBirthRate = 0.04f;
     const float baseDeathRate = 0.036f;
 

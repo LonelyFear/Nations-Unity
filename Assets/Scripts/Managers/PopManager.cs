@@ -7,16 +7,23 @@ using Unity.Collections;
 using Unity.VisualScripting;
 using System.Linq;
 using TMPro;
+using System.Data.Common;
+using UnityEditorInternal;
+
+using Random = UnityEngine.Random;
+using UnityEngine.Jobs;
+using System.ComponentModel.Design.Serialization;
 
 public class PopManager : MonoBehaviour
 {   
     public List<Pop> pops = new List<Pop>();
-    public List<int> populations = new List<int>();
     public int worldPopulation;
+    int currentIndex;
 
     [SerializeField] TileManager tm;
 
     public void Awake(){
+        //populations = new int[99999];
         TimeEvents.tick += Tick;
     }
 
@@ -25,17 +32,25 @@ public class PopManager : MonoBehaviour
 
         for (int i = 0; i < pops.Count; i++){
             Pop pop = pops[i];
-            pop.index = pops.IndexOf(pop);
-            pop.population = populations[pop.index];
+
             if (pop.population <= 0){
                 DeletePop(pop);
                 continue;
             }
-            MovePop(pop, tm.getTile(new Vector3Int(pop.tile.tilePos.x - 1 , pop.tile.tilePos.y)), Mathf.RoundToInt(pop.population * 0.5f));
+            // Sets workforce and dependents
+            pop.workforce = Mathf.RoundToInt(pop.population * pop.workforceRatio);
+            pop.dependents = pop.population - pop.workforce;
+            
+            //MovePop(pops.IndexOf(pop), tm.getTile(new Vector3Int(pop.tile.tilePos.x - 1 , pop.tile.tilePos.y)), Mathf.RoundToInt(pop.population * 0.5f));
+            SimilarPops(i, Random.Range(0, pops.Count - 1));
         }
     }
 
     void GrowPopulations(){
+        int[] populations = new int[pops.Count];
+        for (int i = 0; i < pops.Count; i++){
+            populations[i] = pops[i].population;
+        }
         NativeArray<int> output = new NativeArray<int>(pops.Count, Allocator.TempJob);
         NativeArray<int> population = new NativeArray<int>(populations.ToArray(), Allocator.TempJob);
 
@@ -62,12 +77,13 @@ public class PopManager : MonoBehaviour
 
             // Updates Lists
             pops.Add(pop);
-            populations.Add(population);
-            pop.index = pops.IndexOf(pop);
+
+            pop.index = currentIndex;
+            currentIndex++;
 
             worldPopulation += population;
 
-            pop.population = populations[pop.index];
+            pop.population = population;
             pop.culture = culture;
             pop.popManager = this;
 
@@ -88,35 +104,43 @@ public class PopManager : MonoBehaviour
 
     }
 
-    public void MovePop(Pop pop, Tile newTile, int amount){
+    public void MovePop(int popIndex, Tile newTile, int amount){
         
         bool moved = false;
         if (newTile != null && !newTile.terrain.water){
-            if (amount > pop.population){
-                amount = pop.population;
+            if (amount > pops[popIndex].population){
+                amount = pops[popIndex].population;
             }
             foreach (Pop merger in newTile.pops){
-                if (SimilarPops(pop, merger)){
+                if (SimilarPops(popIndex, pops.IndexOf(merger))){
                     ChangePopulation(pops.IndexOf(merger), amount);
                     moved = true;
                     break;
                 }
             }
             if (!moved){
-                CreatePop(amount, pop.culture, newTile, pop.tech);
+                CreatePop(amount, pops[popIndex].culture, newTile, pops[popIndex].tech);
             }
             //print("Called");
-            ChangePopulation(pops.IndexOf(pop), -amount);
+            ChangePopulation(pops.IndexOf(pops[popIndex]), -amount);
         }
 
     }
 
-    bool SimilarPops(Pop a, Pop b){
-        return Culture.CheckSimilarity(a.culture, b.culture) && Tech.CheckSimilarity(a.tech, b.tech) && a.status == b.status;
+    bool SimilarPops(int indexA, int indexB){
+        Pop a = pops[indexA];
+        Pop b = pops[indexB];
+        if (a == null || b == null || a == b){
+            return false;
+        }
+
+        return true;
     }
-    bool MergePops(Pop a, Pop b){
+    bool MergePops(int indexA, int indexB){
+        Pop a = pops[indexA];
+        Pop b = pops[indexB];
         bool merged = false;
-        if (SimilarPops(a, b)){
+        if (SimilarPops(indexA, indexB)){
             ChangePopulation(pops.IndexOf(b), a.population);
             ChangePopulation(pops.IndexOf(a), -a.population);
             merged = true;
@@ -131,23 +155,22 @@ public class PopManager : MonoBehaviour
                 bool coastal = pops[index].tile.coastal && UnityEngine.Random.Range(0f, 1f) <= target.terrain.fertility;
                 bool inland = UnityEngine.Random.Range(0f, 1f) <= 0.05 * target.terrain.fertility;
                 if (target.population * 4 < pops[index].tile.population && (inland || coastal)){
-                    MovePop(pops[index], target, Mathf.RoundToInt(pops[index].population * UnityEngine.Random.Range(0.2f, 0.5f)));
+                    MovePop(index, target, Mathf.RoundToInt(pops[index].population * UnityEngine.Random.Range(0.2f, 0.5f)));
                 }
             }
         } 
     }
     public void ChangePopulation(int index, int amount){
-        int population = populations[index];
+        int population = pops[index].population;
         int totalChange = amount;
 
         // Changes population
+        
         if (population + amount < 1){
             totalChange = -population;
         }
 
-        populations[index] += totalChange;
-        pops[index].population = populations[index];
-        
+        pops[index].population += totalChange;
         if (pops[index].tile != null){
             pops[index].tile.ChangePopulation(totalChange);
         }
@@ -162,7 +185,7 @@ public class PopManager : MonoBehaviour
             // Adjusts the workforces of our tile and state
             pop.tile.ChangeWorkforce(-pop.workforce);
         }
-        populations.Remove(pops.IndexOf(pop));
+
         pops.Remove(pop);
     }
 

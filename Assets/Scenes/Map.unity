@@ -682,7 +682,7 @@ MonoBehaviour:
   anarchyConquestChance: 0.2
   minNationPopulation: 200
   initialAnarchy: 8
-  popsToCreate: 1
+  popsToCreate: 30
   updateMap: 0
   popManager: {fileID: 1103100581}
   mapMode: 0
@@ -2004,7 +2004,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pops: []
-  populations: 
   worldPopulation: 0
   tm: {fileID: 184318062}
 --- !u!4 &1103100582

@@ -65,15 +65,15 @@ public class TileManager : MonoBehaviour
                 }
             }
 
-            // if (tile.terrain.claimable){
-            //     initPopulation(tile, popsToCreate);
-            // }
+            if (tile.terrain.claimable){
+                //initPopulation(tile, popsToCreate);
+            }
         }
         // Adds initial anarchy
         addInitialAnarchy(initialAnarchy);
         // Initializes tile populations
         foreach (Tile tile in anarchy){
-            initPopulation(tile, popsToCreate);
+            //initPopulation(tile, popsToCreate);
         }
         // Sets the map colors
         updateAllColors();

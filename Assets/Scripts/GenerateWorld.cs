@@ -29,16 +29,26 @@ public class GenerateWorld : MonoBehaviour
     public float[] weights = new float[4];
 
     [Header("Terrain Settings")]
-    public Biome[] biomesToGenerate;
-    public Biome oceanBiome;
-    public Biome openOceanBiome;
-    public Biome deepOceanBiome;
-    public Biome seaIceBiome;
-    public Biome rock;
+    // public Biome[] biomesToGenerate;
+    // public Biome oceanBiome;
+    // public Biome openOceanBiome;
+    // public Biome deepOceanBiome;
+    // public Biome seaIceBiome;
+    // public Biome rock;
+
+    [SerializeField] Color oceanColor;
+    [SerializeField] Color hotColor;
+    [SerializeField] Color temperateColor;
+    [SerializeField] Color coolColor;
+    [SerializeField] Color moistColor;
+    [SerializeField] Color dryColor;
+
     [Range(-0.5f, 0.5f)]
-    public float moistureOffset;
+    [SerializeField]  float moistureOffset;
     [Range(-0.5f, 0.5f)]
-    public float tempOffset;
+    [SerializeField]  float tempOffset;
+    [Range(0f, 1f)]
+    [SerializeField] float freezingTemp;
 
     void Start()
     {
@@ -115,7 +125,7 @@ public class GenerateWorld : MonoBehaviour
         float equatorPos = worldSize.y / 2;
         float tempValue = 1f - Mathf.Abs(equatorPos - y) / equatorPos;
         tempValue = Mathf.Clamp(tempValue + tempOffset, 0f, 1f);
-        return (tempValue * 0.9f) + (getTempRandomNoise(x,y) * 0.1f);
+        return (tempValue * 0.85f) + (getTempRandomNoise(x,y) * 0.15f);
     }
 
     void generateWorld(){
@@ -131,63 +141,54 @@ public class GenerateWorld : MonoBehaviour
                 Terrain terrain = new Terrain(){
                     height = getHeightNoise(x,y),
                     temperature = getTemp(x,y),
-                    moisture = getMoistureNoise(x,y)
+                    moisture = getMoistureNoise(x,y),
+                    freezingTemp = freezingTemp,
+                    seaLevel = preset.oceanThreshold
                 };
-                
 
-                float minDist = 0.4f;
-                Vector2 climatePos = new Vector2(terrain.temperature, terrain.moisture);
+                float height = getHeightNoise(x,y);
+                float temp = getTemp(x,y);
+                float moist = getMoistureNoise(x,y);
+                float seaLevel = preset.oceanThreshold;
 
-                terrain.heightType = Terrain.HeightTypes.FLAT;
                 // If we are below the ocean threshold
-                if (terrain.height <= preset.oceanThreshold){
-                    // Shallow Ocean
-                    terrain.biome = oceanBiome;
-                    terrain.heightType = Terrain.HeightTypes.SEA;
-                    // If we can generate deeper oceans
-                    if (preset.oceanThreshold > 0 ){
-                        if (terrain.height <= preset.oceanThreshold * 0.65){
-                            // Deep Ocean
-                            terrain.biome = deepOceanBiome;
-                            terrain.heightType = Terrain.HeightTypes.DEEP_SEA;
-
-                        } else if (terrain.height <= preset.oceanThreshold * 0.85){
-                            // Open Ocean (Between deep and shallow)
-                            terrain.biome = openOceanBiome;
-                            terrain.heightType = Terrain.HeightTypes.OPEN_SEA;
-                        }
+                if (terrain.height <= seaLevel){
+                    terrain.water = true;
+                    // terrain.color = (oceanColor * (height/oceanThreshold)) + (Color.black * (1 - (height/oceanThreshold)));
+                    terrain.color = Color.Lerp(Color.black, oceanColor, height/seaLevel);
+                    if (temp <= freezingTemp){
+                        terrain.color = oceanColor * 0.05f + Color.white * 0.95f;
                     }
-                    float freezingTemp = (biomesToGenerate[13].temperature + biomesToGenerate[10].temperature)/3;
-                    if (getTemp(x,y) <= freezingTemp){
-                        terrain.biome = seaIceBiome;
-                        terrain.heightType = Terrain.HeightTypes.SEA_ICE;
-                    }
-
-                    
                 } else {
-                    landTiles += 1;
-                    Biome chosenBiome = rock;
-                    foreach (Biome biome in biomesToGenerate){
-                        if (!biome){
-                            continue;
-                        }
-                        var newDist = Vector2.Distance(climatePos, new Vector2(biome.temperature, biome.moisture));
-                        if (newDist < minDist){
-                            minDist = newDist;
-                            chosenBiome = biome;
-                        }
+                    // Moisture
+                    float minMoist = 0.3f;
+                    float maxMoist = 0.7f;
+                    Color moistureColor = Color.Lerp(dryColor, moistColor, (moist - minMoist) / (maxMoist - minMoist));
+                    if (moist < minMoist){
+                        moistureColor = dryColor;
+                    } else if (moist > maxMoist){
+                        moistureColor = moistColor;
                     }
+                    terrain.color = moistureColor;
 
-                    terrain.biome = chosenBiome;
+                    // Temp
+                    Color tempColor;
+                    if (temp <= freezingTemp){
+                        tempColor = coolColor;
+                    }
+                    else if (temp <= 0.5){
+                        tempColor = Color.Lerp(coolColor, temperateColor, (temp - 0.2f) / 0.3f);
+                    } else {
+                        tempColor = Color.Lerp(temperateColor, hotColor, (temp - 0.5f) / 0.5f);
+                    }
+                    terrain.color = Color.Lerp(terrain.color, tempColor, 0.2f);
+
+                    // Ice
+                    if (temp <= freezingTemp * 1.2f){
+                        terrain.color = terrain.color * 0.1f + Color.white * 0.9f;
+                    }
                 }
-
-                if (terrain.height > preset.mountainTreshold){
-                    terrain.heightType = Terrain.HeightTypes.MOUNTAIN;
-                } else if (terrain.height > preset.hillTreshold){
-                    terrain.heightType = Terrain.HeightTypes.HILL;
-                }
-
-                terrain.CalcCivStats();
+                terrain.CalcStats();
                 
                 // Instantiates a tile
                 var newTile = new Tile();

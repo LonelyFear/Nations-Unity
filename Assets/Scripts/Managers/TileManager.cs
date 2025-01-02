@@ -107,7 +107,7 @@ public class TileManager : MonoBehaviour
                     for (int y = -3; y <= 3; y++){
                         Vector3Int newAnarchyPos = new Vector3Int(tile.tilePos.x + x, tile.tilePos.y + y);
                         Tile tile1 = getTile(newAnarchyPos);
-                        if (tile1 != null && tile1.terrain.biome.claimable && !tile1.terrain.biome.water && Random.Range(0f, 1f) < 0.2f){
+                        if (tile1 != null && tile1.terrain.claimable && Random.Range(0f, 1f) < 0.2f){
                             addAnarchy(newAnarchyPos);
                         }
                     }
@@ -290,7 +290,7 @@ public class TileManager : MonoBehaviour
 
                         if (getTile(pos).state == null){
                             // If the tested border is neutral
-                            if (getTile(pos).terrain.biome.claimable){
+                            if (getTile(pos).terrain.claimable){
                                 // Makes it a frontier
                                 // Frontier tiles are the only ones that can colonize neutral tiles
                                 tile.frontier = true;
@@ -457,15 +457,7 @@ public class TileManager : MonoBehaviour
         
         void ColorTerrain(){
             // If the tile isnt owned, just sets the color to the color of the terrain
-            finalColor = tile.terrain.biome.biomeColor;
-            switch (tile.terrain.heightType){
-                case Terrain.HeightTypes.HILL:
-                    finalColor = finalColor * 0.9f + Color.black * 0.1f;
-                    break;
-                case Terrain.HeightTypes.MOUNTAIN:
-                    finalColor = finalColor * 0.7f + Color.black * 0.3f;
-                    break;
-            }   
+            finalColor = tile.terrain.color;   
         }
         
         // Higlights selected nation

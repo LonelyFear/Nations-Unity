@@ -601,7 +601,7 @@ MonoBehaviour:
   worldSize: {x: 360, y: 180}
   preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
-  noiseSeed: 23228
+  noiseSeed: 80225
   randomizeSeed: 0
   totalNoiseScale: 70
   scales:
@@ -614,28 +614,15 @@ MonoBehaviour:
   - 0.2
   - 0.15
   - 0.05
-  biomesToGenerate:
-  - {fileID: 11400000, guid: 3d8a45a791f2ceb49aea048058d3623d, type: 2}
-  - {fileID: 11400000, guid: bbdf6e67ff742a047b836308f803da62, type: 2}
-  - {fileID: 11400000, guid: ba2c92abf29111e4dbf980ab567a9bc1, type: 2}
-  - {fileID: 11400000, guid: 512ea7048bfe95649b7b4ff9b5baa44e, type: 2}
-  - {fileID: 11400000, guid: f08e4363f375af1449066c0d308f6a99, type: 2}
-  - {fileID: 11400000, guid: 4cc9dbc0cb0a3b245ae8762aecdea686, type: 2}
-  - {fileID: 11400000, guid: 42c3515e5217cf348b6b7ca469a52e69, type: 2}
-  - {fileID: 11400000, guid: b59d481640f83fe49994ff225290d97b, type: 2}
-  - {fileID: 11400000, guid: 0818bcf61a10aca458042638e48c7fe4, type: 2}
-  - {fileID: 11400000, guid: 103bc2689b28e7b4db2a505e5cd4ff2c, type: 2}
-  - {fileID: 11400000, guid: f998077a8ab3b4c4bbbdd0d218a58c58, type: 2}
-  - {fileID: 11400000, guid: 42c3515e5217cf348b6b7ca469a52e69, type: 2}
-  - {fileID: 11400000, guid: 62969cc3fa17a0f48b4d168b8360ccff, type: 2}
-  - {fileID: 11400000, guid: 2b4754eeb3d737c47a686396685eed18, type: 2}
-  oceanBiome: {fileID: 11400000, guid: 3a24a775a7a3a0c43961fa25aa062bd3, type: 2}
-  openOceanBiome: {fileID: 11400000, guid: 4000b03d1beb9f642b2d854ae892a71c, type: 2}
-  deepOceanBiome: {fileID: 11400000, guid: 39757e631e0c03449ab93e13da8b9594, type: 2}
-  seaIceBiome: {fileID: 11400000, guid: 67994cab12ba58a408f74b8bc6a62c63, type: 2}
-  rock: {fileID: 11400000, guid: 7bdeed2c0c6cd5e4e86e33d1940a3e9d, type: 2}
-  moistureOffset: -0.06
+  oceanColor: {r: 0.39215687, g: 0.41960785, b: 0.74509805, a: 1}
+  hotColor: {r: 1, g: 0.91878164, b: 0, a: 1}
+  temperateColor: {r: 0.98490566, g: 0.98490566, b: 0.98490566, a: 0}
+  coolColor: {r: 0, g: 0.614594, b: 1, a: 1}
+  moistColor: {r: 0.16787633, g: 0.4943396, b: 0.08487716, a: 1}
+  dryColor: {r: 0.94716984, g: 0.8272603, b: 0.5986828, a: 1}
+  moistureOffset: 0
   tempOffset: -0.1
+  freezingTemp: 0.2
 --- !u!4 &184318060
 Transform:
   m_ObjectHideFlags: 0
@@ -2350,7 +2337,7 @@ MonoBehaviour:
   month: 1
   year: 1
   tickLength: 0.05
-  ticksPerYear: 1
+  ticksPerYear: 2
   timerStart: 0
 --- !u!4 &1236494429
 Transform:

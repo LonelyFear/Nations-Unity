@@ -669,7 +669,7 @@ MonoBehaviour:
   anarchyConquestChance: 0.2
   minNationPopulation: 200
   initialAnarchy: 8
-  popsToCreate: 30
+  popsToCreate: 15
   updateMap: 0
   popManager: {fileID: 1103100581}
   mapMode: 0

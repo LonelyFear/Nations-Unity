@@ -10,8 +10,8 @@ public class Terrain
     public Color color;
     public float fertility;
     public float navigability;
-    public bool water;
-    public bool claimable;
+    public bool water = false;
+    public bool claimable = true;
 
     public float freezingTemp;
     public float seaLevel;

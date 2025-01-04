@@ -66,7 +66,7 @@ public class TileManager : MonoBehaviour
             }
 
             if (tile.terrain.claimable){
-                //initPopulation(tile, popsToCreate);
+                initPopulation(tile, popsToCreate);
             }
         }
         // Adds initial anarchy
@@ -127,10 +127,10 @@ public class TileManager : MonoBehaviour
         if (Random.Range(0f, 1f) < 0.75f){
             //creationTick();
         }
+
         // Each game tick nations can expand into neutral lands
         neutralExpansion();
     }
-
     void creationTick(){
         // Checks if there are any anarchic tiles
         if (anarchy.Count > 0){

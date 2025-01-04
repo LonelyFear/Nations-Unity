@@ -29,12 +29,6 @@ public class GenerateWorld : MonoBehaviour
     public float[] weights = new float[4];
 
     [Header("Terrain Settings")]
-    // public Biome[] biomesToGenerate;
-    // public Biome oceanBiome;
-    // public Biome openOceanBiome;
-    // public Biome deepOceanBiome;
-    // public Biome seaIceBiome;
-    // public Biome rock;
 
     [SerializeField] Color oceanColor;
     [SerializeField] Color hotColor;
@@ -160,6 +154,7 @@ public class GenerateWorld : MonoBehaviour
                         terrain.color = oceanColor * 0.05f + Color.white * 0.95f;
                     }
                 } else {
+                    landTiles++;
                     // Moisture
                     float minMoist = 0.3f;
                     float maxMoist = 0.7f;

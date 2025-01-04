@@ -39,7 +39,7 @@ public class Tile
             rulingPop = null;
             SetRulingPop();
         }
-        if (rulingPop != null){
+        if (rulingPop != null && tech != rulingPop.tech && rulingCulture != rulingPop.culture){
             rulingCulture = rulingPop.culture;
             tech = rulingPop.tech;
         }
@@ -53,7 +53,7 @@ public class Tile
             }
             //Debug.Log(development);
         }
-        if (population >= 50 && state == null){
+        if (population >= 50 && state == null && !anarchy){
             tileManager.addAnarchy(tilePos);
         } else if (population < 50 && anarchy){
             tileManager.RemoveAnarchy(tilePos);

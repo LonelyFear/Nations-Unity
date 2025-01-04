@@ -13,12 +13,18 @@ using UnityEditorInternal;
 using Random = UnityEngine.Random;
 using UnityEngine.Jobs;
 using System.ComponentModel.Design.Serialization;
+using System.Runtime.InteropServices;
 
 public class PopManager : MonoBehaviour
 {   
     public List<Pop> pops = new List<Pop>();
     public int worldPopulation;
     int currentIndex;
+
+    // Constants
+    const float baseworkforceRatio = 0.25f;
+    const float baseBirthRate = 0.04f;
+    const float baseDeathRate = 0.036f;
 
     [SerializeField] TileManager tm;
 
@@ -27,37 +33,29 @@ public class PopManager : MonoBehaviour
         TimeEvents.tick += Tick;
     }
 
-    public void Tick(){
-        GrowPopulations();
-
-        for (int i = 0; i < pops.Count; i++){
-            Pop pop = pops[i];
-
-            if (pop.population <= 0){
-                DeletePop(pop);
-                continue;
-            }
-            // Sets workforce and dependents
-            pop.workforce = Mathf.RoundToInt(pop.population * pop.workforceRatio);
-            pop.dependents = pop.population - pop.workforce;
-            
-            //MovePop(pops.IndexOf(pop), tm.getTile(new Vector3Int(pop.tile.tilePos.x - 1 , pop.tile.tilePos.y)), Mathf.RoundToInt(pop.population * 0.5f));
-            SimilarPops(i, Random.Range(0, pops.Count - 1));
-        }
+    public enum PopStates {
+        MIGRATORY,
+        SETTLED
     }
 
-    void GrowPopulations(){
-        int[] populations = new int[pops.Count];
-        for (int i = 0; i < pops.Count; i++){
-            populations[i] = pops[i].population;
+    public void Tick(){
+        GrowPopulations();
+    }
+    public PopStruct[] ConstructPopArray(){
+        PopStruct[] structPops = new PopStruct[pops.Count];
+        for(int i = 0; i < pops.Count; i++){
+            structPops[i] = Pop.ConvertToStruct(pops[i]);
         }
+        return structPops;
+    }
+    void GrowPopulations(){
         NativeArray<int> output = new NativeArray<int>(pops.Count, Allocator.TempJob);
-        NativeArray<int> population = new NativeArray<int>(populations.ToArray(), Allocator.TempJob);
+        NativeArray<PopStruct> sPops = new NativeArray<PopStruct>(ConstructPopArray(), Allocator.TempJob);
 
         GrowPopJob popJob = new GrowPopJob(){
-            population = population,
+            pops = sPops,
             outputs = output,
-            seed = (uint)UnityEngine.Random.Range(1, 1000)
+            seed = (uint)Random.Range(1, 1000)
         };
 
         JobHandle jobHandle = popJob.Schedule(pops.Count, 32);
@@ -68,7 +66,7 @@ public class PopManager : MonoBehaviour
         }
 
         output.Dispose();
-        population.Dispose();
+        sPops.Dispose();
     }
 
     public void CreatePop(int population, Culture culture, Tile tile = null, Tech tech = null){
@@ -210,32 +208,30 @@ public class PopManager : MonoBehaviour
     [BurstCompile]
     public struct GrowPopJob : IJobParallelFor
     {
-        public NativeArray<int> population;
-
+        public NativeArray<PopStruct> pops;
         public NativeArray<int> outputs;
         public uint seed;
         public void Execute(int i)
         {
-            float birthRate = 0.4f;
-            float deathRate = 0.37f;            
+            float birthRate = pops[i].birthRate;
+            float deathRate = pops[i].deathRate;            
             var rand = new Unity.Mathematics.Random((uint)(seed + i * 40));
 
-            if (population[i] < 2){
+            if (pops[i].population < 2){
                 birthRate = 0f;
             }
-            if (population[i] > 10000){
+            if (pops[i].population > 10000){
                 birthRate *= 0.75f;
             }
 
             float natutalGrowthRate = birthRate - deathRate;
-            int totalGrowth = Mathf.RoundToInt(population[i] * natutalGrowthRate);
+            int totalGrowth = Mathf.RoundToInt(pops[i].population * natutalGrowthRate);
             
-            if (rand.NextDouble() < (population[i] * Math.Abs(natutalGrowthRate)) - Math.Floor(population[i] * Math.Abs(natutalGrowthRate))){
+            if (rand.NextDouble() < (pops[i].population * Math.Abs(natutalGrowthRate)) - Math.Floor(pops[i].population * Math.Abs(natutalGrowthRate))){
                 totalGrowth += (int) Math.Sign(natutalGrowthRate);
             }
 
             if (totalGrowth != 0){
-                population[i] += totalGrowth;
                 outputs[i] = totalGrowth;
             }
         }

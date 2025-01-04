@@ -90,7 +90,7 @@ public class State
         if (tiles.Count < 1 && tile.anarchy){
             capital = tile;
             rulingPop = tile.pops[0];
-            rulingPop.status = Pop.PopStates.SETTLED;
+            rulingPop.status = PopManager.PopStates.SETTLED;
         }
         
         tile.anarchy = false;

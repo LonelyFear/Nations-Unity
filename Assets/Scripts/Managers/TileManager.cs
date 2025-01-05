@@ -76,7 +76,7 @@ public class TileManager : MonoBehaviour
             //initPopulation(tile, popsToCreate);
         }
         // Sets the map colors
-        updateAllColors();
+        updateAllColors(true);
     }
 
     void addInitialAnarchy(int seedAmount){
@@ -357,9 +357,12 @@ public class TileManager : MonoBehaviour
 
     public MapModes mapMode = MapModes.POLITICAL;
 
-    public void updateAllColors(){
+    public void updateAllColors(bool updateOcean = false){
         // LAGGY
         foreach (var entry in tiles){
+            if (entry.Value.terrain.water && !updateOcean){
+                continue;
+            }
             // Goes through every tile and updates its color
             updateColor(entry.Key);
         }

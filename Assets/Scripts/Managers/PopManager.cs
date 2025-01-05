@@ -62,6 +62,10 @@ public class PopManager : MonoBehaviour
         jobHandle.Complete();
 
         for (int i = 0; i < pops.Count; i++){
+            if (pops[i].population < 0){
+                DeletePop(pops[i]);
+                continue;
+            }
             ChangePopulation(i, output[i]);
         }
 

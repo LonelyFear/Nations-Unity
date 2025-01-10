@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Net;
+using System.Security.Claims;
 using Unity.VisualScripting;
 using UnityEditor.UI;
 using UnityEngine;
@@ -44,6 +46,9 @@ public class GenerateWorld : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] float freezingTemp;
 
+    float landTiles = 0;
+    public Dictionary<Vector3Int, Tile> tiles = new Dictionary<Vector3Int, Tile>();
+
     void Start()
     {
         if (randomizeSeed){
@@ -75,7 +80,7 @@ public class GenerateWorld : MonoBehaviour
         return val;
     }
 
-    float getHeightNoise(int x, int y){
+    float getHeight(int x, int y){
         float totalNoise;
         // If there isnt a predifined noise texture
         if (!preset.noiseTexture){
@@ -98,7 +103,7 @@ public class GenerateWorld : MonoBehaviour
         return totalNoise;
     }
 
-    float getMoistureNoise(int x, int y){
+    float getMoisture(int x, int y){
         float clouds = getNoise(x,y, 0.05f, noiseSeed + 642);
         float systems = getNoise(x,y, 0.25f, noiseSeed + 753);
         float seas = getNoise(x,y, 0.75f, noiseSeed + 257);
@@ -122,8 +127,13 @@ public class GenerateWorld : MonoBehaviour
         return (tempValue * 0.85f) + (getTempRandomNoise(x,y) * 0.15f);
     }
 
+    Tile getTile(Vector3Int pos){
+        if (tiles.ContainsKey(pos)){
+            return tiles[pos];
+        }
+        return null;
+    }
     void generateWorld(){
-        float landTiles = 0;
         // Worldsize works like lists, so 0 is the first index and the last index is worldsize - 1
         for (int y = 0; y < worldSize.y; y++){
             for (int x = 0; x < worldSize.x; x++){
@@ -132,79 +142,131 @@ public class GenerateWorld : MonoBehaviour
                 tilemap.SetTile(cellPos, tileBase);
 
                 // Sets terrain to default
-                Terrain terrain = new Terrain(){
-                    height = getHeightNoise(x,y),
-                    temperature = getTemp(x,y),
-                    moisture = getMoistureNoise(x,y),
-                    freezingTemp = freezingTemp,
-                    seaLevel = preset.oceanThreshold
-                };
-
-                float height = getHeightNoise(x,y);
-                float temp = getTemp(x,y);
-                float moist = getMoistureNoise(x,y);
-                float seaLevel = preset.oceanThreshold;
-
-                // If we are below the ocean threshold
-                if (terrain.height <= seaLevel){
-                    terrain.water = true;
-                    // terrain.color = (oceanColor * (height/oceanThreshold)) + (Color.black * (1 - (height/oceanThreshold)));
-                    terrain.color = Color.Lerp(Color.black, oceanColor, height/seaLevel);
-                    if (temp <= freezingTemp){
-                        terrain.color = oceanColor * 0.05f + Color.white * 0.95f;
-                    }
-                } else {
-                    landTiles++;
-                    // Moisture
-                    float minMoist = 0.3f;
-                    float maxMoist = 0.7f;
-                    Color moistureColor = Color.Lerp(dryColor, moistColor, (moist - minMoist) / (maxMoist - minMoist));
-                    if (moist < minMoist){
-                        moistureColor = dryColor;
-                    } else if (moist > maxMoist){
-                        moistureColor = moistColor;
-                    }
-                    terrain.color = moistureColor;
-
-                    // Temp
-                    Color tempColor;
-                    if (temp <= freezingTemp){
-                        tempColor = coolColor;
-                    }
-                    else if (temp <= 0.5){
-                        tempColor = Color.Lerp(coolColor, temperateColor, (temp - 0.2f) / 0.3f);
-                    } else {
-                        tempColor = Color.Lerp(temperateColor, hotColor, (temp - 0.5f) / 0.5f);
-                    }
-                    terrain.color = Color.Lerp(terrain.color, tempColor, 0.2f);
-
-                    // Ice
-                    if (temp <= freezingTemp * 1.2f){
-                        terrain.color = terrain.color * 0.1f + Color.white * 0.9f;
-                    }
-                }
-                terrain.CalcStats();
                 
                 // Instantiates a tile
-                var newTile = new Tile();
-                newTile.terrain = terrain;
-
-                for (int ox = -1; ox <= 1; ox++){
-                    for (int oy = -1; oy <= 1; oy++){
-                        if (getHeightNoise(x + ox, y + oy) < preset.oceanThreshold){
-                            newTile.coastal = true;
-                            break;
-                        }
-                    }
-                }
+                var newTile = new Tile(){
+                    terrain = SetTerrain(x,y)
+                };
 
                 // Adds the tile to the tile manager
-                GetComponent<TileManager>().tiles.Add(cellPos, newTile);
-                
+                tiles.Add(cellPos, newTile);
             }
         }
+        FinalChecks();
+
         print("Land Tiles: " + landTiles);
         print("Total Tiles: " + (worldSize.x * worldSize.y));
         print("Land %: " + Mathf.RoundToInt(landTiles / (worldSize.x * worldSize.y) * 100) + "%");
+
+        GetComponent<TileManager>().tiles = tiles;
+    }
+
+    void FinalChecks(){
+        foreach (var entry in tiles){
+            Tile tile = entry.Value;
+            Vector3Int pos = entry.Key;
+            for (int ox = -1; ox <= 1; ox++){
+                for (int oy = -1; oy <= 1; oy++){
+                    if (getTile(pos + new Vector3Int(ox, oy)) != null && getTile(pos + new Vector3Int(ox, oy)).terrain.water){
+                        tile.coastal = true;
+                        break;
+                    }
+                }
+            }
+        }        
+    }
+    Terrain SetTerrain(int x, int y){
+
+        float height = getHeight(x,y);
+        float temp = getTemp(x,y);
+        float moisture = getMoisture(x,y);
+        float seaLevel = preset.oceanThreshold;
+        bool water = false;
+        Color color;
+
+        // If we are below the ocean threshold
+        if (height <= seaLevel){
+            water = true;
+            // terrain.color = (oceanColor * (height/oceanThreshold)) + (Color.black * (1 - (height/oceanThreshold)));
+            color = Color.Lerp(Color.black, oceanColor, height/seaLevel);
+            if (temp <= freezingTemp){
+                color = oceanColor * 0.05f + Color.white * 0.95f;
+            }
+        } else {
+            water = false;
+            landTiles++;
+            // Moisture
+            float minMoist = 0.3f;
+            float maxMoist = 0.7f;
+            Color moistureColor = Color.Lerp(dryColor, moistColor, (moisture - minMoist) / (maxMoist - minMoist));
+            if (moisture < minMoist){
+                moistureColor = dryColor;
+            } else if (moisture > maxMoist){
+                moistureColor = moistColor;
+            }
+            color = moistureColor;
+
+            // Temp
+            Color tempColor;
+            if (temp <= freezingTemp){
+                tempColor = coolColor;
+            }
+            else if (temp <= 0.5){
+                tempColor = Color.Lerp(coolColor, temperateColor, (temp - 0.2f) / 0.3f);
+            } else {
+                tempColor = Color.Lerp(temperateColor, hotColor, (temp - 0.5f) / 0.5f);
+            }
+            color = Color.Lerp(color, tempColor, 0.2f);
+
+            // Ice
+            if (temp <= freezingTemp * 1.2f){
+                color = color * 0.1f + Color.white * 0.9f;
+            }
+        }
+        float fertility = 0;
+        if (!water){
+            fertility = CalcFertility(height, moisture, temp);
+        }
+        
+        Terrain terrain = new Terrain(){
+            fertility = fertility,
+            height = height,
+            moisture = moisture,
+            temperature = temp,
+            water = water,
+            claimable = !water,
+            color = color
+        };
+
+        return terrain;
+    }
+    float CalcFertility(float height, float moisture, float temperature){
+        float seaLevel = preset.oceanThreshold;
+
+        float fertility;
+        // Bell curves
+        float moistureScore = Mathf.Exp(-Mathf.Pow((moisture - 0.5f) / 0.15f, 2f));
+        
+        // Temp Score
+        float adjustedTemp = Mathf.Clamp01((temperature - freezingTemp)/(1 - freezingTemp));
+        float tempScore = Mathf.Exp(-Mathf.Pow((adjustedTemp - 0.5f) / 0.2f, 2f));
+
+        
+        // Altitude score
+        float adjustedHeight = Mathf.Clamp01((height - seaLevel) / (1f - seaLevel));
+        float optimalHeight = 0.3f;
+        float altitudeScore = Mathf.Exp(-Mathf.Pow((adjustedHeight - optimalHeight) / 0.15f, 2f));
+        // If we are above the optimal height uses a different curve
+        if (adjustedHeight > optimalHeight){
+            altitudeScore = Mathf.Exp(-Mathf.Pow((adjustedHeight - optimalHeight) / 0.3f, 2f));
+        }
+
+        if (temperature > freezingTemp){
+            fertility = Mathf.Clamp((moistureScore * tempScore * 0.6f) + (moistureScore * altitudeScore * 0.4f), 0.01f, 1f); 
+        } else {
+            fertility = moistureScore * 0.01f;
+        }
+
+        return fertility;
     }
 }

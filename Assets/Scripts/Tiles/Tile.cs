@@ -107,4 +107,20 @@ public class Tile
     public void UpdateColor(){
         tileManager.updateColor(tilePos);
     }
+
+    public static TileStruct ConvertToStruct(Tile tile){
+        return new TileStruct{
+            population = tile.population,
+            development = tile.development,
+            tilePos = tile.tilePos,
+            terrain = tile.terrain
+        };
+    }
+}
+
+public struct TileStruct{
+    public int population;
+    public float development;
+    public Vector3Int tilePos;
+    public Terrain terrain;
 }

@@ -1,6 +1,6 @@
 using UnityEditor.ShaderGraph.Internal;
+using UnityEngine;
 
-[System.Serializable]
 public class Pop
 {
     // Population
@@ -22,35 +22,26 @@ public class Pop
     public int index;
     public PopManager.PopStates status = PopManager.PopStates.MIGRATORY;
 
-    public static PopStruct ConvertToStruct(Pop pop){
-        return new PopStruct{
-            population = pop.population,
-            dependents = pop.dependents,
-            workforce = pop.workforce,
-            birthRate = pop.birthRate,
-            deathRate = pop.deathRate,
-            tech = Tech.ConvertToStruct(pop.tech)
-        };
+    public void Tick(){
+        GrowPopulation();
     }
-    public static Pop ReturnToClass(PopStruct popStruct, Pop output){
-        if (output == null){
-            output = new Pop();
-        }
-        output.population = popStruct.population;
-        output.dependents = popStruct.dependents;
-        output.workforce = popStruct.workforce;
-        output.birthRate = popStruct.birthRate;
-        output.deathRate = popStruct.deathRate;
-        output.tech = Tech.ReturnToClass(popStruct.tech);
-        return output;
-    }
-}
 
-public struct PopStruct{
-    public int population;
-    public int dependents;
-    public int workforce;
-    public float birthRate;
-    public float deathRate;
-    public TechStruct tech;
+    void GrowPopulation(){
+        float bRate = birthRate;
+        float dRate = deathRate;
+        if (population < 2){
+            bRate = 0f;
+        }
+        if (tile.population > 10000){
+            bRate *= 0.75f;
+        }
+        float natutalGrowthRate = bRate - dRate;
+        int totalGrowth = Mathf.RoundToInt(population * natutalGrowthRate);
+        
+        if (Random.Range(0f, 1f) < Mathf.Abs(population * natutalGrowthRate) % 1){
+            totalGrowth += (int) Mathf.Sign(natutalGrowthRate);
+        }
+
+        popManager.ChangePopulation(this, totalGrowth);
+    }
 }

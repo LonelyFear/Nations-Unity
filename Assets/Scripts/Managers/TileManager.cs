@@ -65,15 +65,15 @@ public class TileManager : MonoBehaviour
                 }
             }
 
-            if (tile.terrain.claimable){
-                initPopulation(tile, popsToCreate);
-            }
+            // if (tile.terrain.claimable){
+            //     initPopulation(tile, popsToCreate);
+            // }
         }
         // Adds initial anarchy
         addInitialAnarchy(initialAnarchy);
         // Initializes tile populations
         foreach (Tile tile in anarchy){
-            //initPopulation(tile, popsToCreate);
+            initPopulation(tile, popsToCreate);
         }
         // Sets the map colors
         updateAllColors(true);
@@ -185,7 +185,7 @@ public class TileManager : MonoBehaviour
 
                                 bool isState = tile.state != null;
                                 // Checks if we can expand (Random)
-                                bool canExpand = Random.Range(0f, 1f) < target.terrain.navigability;
+                                bool canExpand = Random.Range(0f, 1f) < target.terrain.fertility;
 
                                 bool anarchy = target.anarchy;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
@@ -199,7 +199,7 @@ public class TileManager : MonoBehaviour
                                             addAnarchy(pos);
                                         }
                                     }
-                                    else if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.navigability){
+                                    else if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.fertility){
                                         // COLONIALISM!!!!!!!!!!!!!!
                                         tile.state.AddTile(pos);
                                     }

@@ -598,7 +598,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 2120070809}
   tileBase: {fileID: 11400000, guid: 9ff30deb5bfc664478d266f55e9243e6, type: 2}
-  worldSize: {x: 360, y: 180}
+  worldSize: {x: 350, y: 175}
   preset: {fileID: 11400000, guid: 071ae9a8987e9114bae2cb060e5182f6, type: 2}
   fixToTexture: 1
   noiseSeed: 80225
@@ -669,7 +669,7 @@ MonoBehaviour:
   anarchyConquestChance: 0.2
   minNationPopulation: 200
   initialAnarchy: 8
-  popsToCreate: 15
+  popsToCreate: 1
   updateMap: 0
   popManager: {fileID: 1103100581}
   mapMode: 0
@@ -1990,7 +1990,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c995764cddfa1ff419eaf4c71726e494, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pops: []
   worldPopulation: 0
   tm: {fileID: 184318062}
 --- !u!4 &1103100582

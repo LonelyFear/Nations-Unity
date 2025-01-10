@@ -39,7 +39,7 @@ public class Tile
             rulingPop = null;
             SetRulingPop();
         }
-        if (rulingPop != null){
+        if (rulingPop != null && tech != rulingPop.tech && rulingCulture != rulingPop.culture){
             rulingCulture = rulingPop.culture;
             tech = rulingPop.tech;
         }
@@ -53,12 +53,12 @@ public class Tile
             }
             //Debug.Log(development);
         }
-        if (population >= 50 && state == null){
+        if (population >= 50 && state == null && !anarchy){
             tileManager.addAnarchy(tilePos);
         } else if (population < 50 && anarchy){
             tileManager.RemoveAnarchy(tilePos);
         }
-        PrunePops();
+        //PrunePops();
     }
 
     void SetRulingPop(){
@@ -78,25 +78,11 @@ public class Tile
         }
     }
 
-    void PrunePops(){
-        if (pops.Count > maxPops){
-            Pop smallestPop = new Pop(){
-                population = 100000000
-            };
-            foreach (Pop pop in pops){
-                if (pop.population < smallestPop.population){
-                    smallestPop = pop;
-                }
-            }
-            if (smallestPop.population < population/pops.Count){
-                smallestPop.DeletePop();
-            }
-        }
-    }
     public int GetMaxPopulation(){
         // 10k times the fertility is the maximum population a tile can support
         return Mathf.RoundToInt(10000 * terrain.fertility);
     }
+
 
     public void ChangePopulation(int amount){
         population += amount;
@@ -105,7 +91,7 @@ public class Tile
             // Updates our state
             state.ChangePopulation(amount);
         }
-        tileManager.worldPopulation += amount;
+
         if (tileManager.mapMode == TileManager.MapModes.POPULATION){
             UpdateColor();
         }
@@ -121,4 +107,20 @@ public class Tile
     public void UpdateColor(){
         tileManager.updateColor(tilePos);
     }
+
+    public static TileStruct ConvertToStruct(Tile tile){
+        return new TileStruct{
+            population = tile.population,
+            development = tile.development,
+            tilePos = tile.tilePos,
+            terrain = tile.terrain
+        };
+    }
+}
+
+public struct TileStruct{
+    public int population;
+    public float development;
+    public Vector3Int tilePos;
+    public Terrain terrain;
 }

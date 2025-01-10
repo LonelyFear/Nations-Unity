@@ -26,7 +26,6 @@ public class TileManager : MonoBehaviour
     int initialAnarchy = 20;
 
     [Header("Pops")]
-    public int worldPopulation;
     [SerializeField]
     int popsToCreate = 1;
 
@@ -41,6 +40,12 @@ public class TileManager : MonoBehaviour
     public List<State> states = new List<State>();
     public List<Tile> anarchy = new List<Tile>();
 
+    // References
+    [SerializeField] PopManager popManager;
+
+    public void Awake(){
+        TimeEvents.tick += Tick;
+    }
     public void Init(){
         // Goes thru the tiles
         foreach (var entry in tiles){
@@ -59,6 +64,10 @@ public class TileManager : MonoBehaviour
                     }
                 }
             }
+
+            // if (tile.terrain.claimable){
+            //     initPopulation(tile, popsToCreate);
+            // }
         }
         // Adds initial anarchy
         addInitialAnarchy(initialAnarchy);
@@ -67,7 +76,7 @@ public class TileManager : MonoBehaviour
             initPopulation(tile, popsToCreate);
         }
         // Sets the map colors
-        updateAllColors();
+        updateAllColors(true);
     }
 
     void addInitialAnarchy(int seedAmount){
@@ -98,7 +107,7 @@ public class TileManager : MonoBehaviour
                     for (int y = -3; y <= 3; y++){
                         Vector3Int newAnarchyPos = new Vector3Int(tile.tilePos.x + x, tile.tilePos.y + y);
                         Tile tile1 = getTile(newAnarchyPos);
-                        if (tile1 != null && tile1.terrain.biome.claimable && !tile1.terrain.biome.water && Random.Range(0f, 1f) < 0.2f){
+                        if (tile1 != null && tile1.terrain.claimable && Random.Range(0f, 1f) < 0.2f){
                             addAnarchy(newAnarchyPos);
                         }
                     }
@@ -114,14 +123,14 @@ public class TileManager : MonoBehaviour
     }
 
     public void Tick(){
-        // Each month new nations can spawn out of anarchy
+        // Each tick new nations can spawn out of anarchy
         if (Random.Range(0f, 1f) < 0.75f){
-            creationTick();
+            //creationTick();
         }
+
         // Each game tick nations can expand into neutral lands
         neutralExpansion();
     }
-
     void creationTick(){
         // Checks if there are any anarchic tiles
         if (anarchy.Count > 0){
@@ -141,17 +150,11 @@ public class TileManager : MonoBehaviour
             float r = (tile.tilePos.x + 0.001f) / (worldSize.x + 0.001f);
             float g = (tile.tilePos.y + 0.001f) / (worldSize.y + 0.001f);
             float b = (worldSize.x - tile.tilePos.x + 0.001f) / (worldSize.x + 0.001f);
-            Pop newPop = new Pop(){
-                population = Mathf.FloorToInt(500 * tile.terrain.fertility),
-                culture = new Culture(){
-                    color = new Color(r, g, b, 1f)
-                }
+            Culture culture = new Culture(){
+                color = new Color(r, g, b, 1f)
             };
-            newPop.SetTile(tile);
-            TimeEvents.tick += newPop.Tick;
+            popManager.CreatePop(Mathf.FloorToInt(500 * tile.terrain.fertility), culture, tile);
         }
-        worldPopulation += tile.population;
-        
     }
 
 
@@ -182,7 +185,7 @@ public class TileManager : MonoBehaviour
 
                                 bool isState = tile.state != null;
                                 // Checks if we can expand (Random)
-                                bool canExpand = Random.Range(0f, 1f) < target.terrain.navigability;
+                                bool canExpand = Random.Range(0f, 1f) < target.terrain.fertility;
 
                                 bool anarchy = target.anarchy;
                                 // Checks if the tile we want to expand to is claimable (If it is neutral and if it has suitable terrain)
@@ -196,7 +199,7 @@ public class TileManager : MonoBehaviour
                                             addAnarchy(pos);
                                         }
                                     }
-                                    else if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.navigability){
+                                    else if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.fertility){
                                         // COLONIALISM!!!!!!!!!!!!!!
                                         tile.state.AddTile(pos);
                                     }
@@ -287,7 +290,7 @@ public class TileManager : MonoBehaviour
 
                         if (getTile(pos).state == null){
                             // If the tested border is neutral
-                            if (getTile(pos).terrain.biome.claimable){
+                            if (getTile(pos).terrain.claimable){
                                 // Makes it a frontier
                                 // Frontier tiles are the only ones that can colonize neutral tiles
                                 tile.frontier = true;
@@ -354,9 +357,12 @@ public class TileManager : MonoBehaviour
 
     public MapModes mapMode = MapModes.POLITICAL;
 
-    public void updateAllColors(){
+    public void updateAllColors(bool updateOcean = false){
         // LAGGY
         foreach (var entry in tiles){
+            if (entry.Value.terrain.water && !updateOcean){
+                continue;
+            }
             // Goes through every tile and updates its color
             updateColor(entry.Key);
         }
@@ -454,15 +460,7 @@ public class TileManager : MonoBehaviour
         
         void ColorTerrain(){
             // If the tile isnt owned, just sets the color to the color of the terrain
-            finalColor = tile.terrain.biome.biomeColor;
-            switch (tile.terrain.heightType){
-                case Terrain.HeightTypes.HILL:
-                    finalColor = finalColor * 0.9f + Color.black * 0.1f;
-                    break;
-                case Terrain.HeightTypes.MOUNTAIN:
-                    finalColor = finalColor * 0.7f + Color.black * 0.3f;
-                    break;
-            }   
+            finalColor = tile.terrain.color;   
         }
         
         // Higlights selected nation

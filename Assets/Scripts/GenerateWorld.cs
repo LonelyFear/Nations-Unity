@@ -144,12 +144,13 @@ public class GenerateWorld : MonoBehaviour
                 // Sets terrain to default
                 
                 // Instantiates a tile
-                var newTile = new Tile(){
-                    terrain = SetTerrain(x,y)
-                };
+                Tile newTile = new Tile();
+                newTile.tileData.terrain = SetTerrain(x,y);
+
 
                 // Adds the tile to the tile manager
                 tiles.Add(cellPos, newTile);
+                GetComponent<TileManager>().tileDatas.Add(newTile.tileData);
             }
         }
         FinalChecks();
@@ -159,6 +160,7 @@ public class GenerateWorld : MonoBehaviour
         print("Land %: " + Mathf.RoundToInt(landTiles / (worldSize.x * worldSize.y) * 100) + "%");
 
         GetComponent<TileManager>().tiles = tiles;
+        
     }
 
     void FinalChecks(){
@@ -167,8 +169,8 @@ public class GenerateWorld : MonoBehaviour
             Vector3Int pos = entry.Key;
             for (int ox = -1; ox <= 1; ox++){
                 for (int oy = -1; oy <= 1; oy++){
-                    if (getTile(pos + new Vector3Int(ox, oy)) != null && getTile(pos + new Vector3Int(ox, oy)).terrain.water){
-                        tile.coastal = true;
+                    if (getTile(pos + new Vector3Int(ox, oy)) != null && getTile(pos + new Vector3Int(ox, oy)).tileData.terrain.water){
+                        tile.tileData.coastal = true;
                         break;
                     }
                 }

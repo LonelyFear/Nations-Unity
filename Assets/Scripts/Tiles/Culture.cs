@@ -1,7 +1,7 @@
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
-public class Culture
+public struct Culture
 {
     public Color color;
     public int population;

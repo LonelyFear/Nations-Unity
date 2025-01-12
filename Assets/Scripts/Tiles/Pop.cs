@@ -23,12 +23,14 @@ public class Pop
     public PopManager.PopStates status = PopManager.PopStates.MIGRATORY;
 
     public void Tick(){
-        GrowPopulation();
+        if (population > 0){
+            GrowPopulation();
+        }
     }
 
     void GrowPopulation(){
-        float bRate = birthRate;
-        float dRate = deathRate;
+        float bRate = birthRate/TimeManager.ticksPerYear;
+        float dRate = deathRate/TimeManager.ticksPerYear;
         if (population < 2){
             bRate = 0f;
         }
@@ -44,4 +46,8 @@ public class Pop
 
         popManager.ChangePopulation(this, totalGrowth);
     }
+}
+
+public struct PopData{
+
 }

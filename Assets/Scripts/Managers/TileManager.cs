@@ -44,7 +44,7 @@ public class TileManager : MonoBehaviour
     [SerializeField] PopManager popManager;
 
     public void Awake(){
-        TimeEvents.tick += Tick;
+        Events.tick += Tick;
     }
     public void Init(){
         // Goes thru the tiles
@@ -53,7 +53,7 @@ public class TileManager : MonoBehaviour
             Vector3Int tilePos = entry.Key;
             // Sets their tile positions
             tile.tilePos = tilePos;
-            TimeEvents.tick += tile.Tick;
+            Events.tileTick += tile.Tick;
             tile.tileManager = this;
 
             for (int x = -1; x <= 1; x++){
@@ -127,6 +127,8 @@ public class TileManager : MonoBehaviour
         if (Random.Range(0f, 1f) < 0.75f){
             //creationTick();
         }
+        Events.TickPops();
+        Events.TickTiles();
 
         // Each game tick nations can expand into neutral lands
         neutralExpansion();
@@ -193,13 +195,13 @@ public class TileManager : MonoBehaviour
                                 // If both of these are true
                                 if (claimable){
                                     // If the tile isnt yet anarchic
-                                    if (!anarchy && canExpand){
-                                        if (tile.state != null){
-                                            // Uhh, controlled anarchy?
-                                            addAnarchy(pos);
-                                        }
-                                    }
-                                    else if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.fertility){
+                                    // if (!anarchy && canExpand){
+                                    //     if (tile.state != null){
+                                    //         // Uhh, controlled anarchy?
+                                    //         addAnarchy(pos);
+                                    //     }
+                                    // }
+                                    if (anarchy && isState && Random.Range(0f, 1f) < anarchyConquestChance * target.terrain.fertility){
                                         // COLONIALISM!!!!!!!!!!!!!!
                                         tile.state.AddTile(pos);
                                     }
@@ -247,7 +249,7 @@ public class TileManager : MonoBehaviour
         // And adds the very first tile :D
         newState.AddTile(pos);
         // Connects the tile to ticks
-        TimeEvents.tick += newState.Tick;
+        Events.tick += newState.Tick;
     }
 
     public void Border(Vector3Int position){
@@ -583,7 +585,4 @@ public class TileManager : MonoBehaviour
             }
         }
     }
-
-    // Updates the tile's border bool
-
 }

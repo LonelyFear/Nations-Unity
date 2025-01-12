@@ -14,11 +14,14 @@ using Random = UnityEngine.Random;
 using UnityEngine.Jobs;
 using System.ComponentModel.Design.Serialization;
 using System.Runtime.InteropServices;
+using Unity.Entities.UniversalDelegates;
 
 public class PopManager : MonoBehaviour
 {   
     public List<Pop> pops = new List<Pop>();
     public int worldPopulation;
+    public int worldWorkforce;
+    public float worldRatio;
     int currentIndex;
 
     // Constants
@@ -30,7 +33,7 @@ public class PopManager : MonoBehaviour
 
     public void Awake(){
         //populations = new int[99999];
-        TimeEvents.tick += Tick;
+        //Events.tick += Tick;
     }
 
     public enum PopStates {
@@ -39,15 +42,35 @@ public class PopManager : MonoBehaviour
     }
 
     public void Tick(){
+        //print(pops.Count);
     }
 
-    public void CreatePop(int population, Culture culture, Tile tile = null, Tech tech = null, float workforceRatio = 0.25f){
+    void GrowPop(Pop pop){
+        float bRate = pop.birthRate/TimeManager.ticksPerYear;
+        float dRate = pop.deathRate/TimeManager.ticksPerYear;
+        if (pop.population < 2){
+            bRate = 0f;
+        }
+        if (pop.tile.population > 10000){
+            bRate *= 0.75f;
+        }
+        float natutalGrowthRate = bRate - dRate;
+        int totalGrowth = Mathf.RoundToInt(pop.population * natutalGrowthRate);
+        
+        if (Random.Range(0f, 1f) < Mathf.Abs(pop.population * natutalGrowthRate) % 1){
+            totalGrowth += (int)Mathf.Sign(totalGrowth);
+        }
+
+        ChangePopulation(pop, totalGrowth);
+    }
+
+    public Pop CreatePop(int population, Culture culture, Tile tile = null, Tech tech = null, float workforceRatio = 0.25f){
         if (population > 0){
             Pop pop = new Pop();
 
             // Updates Lists
             pops.Add(pop);
-            TimeEvents.tick += pop.Tick;
+            Events.popTick += pop.Tick;
 
             pop.index = currentIndex;
             currentIndex++;
@@ -69,30 +92,19 @@ public class PopManager : MonoBehaviour
             if (tile != null){
                 SetPopTile(pop, tile);
             }
+            return pop;
         }
-
+        return null;
     }
 
     bool SimilarPops(int indexA, int indexB){
         Pop a = pops[indexA];
         Pop b = pops[indexB];
-        if (a == null || b == null || a == b){
+        if (Tech.CheckSimilarity(a.tech, b.tech) && Culture.CheckSimilarity(a.culture, b.culture) && a.tile == b.tile){
             return false;
         }
 
         return true;
-    }
-    bool MergePops(int indexA, int indexB){
-        Pop a = pops[indexA];
-        Pop b = pops[indexB];
-        bool merged = false;
-        if (SimilarPops(indexA, indexB)){
-            ChangePopulation(a, a.population);
-            ChangePopulation(b, -a.population);
-            merged = true;
-        }
-
-        return merged;
     }
 
     public void ChangePopulation(Pop pop, int amount, float workforceRatio = 0.25f){
@@ -104,9 +116,10 @@ public class PopManager : MonoBehaviour
         if (population + amount < 1){
             totalChange = -population;
         }
-        int workforceChange = Mathf.FloorToInt((float)population * workforceRatio);
-        if (Random.Range(0f, 1f) < Mathf.Abs((float)population * workforceRatio) % 1){
-            workforceChange += 1;
+
+        int workforceChange = Mathf.FloorToInt(totalChange * workforceRatio);
+        if (Random.Range(0f, 1f) < Mathf.Abs(totalChange * workforceRatio) % 1){
+            workforceChange += (int)Mathf.Sign(totalChange);
         }
 
         pop.population += totalChange - workforceChange;
@@ -132,12 +145,14 @@ public class PopManager : MonoBehaviour
         }
 
         pop.population += totalChange;
+        pop.workforce += totalChange;
         if (pop.tile != null){
             pop.tile.ChangeWorkforce(totalChange);
             pop.tile.ChangePopulation(totalChange);
         }
         
         worldPopulation += totalChange;
+        worldWorkforce += totalChange;
     }
 
     public void DeletePop(Pop pop){

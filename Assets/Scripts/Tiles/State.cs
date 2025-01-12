@@ -70,7 +70,7 @@ public class State
                             targetState = state,
                             state = this
                         };
-                        TimeEvents.tick += newFront.Tick;
+                        Events.tick += newFront.Tick;
 
                         fronts.Add(state, newFront);
                         

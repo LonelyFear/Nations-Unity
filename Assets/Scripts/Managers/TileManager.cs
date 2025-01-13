@@ -135,6 +135,7 @@ public class TileManager : MonoBehaviour
         }
         Events.TickPops();
         Events.TickTiles();
+        Events.TickStates();
 
         // Each game tick nations can expand into neutral lands
         neutralExpansion();
@@ -255,7 +256,7 @@ public class TileManager : MonoBehaviour
         // And adds the very first tile :D
         newState.AddTile(pos);
         // Connects the tile to ticks
-        Events.tick += newState.Tick;
+        Events.stateTick += newState.Tick;
     }
 
     public void Border(Vector3Int position){

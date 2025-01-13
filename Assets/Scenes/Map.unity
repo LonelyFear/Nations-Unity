@@ -1741,7 +1741,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraSpeed: 0
   moveDamping: 3
-  cameraSize: 83.39
+  cameraSize: 84.4
   minZoom: 6
   maxZoom: 120
   zoomDamping: 3

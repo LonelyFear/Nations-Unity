@@ -56,17 +56,19 @@ public class TileManager : MonoBehaviour
             Vector3Int tilePos = tiles.ElementAt(i).Key;
             // Sets their tile positions
             tile.tileData.tilePos = tilePos;
+            tile.tileData.anarchy = false;
             Events.tileTick += tile.Tick;
             tile.tileManager = this;
             tile.GetMaxPopulation();
-            tile.tileData.borderingIndexes = new Unity.Collections.LowLevel.Unsafe.UnsafeList<int>(1, Allocator.Persistent);
+            tile.tileData.borderingData = new Unity.Collections.LowLevel.Unsafe.UnsafeList<TileStruct>(1, Allocator.Persistent);
+            tile.tileData.pops = new Unity.Collections.LowLevel.Unsafe.UnsafeList<Pop>(1, Allocator.Persistent);
 
             for (int x = -1; x <= 1; x++){
                 for (int y = -1; y <= 1; y++){
                     Tile borderTile = getTile(new Vector3Int(x, y) + tilePos);
                     if (borderTile != null){
                         tile.borderingTiles.Add(borderTile);
-                        tile.tileData.borderingIndexes.Add(i);
+                        tile.tileData.borderingData.Add(borderTile.tileData);
                     }
                 }
             }
@@ -162,7 +164,7 @@ public class TileManager : MonoBehaviour
             Culture culture = new Culture(){
                 color = new Color(r, g, b, 1f)
             };
-            popManager.CreatePop(Mathf.FloorToInt(500 * tile.tileData.terrain.fertility), culture, tile.tileData);
+            PopManager.CreatePop(Mathf.FloorToInt(500 * tile.tileData.terrain.fertility), culture, tile);
         }
     }
 

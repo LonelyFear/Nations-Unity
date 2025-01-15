@@ -19,10 +19,10 @@ public struct Pop
     public int index;
     public PopManager.PopStates status;
 
-    // public static bool SimilarPops(Pop a, Pop b){
-    //     if (Tech.CheckSimilarity(a.tech, b.tech) && Culture.CheckSimilarity(a.culture, b.culture)){
-    //         return false;
-    //     }
-    //     return true;
-    // }
+    public static bool SimilarPops(Pop a, Pop b){
+         if (Tech.CheckSimilarity(a.tech, b.tech) && Culture.CheckSimilarity(a.culture, b.culture)){
+             return false;
+         }
+         return true;
+    }
 }

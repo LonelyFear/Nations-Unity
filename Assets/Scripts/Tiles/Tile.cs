@@ -24,7 +24,7 @@ public class Tile
 
     // Stats & Data
     public Pop rulingPop;
-    public TileStruct tileData;
+    public TileStruct tileData = new TileStruct();
 
     public void Tick(){
         GetMaxPopulation();
@@ -36,11 +36,15 @@ public class Tile
                 tileData.development = 1f;
             }
             //Debug.Log(development);
-        }
-        if (tileData.population >= 50 && state == null && !tileData.anarchy){
+        };
+        if (tileData.population >= 50 && state == null && !tileData.anarchy){ 
             tileManager.addAnarchy(tileData.tilePos);
         } else if (tileData.population < 50 && tileData.anarchy){
             tileManager.RemoveAnarchy(tileData.tilePos);
+        }
+
+        if (tileData.changeAmount != 0){
+            ChangePopulation(tileData.changeAmount);
         }
     }
     public void GetMaxPopulation(){
@@ -82,8 +86,13 @@ public struct TileStruct{
     public Culture majorityCulture;
     public Tech tech;
     public float development;
-    public UnsafeList<int> borderingIndexes;
+    public UnsafeList<TileStruct> borderingData;
+    public UnsafeList<Pop> pops;
     public Vector3Int tilePos;
     public bool coastal;
-    public bool anarchy;  
+    public bool anarchy;
+    public int changeAmount;
+    public void ChangePopulation(int amount){
+        changeAmount = amount;
+    }  
 }
